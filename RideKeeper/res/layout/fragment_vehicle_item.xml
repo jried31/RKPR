@@ -1,0 +1,76 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:padding="6dip" >
+
+    <ImageView
+        android:id="@+id/vehicle_item_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="6dip"
+        android:contentDescription="TODO"
+        android:src="@drawable/motorcycle" />
+    
+     <LinearLayout
+        android:id="@+id/bottomrow"
+        android:layout_width="fill_parent"
+        android:layout_height="26dip"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/vehicle_item_photo"
+        android:weightSum="1"
+        android:gravity="center_vertical" >
+        
+    <TextView
+        android:id="@+id/vehicle_item_year"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+    	android:layout_weight="0.5"
+        android:ellipsize="marquee"
+        android:singleLine="true"
+        android:text="Year"
+        android:textSize="12sp" />
+    <TextView
+        android:id="@+id/vehicle_item_status"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+    	android:layout_weight="0.5"
+        android:singleLine="true"
+        android:text="Status"
+        android:textSize="12sp" />
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/bottomrow"
+        android:orientation="horizontal"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_toRightOf="@id/vehicle_item_photo"
+        android:weightSum="1"
+        android:gravity="center_vertical" >
+    
+        <TextView
+        android:id="@+id/vehicle_item_make"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="MAke "
+    	android:layout_weight="0.5"
+        android:textSize="16sp" />
+        
+    	<TextView
+        android:id="@+id/vehicle_item_model"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+    android:layout_weight="0.5"
+        android:text="Model "
+        android:textSize="16sp" />
+    </LinearLayout>
+    
+</RelativeLayout> 
