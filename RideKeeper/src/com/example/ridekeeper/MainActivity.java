@@ -179,6 +179,9 @@ public class MainActivity extends Activity {
         Fragment fragment=null;
         
     	switch(position){
+    	case DBGlobals.MAP:
+    		fragment = new MapFragment();
+    		break;
     	case DBGlobals.MY_PROFILE:
     		fragment = new MyProfileFragment();
     		break;

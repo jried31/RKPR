@@ -21,10 +21,26 @@
 
     <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="17" />
 
+    <permission
+        android:name="com.example.ridekeeper.permission.MAPS_RECEIVE"
+        android:protectionLevel="signature" />
+        
+	<uses-permission android:name="com.example.ridekeeper.permission.MAPS_RECEIVE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    
     <application
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
-        android:theme="@android:style/Theme.Holo.Light.DarkActionBar">
+        android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
+        android:name=".App">
 
         <activity
             android:name="com.example.ridekeeper.MainActivity"
@@ -35,6 +51,27 @@
             </intent-filter>
         </activity>
 
+		
+		<!-- Google Map API registration -->
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyD_D0CsoNSls7XkV2mRHKpQQD31gS0XxIg" />
+        
+        
+        <!-- Android Broadcast receiver -->
+        <receiver android:name=".MyBroadcastReceiver"></receiver>
+        
+        
+        <!-- Parse Service -->
+        <service android:name="com.parse.PushService" />
+        <receiver android:name="com.parse.ParseBroadcastReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+        </receiver>
+        
     </application>
-	<uses-permission android:name="android.permission.INTERNET" />
+    
+
 </manifest>
