@@ -150,4 +150,11 @@ public class HelperFuncs {
 		VBS.put("lng", -77.293853);
 		VBS.saveInBackground();
 	}
+	
+	public static void removeAllMarker(){
+		while (myMarkerList.size()>0){
+			myMarkerList.get(0).remove();
+			myMarkerList.remove(0);
+		}
+	}
 }

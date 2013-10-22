@@ -11,7 +11,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.MapView;
-
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -23,9 +22,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
-
-
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -39,6 +35,7 @@ public class MapFragment extends Fragment implements OnMarkerClickListener, Loca
 	private Marker mMarker;
 	private Bundle mBundle;
 	
+	private boolean canRunVBSQuery = false;
 	
     public Fragment newInstance(Context context) {
     	MapFragment f = new MapFragment();
@@ -75,6 +72,11 @@ public class MapFragment extends Fragment implements OnMarkerClickListener, Loca
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng , 15f));
   		}
   		
+  		//Start dynamically showing markers on the map
+        canRunVBSQuery = true;
+        HelperFuncs.removeAllMarker();
+        mHandler.postDelayed(runQueryVBS, 1000);
+  		
   		//Add a test marker on the map
   		/*
   		MarkerOptions markerOption = new MarkerOptions();
@@ -85,9 +87,6 @@ public class MapFragment extends Fragment implements OnMarkerClickListener, Loca
   		
   		//for demo: moving the marker in the map
   		//updateMarker();
-  		
-  		
-  		handlerQueryVBS.post(runQueryVBS);
         
         return view;
     }
@@ -104,18 +103,23 @@ public class MapFragment extends Fragment implements OnMarkerClickListener, Loca
     	// TODO Auto-generated method stub
     	super.onResume();
     	mMapView.onResume();
+    	canRunVBSQuery = true;
     }
     
     @Override
     public void onPause() {
     	// TODO Auto-generated method stub
     	super.onPause();
+    	
     	mMapView.onPause();
+    	canRunVBSQuery = false;
     }
     
     @Override
     public void onDestroy() {
     	// TODO Auto-generated method stub
+    	mHandler.removeCallbacksAndMessages(null);
+    	HelperFuncs.removeAllMarker();		//Only need to remove onCreate
     	mMapView.onDestroy();
     	super.onDestroy();
     }
@@ -189,6 +193,9 @@ public class MapFragment extends Fragment implements OnMarkerClickListener, Loca
 					}
 				}
 				
+				if (canRunVBSQuery)
+					mHandler.postDelayed(runQueryVBS, 3000); //Refresh rate = 3 seconds if no error
+				
 			}else{ //error occurred
 				Toast.makeText(getActivity(), "Error querying Parse server", Toast.LENGTH_SHORT).show();
 				HelperFuncs.myVBSList.removeAll(objects);
@@ -197,24 +204,23 @@ public class MapFragment extends Fragment implements OnMarkerClickListener, Loca
 					HelperFuncs.myMarkerList.get(i).remove();
 					HelperFuncs.myMarkerList.remove(i);
 				}
+				
+				if (canRunVBSQuery)
+					mHandler.postDelayed(runQueryVBS, 15000);  //Refresh rate = 15 seconds if error occurs
 			}
-			
-			handlerQueryVBS.postDelayed(runQueryVBS, 3500);
 		}
-		
 	};
 	
 
-	final Handler handlerQueryVBS = new Handler();
+	//Dynamically update VBS on map
+	final Handler mHandler = new Handler();
     final Runnable runQueryVBS = new Runnable() {
-		@Override
+    	@Override
 		public void run() {
 			// TODO Turn Internet connection on if needed
-			
+    		
 			//Toast.makeText(context, "Querying VBS", Toast.LENGTH_SHORT).show();
 			//Query Parse server for nearby VBS
-			
-
 			if (HelperFuncs.myLocation == null){
 				HelperFuncs.myLocation = HelperFuncs.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 			}
@@ -226,9 +232,9 @@ public class MapFragment extends Fragment implements OnMarkerClickListener, Loca
 		}
 	};
 	
+
 	
-		
-		
+	
 	//For demo: update the marker
 		public void updateMarker(){
 			final Handler handler = new Handler();
