@@ -69,8 +69,6 @@ import android.widget.Toast;
  * for example enabling or disabling a data overlay on top of the current content.</p>
  */
 public class MainActivity extends Activity {
-	private MyBroadcastReceiver broadcastReceiver; //For receiving wake lock and do routine check
-	
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -78,13 +76,11 @@ public class MainActivity extends Activity {
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private String[] mPlanetTitles;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        broadcastReceiver = new MyBroadcastReceiver();
         
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = getResources().getStringArray(R.array.planets_array);
@@ -169,7 +165,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    /* The click listner for ListView in the navigation drawer */
+    /* The click listener for ListView in the navigation drawer */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -219,7 +215,7 @@ public class MainActivity extends Activity {
      * onPostCreate() and onConfigurationChanged()...
      */
 
-    @Override
+    @Override()
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
@@ -241,20 +237,18 @@ public class MainActivity extends Activity {
     	// Stop alarm tone and vibration
     	HelperFuncs.stopAlarmTone();
     	HelperFuncs.StopVibration();
-		
+
     	//stop broadcastReceiver when app is active
-    	broadcastReceiver.CancelAlarm(this.getApplicationContext());
+    	HelperFuncs.bReceiver.CancelAlarm(this);
     }
     
-    @Override
-    protected void onStop() {
-    	// TODO Auto-generated method stub
-    	
-    	super.onStop();
-    	//start broadcastReceiver when app become inactive
-    	broadcastReceiver.setRepeatingAlarm(this.getApplicationContext());
-    }
 
+    @Override
+    protected void onPause() {
+    	// TODO Auto-generated method stub
+    	HelperFuncs.bReceiver.setRepeatingAlarm(this);
+    	super.onPause();
+    }
 
     /**
      * Fragment that appears in the "content_frame", shows a planet
@@ -283,14 +277,13 @@ public class MainActivity extends Activity {
     }
     */
     
-    
     //Functions for testing:
 	// Start/Stop MyBroadcastReceiver.routineCheck();
 	public void startBroadcastReceiver(View v){
-    	broadcastReceiver.setRepeatingAlarm(this.getApplicationContext());
+		//HelperFuncs.startBroadcastReceiver(getApplicationContext());
 	}
 	public void stopBroadcastReceiver(View v){
-		broadcastReceiver.CancelAlarm(this.getApplicationContext());
+		//HelperFuncs.stopBroadcastReceiver(getApplicationContext());
 	}
 	
 	public void test(View v){

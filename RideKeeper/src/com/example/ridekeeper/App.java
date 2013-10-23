@@ -6,6 +6,7 @@ import android.app.Application;
 import android.content.Context;
 import android.location.LocationManager;
 import android.os.Vibrator;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.Marker;
 import com.parse.Parse;
@@ -19,12 +20,8 @@ public class App extends Application{
         				"BJy2YJJA26jnRBalYHQ0VXVtHuZpERFcYqJh1n6S"); 	//Client Key
         
         //Initialize some HelperFuncs obj
-        HelperFuncs.initialAlarmTone(this);
-        HelperFuncs.initialVibrator(this);
-        
-        HelperFuncs.myMarkerList = new ArrayList<Marker>();
-        HelperFuncs.locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        HelperFuncs.myLocation = HelperFuncs.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        
+        //Toast.makeText(this, "Application start", Toast.LENGTH_SHORT).show();
+        HelperFuncs.initialize(this);
     }
+	
 }

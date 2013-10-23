@@ -1,5 +1,7 @@
 package com.example.ridekeeper;
 
+import java.text.BreakIterator;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -18,6 +20,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.Marker;
 import com.parse.FindCallback;
@@ -30,12 +33,26 @@ public class HelperFuncs {
 	private static Ringtone alarmTone;
 	private static Vibrator myVibrator;
 	private static long[] vibrationPattern = {0, 200, 500, 100, 0, 0, 0, 0};
+	public static MyBroadcastReceiver bReceiver;
 	
 	public static LocationManager locationManager;
 	public static Location myLocation;
 	
 	public static List<ParseObject> myVBSList;
 	public static List<Marker> myMarkerList;
+	
+	public static void initialize(Context context){
+        bReceiver = new MyBroadcastReceiver(); //For receiving wake lock and do routine check
+        initialAlarmTone(context);
+        initialVibrator(context);
+
+        myMarkerList = new ArrayList<Marker>();
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        myLocation = HelperFuncs.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        
+        //bReceiver.disable(context);
+        //bReceiver.setRepeatingAlarm(context);
+	}
 	
 	public static void CreateNotif(Context context, String title, String contentText){
 		NotificationCompat.Builder notifBuilder =
