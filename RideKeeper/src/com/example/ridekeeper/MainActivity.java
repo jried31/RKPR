@@ -69,6 +69,8 @@ import android.widget.Toast;
  * for example enabling or disabling a data overlay on top of the current content.</p>
  */
 public class MainActivity extends Activity {
+	private MyBroadcastReceiver broadcastReceiver; //For receiving wake lock and do routine check
+	
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -82,6 +84,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        broadcastReceiver = new MyBroadcastReceiver();
+        
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = getResources().getStringArray(R.array.planets_array);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -228,8 +232,30 @@ public class MainActivity extends Activity {
         // Pass any configuration change to the drawer toggls
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
-
     
+    @Override
+    protected void onResume() {
+    	// TODO Auto-generated method stub
+    	super.onResume();
+    	
+    	// Stop alarm tone and vibration
+    	HelperFuncs.stopAlarmTone();
+    	HelperFuncs.StopVibration();
+		
+    	//stop broadcastReceiver when app is active
+    	broadcastReceiver.CancelAlarm(this.getApplicationContext());
+    }
+    
+    @Override
+    protected void onStop() {
+    	// TODO Auto-generated method stub
+    	
+    	super.onStop();
+    	//start broadcastReceiver when app become inactive
+    	broadcastReceiver.setRepeatingAlarm(this.getApplicationContext());
+    }
+
+
     /**
      * Fragment that appears in the "content_frame", shows a planet
      */
@@ -256,4 +282,18 @@ public class MainActivity extends Activity {
         }
     }
     */
+    
+    
+    //Functions for testing:
+	// Start/Stop MyBroadcastReceiver.routineCheck();
+	public void startBroadcastReceiver(View v){
+    	broadcastReceiver.setRepeatingAlarm(this.getApplicationContext());
+	}
+	public void stopBroadcastReceiver(View v){
+		broadcastReceiver.CancelAlarm(this.getApplicationContext());
+	}
+	
+	public void test(View v){
+		HelperFuncs.playAlarmTone();
+	}
 }

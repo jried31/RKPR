@@ -27,16 +27,15 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 public class HelperFuncs {
+	private static Ringtone alarmTone;
+	private static Vibrator myVibrator;
+	private static long[] vibrationPattern = {0, 200, 500, 100, 0, 0, 0, 0};
+	
 	public static LocationManager locationManager;
+	public static Location myLocation;
 	
 	public static List<ParseObject> myVBSList;
 	public static List<Marker> myMarkerList;
-	
-	
-	
-	public static Location myLocation;
-	public static Ringtone alarmTone;
-	
 	
 	public static void CreateNotif(Context context, String title, String contentText){
 		NotificationCompat.Builder notifBuilder =
@@ -95,9 +94,16 @@ public class HelperFuncs {
 		locationManager.removeUpdates(locationListener);
 	}
 	
-	public static void vibratePhone(Context context){
-		Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-		v.vibrate(300);
+	public static void initialVibrator(Context context){
+		myVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+	}
+	
+	public static void StartVibration(){
+		myVibrator.vibrate(vibrationPattern, 0);
+	}
+	
+	public static void StopVibration(){
+		myVibrator.cancel();
 	}
 
 	public static void initialAlarmTone(Context context){
@@ -108,6 +114,11 @@ public class HelperFuncs {
 	public static void playAlarmTone(){
 		if (alarmTone!=null)
 			alarmTone.play();
+	}
+	
+	public static void stopAlarmTone(){
+		if (HelperFuncs.alarmTone!=null && HelperFuncs.alarmTone.isPlaying())
+			HelperFuncs.alarmTone.stop();
 	}
 	
 	//Query for any stolen vehicle that is within a certain miles

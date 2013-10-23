@@ -29,7 +29,6 @@ import com.parse.ParseObject;
 
 
 public class MapFragment extends Fragment implements OnMarkerClickListener, LocationListener {
-
 	private GoogleMap mMap;
 	private MapView mMapView;
 	private Marker mMarker;
