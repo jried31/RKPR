@@ -66,6 +66,8 @@ public class MapFragment extends Fragment implements OnMarkerClickListener, Loca
   		
   		
   		//Move camera to current phone's location
+  		HelperFuncs.getLastGoodLoc();
+  		
   		if (HelperFuncs.myLocation!=null){
   			LatLng myLatLng = new LatLng( HelperFuncs.myLocation.getLatitude(), HelperFuncs.myLocation.getLongitude() );
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng , 15f));
@@ -221,13 +223,15 @@ public class MapFragment extends Fragment implements OnMarkerClickListener, Loca
 			//Toast.makeText(context, "Querying VBS", Toast.LENGTH_SHORT).show();
 			//Query Parse server for nearby VBS
 			if (HelperFuncs.myLocation == null){
-				HelperFuncs.myLocation = HelperFuncs.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-			}
-			
-			HelperFuncs.queryForVBS_NonBlocked(	HelperFuncs.myLocation.getLatitude(),
+				HelperFuncs.getLastGoodLoc();
+				
+				mHandler.postDelayed(runQueryVBS, 3000);
+			}else{
+				HelperFuncs.queryForVBS_NonBlocked(	HelperFuncs.myLocation.getLatitude(),
 												HelperFuncs.myLocation.getLongitude(),
 												10, //search within 10 miles radius
 												queryVBSCallback);
+			}
 		}
 	};
 	

@@ -75,9 +75,17 @@ public class HelperFuncs {
 		notifManager.notify(0, notifBuilder.build());
 	}
 	
+	public static void getLastGoodLoc(){
+		myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		if (myLocation == null){
+			myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		}
+	}
+	
 	public static void getLocation_Blocked(Context context){
 		LocationListener locationListener = new LocationListener() {
 			public void onLocationChanged(Location location) {
+				myLocation = location;
 			}
 
 			public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -88,18 +96,18 @@ public class HelperFuncs {
 		};
 		
 		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0, locationListener);
+		//10 seconds timeout for GPS lock
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, locationListener);
 		int counter = 0;
 		
 		//Block until we have a GPS lock or timeout
 		while (myLocation==null || myLocation.getTime() < Calendar.getInstance().getTimeInMillis() - 2*60*1000){
 			myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 			
-			
-			if (counter >= 10) break; //Timeout = 5 seconds
+			if (counter >= 10) break; //Timeout = 10 seconds
 			
 			try {
-				Thread.sleep(500);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
