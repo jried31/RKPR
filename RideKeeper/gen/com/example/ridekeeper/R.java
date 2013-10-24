@@ -196,25 +196,25 @@ containing a value of this type.
         public static final int ButtonCancel=0x7f050018;
         public static final int ButtonChange=0x7f050012;
         public static final int ButtonSave=0x7f050017;
-        public static final int action_websearch=0x7f050023;
+        public static final int action_websearch=0x7f050022;
         public static final int bottomrow=0x7f05001a;
         public static final int button_change=0x7f05000b;
         public static final int button_save=0x7f05000f;
         public static final int buttonlayout=0x7f050009;
         public static final int content_frame=0x7f050006;
         public static final int drawer_layout=0x7f050005;
-        public static final int edit_item=0x7f050024;
+        public static final int edit_item=0x7f050023;
         public static final int hybrid=0x7f050004;
         public static final int image=0x7f050010;
         public static final int left_drawer=0x7f050007;
         public static final int mainLayout=0x7f050008;
-        public static final int map=0x7f050022;
+        public static final int map=0x7f050021;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
-        public static final int profile_email=0x7f050021;
-        public static final int profile_name=0x7f050020;
+        public static final int profile_email=0x7f050020;
+        public static final int profile_name=0x7f05001f;
         public static final int profile_vehicle_photo=0x7f050011;
-        public static final int remove_item=0x7f050025;
+        public static final int remove_item=0x7f050024;
         public static final int satellite=0x7f050002;
         public static final int terrain=0x7f050003;
         public static final int user_profile_email=0x7f05000d;
@@ -227,7 +227,6 @@ containing a value of this type.
         public static final int vehicle_item_status=0x7f05001c;
         public static final int vehicle_item_year=0x7f05001b;
         public static final int vehicle_liscense=0x7f050016;
-        public static final int vehicle_list_view=0x7f05001f;
         public static final int vehicle_make=0x7f050013;
         public static final int vehicle_model=0x7f050014;
         public static final int vehicle_year=0x7f050015;
@@ -239,9 +238,8 @@ containing a value of this type.
         public static final int fragment_planet=0x7f030003;
         public static final int fragment_vehicle_form=0x7f030004;
         public static final int fragment_vehicle_item=0x7f030005;
-        public static final int fragment_vehicle_list=0x7f030006;
-        public static final int fragment_vehicle_view=0x7f030007;
-        public static final int map_fragment=0x7f030008;
+        public static final int fragment_vehicle_view=0x7f030006;
+        public static final int map_fragment=0x7f030007;
     }
     public static final class menu {
         public static final int main=0x7f080000;

@@ -3,7 +3,7 @@ package com.example.ridekeeper;
  class DBGlobals {
     public static final String DB_SCHEMA_NAME = "RIDEKEEPER";
 	public static final int 
-					VBS=0,
+					VBS_LIST=0,
 					MAP=1,
 					CHAT_ROOM=2,
 					MY_PROFILE=3,

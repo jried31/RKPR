@@ -197,7 +197,7 @@ public class MapFragment extends Fragment implements OnMarkerClickListener, Loca
 				if (canRunVBSQuery)
 					mHandler.postDelayed(runQueryVBS, 3000); //Refresh rate = 3 seconds if no error
 				
-			}else{ //error occurred
+			}else{ //error occurred when query to Parse
 				Toast.makeText(getActivity(), "Error querying Parse server", Toast.LENGTH_SHORT).show();
 				HelperFuncs.myVBSList.removeAll(objects);
 

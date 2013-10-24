@@ -3,8 +3,7 @@ package com.example.ridekeeper;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-
-import com.example.ridekeeper.R;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -18,9 +17,9 @@ import android.widget.TextView;
 
 public class VehicleArrayAdapter extends ArrayAdapter<Vehicle> {
   private final Context context;
-  private final Vehicle[] values;
+  private List<Vehicle> values;
 
-  public VehicleArrayAdapter(Context context, Vehicle[] values) {
+  public VehicleArrayAdapter(Context context, List<Vehicle> values) {
     super(context, R.layout.fragment_vehicle_item, values);
     this.context = context;
     this.values = values;
@@ -40,7 +39,7 @@ public class VehicleArrayAdapter extends ArrayAdapter<Vehicle> {
     ImageView imageView = (ImageView) rowView.findViewById(R.id.vehicle_item_photo);
     
     //Assign values to widgets
-    Vehicle vehicle = values[position];
+    Vehicle vehicle = values.get(position);
     makeView.setText(vehicle.getMake());
     modelView.setText(vehicle.getModel());
     yearView.setText(vehicle.getYear());
@@ -62,4 +61,10 @@ public class VehicleArrayAdapter extends ArrayAdapter<Vehicle> {
 	
     return rowView;
   }
+  
+  @Override
+	public void add(Vehicle object) {
+		// TODO Auto-generated method stub
+		super.add(object);
+	}
 } 

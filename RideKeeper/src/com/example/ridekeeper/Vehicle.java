@@ -1,12 +1,12 @@
 package com.example.ridekeeper;
 
 public class Vehicle {
-	private String make=null,
-		model=null,
-		year=null,
-		license=null,
-		status=null,
-		photoURI=null;
+	private String make="",
+		model="",
+		year="",
+		license="",
+		status="",
+		photoURI="";
 
 	public String getPhotoURI(){
 		return photoURI;

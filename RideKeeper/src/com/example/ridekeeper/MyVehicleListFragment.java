@@ -43,9 +43,11 @@ public class MyVehicleListFragment extends android.app.ListFragment {
 		values[2].setLicense("dszge-wdfa");
 		values[2].setStatus("Unarmed");
 		values[2].setPhotoURI(getString(R.string.photo_filename));
-	    VehicleArrayAdapter adapter = new VehicleArrayAdapter(getActivity(), values);
-	    setListAdapter(adapter);
-	    /* listView = getListView();
+	    
+		//VehicleArrayAdapter adapter = new VehicleArrayAdapter(getActivity(), values);
+	    //setListAdapter(adapter);
+	    
+		/* listView = getListView();
 	    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 	    listView.setOnItemLongClickListener(new OnItemLongClickListener() {
 	        @Override
