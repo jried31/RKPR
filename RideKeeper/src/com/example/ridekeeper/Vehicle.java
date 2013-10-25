@@ -6,6 +6,7 @@ public class Vehicle {
 		year="",
 		license="",
 		status="",
+		UID="",
 		photoURI="";
 
 	public String getPhotoURI(){
@@ -54,6 +55,14 @@ public class Vehicle {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	
+	public void setUID(String uid){
+		this.UID = uid;
+	}
+	
+	public String getUID(){
+		return this.UID;
 	}
 	
 }

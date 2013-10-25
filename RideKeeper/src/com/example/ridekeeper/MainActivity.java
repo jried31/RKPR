@@ -163,7 +163,7 @@ public class MainActivity extends Activity implements LocationListener {
     		fragment = new VBSListFragment();
     		break;
     	case DBGlobals.MAP:
-    		fragment = new MapFragment();
+    		fragment = new GoogleMapFragment();
     		break;
     	case DBGlobals.MY_PROFILE:
     		fragment = new MyProfileFragment();

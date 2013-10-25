@@ -10,5 +10,6 @@ package com.example.ridekeeper;
 					MY_VEHICLE=4,
 					SETTINGS=5;
 	
-	
+	public static final double searchRadius = 10; //radius to scan for VBS (in miles)
+	public static final int vbsPosMapUpdateRate = 2000; //update rate for VBS position on the map (in ms);
 }

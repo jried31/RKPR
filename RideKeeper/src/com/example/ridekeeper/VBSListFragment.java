@@ -2,14 +2,29 @@ package com.example.ridekeeper;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.app.ListFragment;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import com.google.android.gms.maps.MapFragment;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
-import android.app.ListFragment;
-import android.os.Bundle;
-import android.os.Handler;
-import android.widget.Toast;
 
 
 public class VBSListFragment extends ListFragment{
@@ -30,10 +45,16 @@ public class VBSListFragment extends ListFragment{
 						mVehicleArrayAdapter.remove( mVehicleArrayAdapter.getItem(0) );
 					}					
 					
+					//Update each item in the list
 					for (int i=0; i < HelperFuncs.myVBSList.size(); i++){
-						ParseGeoPoint p =  HelperFuncs.myVBSList.get(i).getParseGeoPoint("pos");
-						mVehicleArrayAdapter.getItem(i).setMake( Double.toString(p.getLatitude()) );
-						mVehicleArrayAdapter.getItem(i).setModel( Double.toString(p.getLongitude()) );
+						ParseObject parseObj = HelperFuncs.myVBSList.get(i);
+						ParseGeoPoint p =  parseObj.getParseGeoPoint("pos");
+						
+						mVehicleArrayAdapter.getItem(i).setUID( parseObj.getObjectId() );
+						mVehicleArrayAdapter.getItem(i).setMake(parseObj.getObjectId() );
+						mVehicleArrayAdapter.getItem(i).setModel(	Double.toString(p.getLatitude())
+																	+ " " +
+																	Double.toString(p.getLongitude()) );
 					}
 				}else{ //No VBS nearby
 					mVehicleArrayAdapter.clear();
@@ -65,9 +86,9 @@ public class VBSListFragment extends ListFragment{
 				mHandler.postDelayed(runQueryVBS, 3000);
 			}else{
 				HelperFuncs.queryForVBS_NonBlocked(	HelperFuncs.myLocation.getLatitude(),
-												HelperFuncs.myLocation.getLongitude(),
-												10, //search within 10 miles radius
-												queryVBSCallback);
+													HelperFuncs.myLocation.getLongitude(),
+													DBGlobals.searchRadius,
+													queryVBSCallback);
 			}
 		}
 	};
@@ -81,16 +102,56 @@ public class VBSListFragment extends ListFragment{
 	    mVehicleArrayAdapter = new VehicleArrayAdapter(getActivity(), new ArrayList<Vehicle>());		
 		setListAdapter(mVehicleArrayAdapter);
 		
+		registerForContextMenu(getListView());
+		
 		//Dynamically update the list
 		mHandler.postDelayed(runQueryVBS, 1000);
-	}
-
+	}	
 
 	@Override
 	public void onDestroy() {
 		// TODO Auto-generated method stub
     	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the list
 		super.onDestroy();
+	}
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		//Creates the Edit menu for the specific option
+	    super.onCreateContextMenu(menu, v, menuInfo);
+	    MenuInflater inflater = getActivity().getMenuInflater();
+	    inflater.inflate(R.menu.menu_vbs_list, menu);
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+	    String uid = mVehicleArrayAdapter.getItem( info.position ).getUID();
+	    
+	    switch (item.getItemId()) {
+	    case R.id.menuItem_show_on_map:
+	    	//Show the google map as DialogFragment
+	    	FragmentTransaction ft = getFragmentManager().beginTransaction();
+	    	Fragment prev = getFragmentManager().findFragmentByTag("Map Dialog");
+	    	if (prev != null) {
+	    		ft.remove(prev);
+	    	}
+	    	ft.addToBackStack(null);
+	    	
+	    	//Putting the UID of the select vehicle to the Google Map fragment argument
+	    	DialogFragment googleMapFragment = new GoogleMapFragment();
+	    	Bundle args = new Bundle();
+	    	args.putString("UID", uid);
+	    	googleMapFragment.setArguments(args);
+	    	googleMapFragment.show(ft, "Map Dialog");
+	    	
+	    	return true;
+	    	
+	    case R.id.menuItem_chat_room:
+	    	Toast.makeText(getActivity(), "Not yet implemented", Toast.LENGTH_SHORT).show();
+	        return true;
+	    }
+	    return false;
 	}
 	
 }

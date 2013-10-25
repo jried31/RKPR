@@ -60,7 +60,7 @@
         android:id="@+id/vehicle_item_make"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="MAke "
+        android:text="Make "
     	android:layout_weight="0.5"
         android:textSize="16sp" />
         
