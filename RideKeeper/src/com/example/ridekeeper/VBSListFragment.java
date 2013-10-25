@@ -5,7 +5,6 @@ import java.util.List;
 
 import android.app.DialogFragment;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.os.Bundle;
@@ -16,11 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ListView;
 import android.widget.Toast;
-
-import com.google.android.gms.maps.MapFragment;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -29,10 +24,13 @@ import com.parse.ParseObject;
 
 public class VBSListFragment extends ListFragment{
 	private VehicleArrayAdapter mVehicleArrayAdapter;
+	private boolean canRunVBSQuery = false;
 	
 	private FindCallback<ParseObject> queryVBSCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
+			if (!canRunVBSQuery)
+				return;
 			
 			if (e== null){ // no error
 				HelperFuncs.myVBSList = objects;
@@ -59,14 +57,14 @@ public class VBSListFragment extends ListFragment{
 				}else{ //No VBS nearby
 					mVehicleArrayAdapter.clear();
 				}
-
+				
 				mHandler.postDelayed(runQueryVBS, 20000); //Refresh rate = 20 seconds if no error
 				
 			}else{ //error occurred when query to Parse
 				Toast.makeText(getActivity(), "Error querying Parse server", Toast.LENGTH_SHORT).show();
 				//HelperFuncs.myVBSList.removeAll(objects);
 				
-				mHandler.postDelayed(runQueryVBS, 20000);  //Refresh rate = 20 seconds if error occurs
+				mHandler.postDelayed(runQueryVBS, 30000);  //Refresh rate = 30 seconds if error occurs
 			}
 		}
 	};
@@ -80,7 +78,9 @@ public class VBSListFragment extends ListFragment{
     		
 			//Toast.makeText(context, "Querying VBS", Toast.LENGTH_SHORT).show();
 			//Query Parse server for nearby VBS
-			if (HelperFuncs.myLocation == null){
+    		if (!canRunVBSQuery){
+    			return;
+    		}else if (HelperFuncs.myLocation == null){
 				HelperFuncs.getLastGoodLoc();
 				
 				mHandler.postDelayed(runQueryVBS, 3000);
@@ -93,24 +93,38 @@ public class VBSListFragment extends ListFragment{
 		}
 	};
 
-
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onActivityCreated(savedInstanceState);
 
+		Toast.makeText(getActivity(), "VBSList: OnActivityCreated", Toast.LENGTH_SHORT).show();
+		
 	    mVehicleArrayAdapter = new VehicleArrayAdapter(getActivity(), new ArrayList<Vehicle>());		
 		setListAdapter(mVehicleArrayAdapter);
 		
 		registerForContextMenu(getListView());
 		
 		//Dynamically update the list
-		mHandler.postDelayed(runQueryVBS, 1000);
 	}	
 
 	@Override
+	public void onResume() {
+		super.onResume();
+		Toast.makeText(getActivity(), "VBSList: OnResume", Toast.LENGTH_SHORT).show();
+		canRunVBSQuery = true;
+		mHandler.postDelayed(runQueryVBS, 2000);
+	}
+	
+	@Override
+	public void onPause() {
+		Toast.makeText(getActivity(), "VBSList: OnPause", Toast.LENGTH_SHORT).show();
+		canRunVBSQuery = false;
+		super.onPause();
+	}
+	
+	@Override
 	public void onDestroy() {
-		// TODO Auto-generated method stub
     	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the list
 		super.onDestroy();
 	}

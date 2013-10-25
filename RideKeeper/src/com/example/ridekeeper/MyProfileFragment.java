@@ -28,8 +28,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.ridekeeper.R;
-
 import com.firebase.client.Firebase;
 
 public class MyProfileFragment extends Fragment {
@@ -87,7 +85,7 @@ public class MyProfileFragment extends Fragment {
 		    save.setOnClickListener(new View.OnClickListener() {
 		    	public void onClick(View v) {
 		    		//Save the Content to the Shared Preferences & Upload to Firebase
-		    		Toast.makeText(v.getContext(), "I've been clicked" ,4000).show();
+		    		Toast.makeText(v.getContext(), "I've been clicked" , Toast.LENGTH_SHORT).show();
 		    		
 		    		Editor editor = sharedPreferences.edit();
 		    		String nameVal = name.getText().toString(),
@@ -130,7 +128,7 @@ public class MyProfileFragment extends Fragment {
 	        change.setOnClickListener(new View.OnClickListener() {
 	        	public void onClick(View v) {
 	        		//Save the Content to the Shared Preferences & Upload to Firebase
-	        		Toast.makeText(v.getContext(), "Change I've been clicked" ,4000).show();
+	        		Toast.makeText(v.getContext(), "Change I've been clicked" , Toast.LENGTH_SHORT).show();
 	        		
 	        		final Activity parent = getActivity();
 	        		AlertDialog.Builder builder = new AlertDialog.Builder(parent);

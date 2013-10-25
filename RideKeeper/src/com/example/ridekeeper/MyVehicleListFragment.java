@@ -1,5 +1,7 @@
 package com.example.ridekeeper;
 
+import java.util.ArrayList;
+
 import com.example.ridekeeper.R;
 
 import android.os.Bundle;
@@ -18,34 +20,36 @@ public class MyVehicleListFragment extends android.app.ListFragment {
 		
 		//JERRID: GRAB THE VEHICLE VALUES FROM THE DB
 		
-		values = new Vehicle[3];
-		values[0]=new Vehicle();
-		values[0].setLicense("dfds-dfdss");
-		values[0].setMake("Honda");
-		values[0].setModel("Accord");
-		values[0].setYear("1998");
-		values[0].setStatus("Armed");
-		values[0].setPhotoURI(getString(R.string.photo_filename));
+		ArrayList<Vehicle> values = new ArrayList<Vehicle>();
+		
+		values.add(new Vehicle());
+		values.add(new Vehicle());
+		values.add(new Vehicle());
+		
+		values.get(0).setLicense("dfds-dfdss");
+		values.get(0).setMake("Honda");
+		values.get(0).setModel("Accord");
+		values.get(0).setYear("1998");
+		values.get(0).setStatus("Armed");
+		values.get(0).setPhotoURI(getString(R.string.photo_filename));
 
 
-		values[1]=new Vehicle();
-		values[1].setMake("Acura");
-		values[1].setModel("RL");
-		values[0].setLicense("aaa-aaaa");
-		values[1].setYear("2020");
-		values[1].setStatus("Armed");
-		values[1].setPhotoURI(getString(R.string.photo_filename));
+		values.get(1).setMake("Acura");
+		values.get(1).setModel("RL");
+		values.get(1).setLicense("aaa-aaaa");
+		values.get(1).setYear("2020");
+		values.get(1).setStatus("Armed");
+		values.get(1).setPhotoURI(getString(R.string.photo_filename));
 
-		values[2]=new Vehicle();
-		values[2].setMake("Ford");
-		values[2].setModel("Focus");
-		values[2].setYear("2009");
-		values[2].setLicense("dszge-wdfa");
-		values[2].setStatus("Unarmed");
-		values[2].setPhotoURI(getString(R.string.photo_filename));
+		values.get(2).setMake("Ford");
+		values.get(2).setModel("Focus");
+		values.get(2).setYear("2009");
+		values.get(2).setLicense("dszge-wdfa");
+		values.get(2).setStatus("Unarmed");
+		values.get(2).setPhotoURI(getString(R.string.photo_filename));
 	    
-		//VehicleArrayAdapter adapter = new VehicleArrayAdapter(getActivity(), values);
-	    //setListAdapter(adapter);
+		VehicleArrayAdapter adapter = new VehicleArrayAdapter(getActivity(), values);
+	    setListAdapter(adapter);
 	    
 		/* listView = getListView();
 	    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);

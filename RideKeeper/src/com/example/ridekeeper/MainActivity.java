@@ -38,10 +38,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.parse.Parse;
-import com.parse.ParseInstallation;
-import com.parse.PushService;
-
 public class MainActivity extends Activity implements LocationListener {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
@@ -55,12 +51,12 @@ public class MainActivity extends Activity implements LocationListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-        Parse.initialize(this,
-				"OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f", 	//Application ID
-				"BJy2YJJA26jnRBalYHQ0VXVtHuZpERFcYqJh1n6S"); 	//Client Key
+
+        /*
+        //Register this class to receiver Parse's Pus Notification
         PushService.setDefaultPushCallback(this, MainActivity.class);
     	ParseInstallation.getCurrentInstallation().saveInBackground();
+		*/
 
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = getResources().getStringArray(R.array.planets_array);
@@ -173,7 +169,7 @@ public class MainActivity extends Activity implements LocationListener {
     		break;
     	default:
     		fragment = new MyProfileFragment();
-            Bundle args = new Bundle();
+            //Bundle args = new Bundle();
             //args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
             //fragment.setArguments(args);
     	}

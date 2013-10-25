@@ -2,6 +2,7 @@ package com.example.ridekeeper;
 
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -10,17 +11,12 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.widget.Toast;
 
-import com.parse.Parse;
-import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
-import com.parse.ParseInstallation;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.PushService;
 
 
 public class MyBroadcastReceiver extends BroadcastReceiver{
 	
+	@SuppressLint("Wakelock")
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		// TODO Auto-generated method stub

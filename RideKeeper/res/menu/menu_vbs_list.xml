@@ -1,0 +1,4 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menuItem_show_on_map" android:title="Show on Map" />
+    <item android:id="@+id/menuItem_chat_room" android:title="Chat Room" />
+</menu>
