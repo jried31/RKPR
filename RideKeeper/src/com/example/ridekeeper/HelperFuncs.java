@@ -82,7 +82,7 @@ public class HelperFuncs {
 		}
 	}
 	
-	public static void getLocation_Blocked(Context context){
+	public static void updatetLocation_Blocked(Context context){
 		LocationListener locationListener = new LocationListener() {
 			public void onLocationChanged(Location location) {
 				myLocation = location;

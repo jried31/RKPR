@@ -77,12 +77,20 @@ public class VBSListFragment extends ListFragment{
 	public void onActivityCreated(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onActivityCreated(savedInstanceState);
-					
+
 	    mVehicleArrayAdapter = new VehicleArrayAdapter(getActivity(), new ArrayList<Vehicle>());		
 		setListAdapter(mVehicleArrayAdapter);
 		
 		//Dynamically update the list
 		mHandler.postDelayed(runQueryVBS, 1000);
+	}
+
+
+	@Override
+	public void onDestroy() {
+		// TODO Auto-generated method stub
+    	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the list
+		super.onDestroy();
 	}
 	
 }

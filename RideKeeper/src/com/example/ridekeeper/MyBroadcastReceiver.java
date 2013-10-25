@@ -58,7 +58,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 		
 		//Get phone's GPS location
 		//Toast.makeText(context, "Getting GPS", Toast.LENGTH_SHORT).show();
-		HelperFuncs.getLocation_Blocked(context);
+		HelperFuncs.updatetLocation_Blocked(context);
 		
 		//Toast.makeText(context, "Querying VBS", Toast.LENGTH_SHORT).show();
 		//Query Parse server for nearby VBS

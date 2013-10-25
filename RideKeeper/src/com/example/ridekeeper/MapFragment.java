@@ -119,7 +119,7 @@ public class MapFragment extends Fragment implements OnMarkerClickListener, Loca
     @Override
     public void onDestroy() {
     	// TODO Auto-generated method stub
-    	mHandler.removeCallbacksAndMessages(null);
+    	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
     	HelperFuncs.removeAllMarker();		//Only need to remove onCreate
     	mMapView.onDestroy();
     	super.onDestroy();

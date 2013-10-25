@@ -16,36 +16,33 @@
 
 package com.example.ridekeeper;
 
-import java.util.Locale;
-
-import com.example.ridekeeper.R;
-import com.parse.Parse;
-import com.parse.ParseInstallation;
-import com.parse.PushService;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+import com.parse.Parse;
+import com.parse.ParseInstallation;
+import com.parse.PushService;
+
+public class MainActivity extends Activity implements LocationListener {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -53,20 +50,18 @@ public class MainActivity extends Activity {
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private String[] mPlanetTitles;
-    
+    	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
         
         Parse.initialize(this,
 				"OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f", 	//Application ID
 				"BJy2YJJA26jnRBalYHQ0VXVtHuZpERFcYqJh1n6S"); 	//Client Key
         PushService.setDefaultPushCallback(this, MainActivity.class);
     	ParseInstallation.getCurrentInstallation().saveInBackground();
-        
-        
+
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = getResources().getStringArray(R.array.planets_array);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -222,22 +217,47 @@ public class MainActivity extends Activity {
     	// TODO Auto-generated method stub
     	super.onResume();
     	
-    	// Stop alarm tone and vibration
+    	//Stop alarm tone and vibration
     	HelperFuncs.stopAlarmTone();
     	HelperFuncs.StopVibration();
 
     	//stop broadcastReceiver when app is active
     	HelperFuncs.bReceiver.CancelAlarm(this);
+    	
+    	//Start updating phone's location
+		HelperFuncs.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
     }
     
 
     @Override
     protected void onPause() {
-    	// TODO Auto-generated method stub
+    	//start broadcastReceiver when app is active
     	HelperFuncs.bReceiver.setRepeatingAlarm(this);
+    	
+    	//stop updating phone's location
+    	HelperFuncs.locationManager.removeUpdates(this);
+    	
     	super.onPause();
     }
 
+	@Override
+	public void onLocationChanged(Location location) {
+		//Toast.makeText(this, "Location updated!", Toast.LENGTH_SHORT).show();
+		HelperFuncs.myLocation = location;
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+	}
+	
     //Functions for testing:
 	// Start/Stop MyBroadcastReceiver.routineCheck();
 	public void startBroadcastReceiver(View v){
