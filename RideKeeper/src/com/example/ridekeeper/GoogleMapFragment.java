@@ -32,9 +32,7 @@ import com.parse.ParseObject;
 public class GoogleMapFragment extends DialogFragment implements OnMarkerClickListener, LocationListener {
 	private GoogleMap mMap;
 	private MapView mMapView;
-	private Marker mMarker;
 	private Bundle mBundle;
-	
 	
 	private String UIDtoTrack = null;	//VBS UID to be tracked, null for all VBS
 	private boolean canRunVBSQuery = false;
@@ -139,8 +137,8 @@ public class GoogleMapFragment extends DialogFragment implements OnMarkerClickLi
 	public boolean onMarkerClick(final Marker marker){
 		//Intent intent = new Intent(this , Report.class);
 		//startActivity(intent);
-			
-		Toast.makeText(getActivity(), "Clicked!", Toast.LENGTH_SHORT).show();
+		
+		//Toast.makeText(getActivity(), "Clicked!", Toast.LENGTH_SHORT).show();
 		return true;
 	}
 
@@ -206,7 +204,7 @@ public class GoogleMapFragment extends DialogFragment implements OnMarkerClickLi
 				
 				if (canRunVBSQuery)
 					mHandler.postDelayed(runQueryVBS, DBGlobals.vbsPosMapUpdateRate); //Refresh rate = 3 seconds if no error
-				
+
 			}else{ //error occurred when query to Parse
 				Toast.makeText(getActivity(), "Error querying Parse server", Toast.LENGTH_SHORT).show();
 				HelperFuncs.myVBSList.removeAll(objects);
@@ -237,18 +235,22 @@ public class GoogleMapFragment extends DialogFragment implements OnMarkerClickLi
 				
 				mHandler.postDelayed(runQueryVBS, 3000);
 			}else{
-				HelperFuncs.queryForVBS_NonBlocked(	HelperFuncs.myLocation.getLatitude(),
-												HelperFuncs.myLocation.getLongitude(),
-												10, //search within 10 miles radius
-												queryVBSCallback);
+				if (UIDtoTrack==null){ //Track everything nearby VBS if not UID is given
+					HelperFuncs.queryForVBS_NonBlocked(	HelperFuncs.myLocation.getLatitude(),
+							HelperFuncs.myLocation.getLongitude(),
+							10, //search within 10 miles radius
+							queryVBSCallback);
+	
+				}else{ //Track the VBS with the given UID only
+					HelperFuncs.queryForVBSwithUID_NonBlocked(UIDtoTrack, queryVBSCallback);
+				}
 			}
 		}
 	};
 	
 
-	
-	
 	//For demo: update the marker
+	/*
 		public void updateMarker(){
 			final Handler handler = new Handler();
 
@@ -274,7 +276,7 @@ public class GoogleMapFragment extends DialogFragment implements OnMarkerClickLi
 			
 			handler.post(r);
 		}
-
+	*/
 }
 
 

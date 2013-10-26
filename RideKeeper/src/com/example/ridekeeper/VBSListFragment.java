@@ -98,8 +98,6 @@ public class VBSListFragment extends ListFragment{
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		Toast.makeText(getActivity(), "VBSList: OnActivityCreated", Toast.LENGTH_SHORT).show();
-		
 	    mVehicleArrayAdapter = new VehicleArrayAdapter(getActivity(), new ArrayList<Vehicle>());		
 		setListAdapter(mVehicleArrayAdapter);
 		
@@ -111,14 +109,12 @@ public class VBSListFragment extends ListFragment{
 	@Override
 	public void onResume() {
 		super.onResume();
-		Toast.makeText(getActivity(), "VBSList: OnResume", Toast.LENGTH_SHORT).show();
 		canRunVBSQuery = true;
 		mHandler.postDelayed(runQueryVBS, 2000);
 	}
 	
 	@Override
 	public void onPause() {
-		Toast.makeText(getActivity(), "VBSList: OnPause", Toast.LENGTH_SHORT).show();
 		canRunVBSQuery = false;
 		super.onPause();
 	}

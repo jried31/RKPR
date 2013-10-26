@@ -8,6 +8,8 @@ public class Vehicle {
 		status="",
 		UID="",
 		photoURI="";
+	
+	private double lat=0, lng=0;
 
 	public String getPhotoURI(){
 		return photoURI;
@@ -65,4 +67,19 @@ public class Vehicle {
 		return this.UID;
 	}
 	
+	public void setLat(double latitute){
+		lat = latitute;
+	}
+	
+	public double getLat(){
+		return lat;
+	}
+	
+	public void setLng(double longitude){
+		lat = longitude;
+	}
+	
+	public double getLng(){
+		return lng;
+	}
 }

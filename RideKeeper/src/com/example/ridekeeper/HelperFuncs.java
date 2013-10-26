@@ -175,6 +175,19 @@ public class HelperFuncs {
 		
 		query.findInBackground(callback);
 	}
+
+	public static void queryForVBSwithUID_NonBlocked(String uid, FindCallback<ParseObject> callback){
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("VBS"); //Query the VBS table
+
+		//ParseGeoPoint myPoint = new ParseGeoPoint(lat, lng);
+		//Constraints: Find any VBS within 'withInMiles' miles of given lat, lng
+		//query.whereWithinMiles("pos", myPoint, withInMiles);
+		//query.whereEqualTo("stolen", true);
+		query.whereEqualTo("objectId", uid);
+		
+		query.findInBackground(callback);
+	}
+	
 	
 	public static void postToParse(){
 		ParseObject VBS = new ParseObject("VBS");
