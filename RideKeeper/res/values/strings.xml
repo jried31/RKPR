@@ -18,8 +18,6 @@
     <string name="app_name">RideKeeper 3</string>
     <string-array name="planets_array">
         <item>Vehicles Being Stolen</item>
-        <item>Map</item>
-        <item>Chat Room</item>
         <item>My Profile</item>
         <item>My Vehicles</item>
         <item>Settings</item>

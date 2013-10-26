@@ -42,7 +42,7 @@ public class VehicleArrayAdapter extends ArrayAdapter<Vehicle> {
     Vehicle vehicle = values.get(position);
     makeView.setText(vehicle.getMake());
     modelView.setText(vehicle.getModel());
-    yearView.setText(vehicle.getYear());
+    yearView.setText( Integer.toString( vehicle.getYear() ) );
     statusView.setText(vehicle.getStatus());
     
     // Change the icon for Windows and iPhone

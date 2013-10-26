@@ -46,13 +46,12 @@ public class VBSListFragment extends ListFragment{
 					//Update each item in the list
 					for (int i=0; i < HelperFuncs.myVBSList.size(); i++){
 						ParseObject parseObj = HelperFuncs.myVBSList.get(i);
-						ParseGeoPoint p =  parseObj.getParseGeoPoint("pos");
-						
-						mVehicleArrayAdapter.getItem(i).setUID( parseObj.getObjectId() );
-						mVehicleArrayAdapter.getItem(i).setMake(parseObj.getObjectId() );
-						mVehicleArrayAdapter.getItem(i).setModel(	Double.toString(p.getLatitude())
-																	+ " " +
-																	Double.toString(p.getLongitude()) );
+						//ParseGeoPoint p =  parseObj.getParseGeoPoint("pos");
+						Vehicle v = mVehicleArrayAdapter.getItem(i);
+						v.setUID( parseObj.getObjectId() );
+						v.setMake( parseObj.getString("make") );
+						v.setModel( parseObj.getString("model") );
+						v.setYear( parseObj.getNumber("year").intValue() );
 					}
 				}else{ //No VBS nearby
 					mVehicleArrayAdapter.clear();

@@ -3,12 +3,12 @@ package com.example.ridekeeper;
 public class Vehicle {
 	private String make="",
 		model="",
-		year="",
 		license="",
 		status="",
 		UID="",
 		photoURI="";
 	
+	int year = 0;
 	private double lat=0, lng=0;
 
 	public String getPhotoURI(){
@@ -35,11 +35,11 @@ public class Vehicle {
 		this.model = model;
 	}
 
-	public String getYear() {
+	public int getYear() {
 		return year;
 	}
 
-	public void setYear(String year) {
+	public void setYear(int year) {
 		this.year = year;
 	}
 

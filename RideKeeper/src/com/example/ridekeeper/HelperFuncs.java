@@ -144,7 +144,7 @@ public class HelperFuncs {
 	
 	//Query for any stolen vehicle that is within a certain miles
 	public static List<ParseObject> queryForVBS_Blocked(double lat, double lng, double withInMiles){
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("VBS"); //Query the VBS table
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL); //Query the VBS table
 
 		ParseGeoPoint myPoint = new ParseGeoPoint(lat, lng);
 
@@ -165,7 +165,7 @@ public class HelperFuncs {
 	}
 	
 	public static void queryForVBS_NonBlocked(double lat, double lng, double withInMiles, FindCallback<ParseObject> callback){
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("VBS"); //Query the VBS table
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL); //Query the VBS table
 
 		ParseGeoPoint myPoint = new ParseGeoPoint(lat, lng);
 
@@ -177,7 +177,7 @@ public class HelperFuncs {
 	}
 
 	public static void queryForVBSwithUID_NonBlocked(String uid, FindCallback<ParseObject> callback){
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("VBS"); //Query the VBS table
+		ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL); //Query the VBS table
 
 		//ParseGeoPoint myPoint = new ParseGeoPoint(lat, lng);
 		//Constraints: Find any VBS within 'withInMiles' miles of given lat, lng
@@ -190,7 +190,7 @@ public class HelperFuncs {
 	
 	
 	public static void postToParse(){
-		ParseObject VBS = new ParseObject("VBS");
+		ParseObject VBS = new ParseObject(DBGlobals.PARSE_VEHICLE_TBL);
 		VBS.put("lat", 55.442323);
 		VBS.put("lng", -77.293853);
 		VBS.saveInBackground();

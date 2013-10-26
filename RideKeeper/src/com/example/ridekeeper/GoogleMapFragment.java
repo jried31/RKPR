@@ -60,7 +60,7 @@ public class GoogleMapFragment extends DialogFragment implements OnMarkerClickLi
     		mMap = ((MapView) view.findViewById(R.id.map)).getMap();
     	}
 		mMap.setMyLocationEnabled(true);
-  		mMap.setOnMarkerClickListener(this);
+  		//mMap.setOnMarkerClickListener(this);
   		mMap.getUiSettings().setCompassEnabled(true);
   		mMap.getUiSettings().setZoomControlsEnabled(true);
   		
@@ -101,7 +101,7 @@ public class GoogleMapFragment extends DialogFragment implements OnMarkerClickLi
     	//Load  UID argument for tracking
     	if (getArguments()!=null && getArguments().containsKey("UID")){
         	UIDtoTrack = getArguments().getString("UID");
-        	Toast.makeText(getActivity(), UIDtoTrack, Toast.LENGTH_SHORT).show();
+        	//Toast.makeText(getActivity(), UIDtoTrack, Toast.LENGTH_SHORT).show();
     	}else{
     		UIDtoTrack = null;
     	}
@@ -192,7 +192,11 @@ public class GoogleMapFragment extends DialogFragment implements OnMarkerClickLi
 					for (int i=0; i < HelperFuncs.myVBSList.size(); i++){
 						ParseGeoPoint p =  HelperFuncs.myVBSList.get(i).getParseGeoPoint("pos");
 						HelperFuncs.myMarkerList.get(i).setPosition( new LatLng(p.getLatitude(), p.getLongitude()) );
-						HelperFuncs.myMarkerList.get(i).setTitle( HelperFuncs.myVBSList.get(i).getObjectId() );
+						HelperFuncs.myMarkerList.get(i).setTitle(
+										HelperFuncs.myVBSList.get(i).getString("make") + " " +
+										HelperFuncs.myVBSList.get(i).getString("model") + " " +
+										HelperFuncs.myVBSList.get(i).getNumber("year").toString() + " "
+										);
 						HelperFuncs.myMarkerList.get(i).setVisible(true);
 					}
 				}else{ //No VBS nearby

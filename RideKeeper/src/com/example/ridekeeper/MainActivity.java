@@ -158,9 +158,6 @@ public class MainActivity extends Activity implements LocationListener {
     	case DBGlobals.VBS_LIST:
     		fragment = new VBSListFragment();
     		break;
-    	case DBGlobals.MAP:
-    		fragment = new GoogleMapFragment();
-    		break;
     	case DBGlobals.MY_PROFILE:
     		fragment = new MyProfileFragment();
     		break;
