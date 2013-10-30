@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.Marker;
 import com.parse.FindCallback;
@@ -24,11 +25,15 @@ import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SignUpCallback;
 
 public class HelperFuncs {
 	private static Ringtone alarmTone;
 	private static Vibrator myVibrator;
 	private static long[] vibrationPattern = {0, 200, 500, 100, 0, 0, 0, 0};
+	
+	public static ParseUser parseUser;
 	public static MyBroadcastReceiver bReceiver;
 	
 	public static LocationManager locationManager;
@@ -45,6 +50,8 @@ public class HelperFuncs {
         myMarkerList = new ArrayList<Marker>();
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         myLocation = HelperFuncs.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        
+        parseUser = new ParseUser();
         
         //bReceiver.disable(context);
         //bReceiver.setRepeatingAlarm(context);
