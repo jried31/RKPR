@@ -59,7 +59,7 @@
         
         
         <!-- Android Broadcast receiver -->
-        <receiver android:name=".MyBroadcastReceiver"></receiver>
+        <!--  <receiver android:name=".MyBroadcastReceiver"></receiver>   -->
         
         <!-- Parse Service -->
         <service android:name="com.parse.PushService" />

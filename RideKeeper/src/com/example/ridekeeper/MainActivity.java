@@ -16,6 +16,10 @@
 
 package com.example.ridekeeper;
 
+import com.parse.Parse;
+import com.parse.ParseInstallation;
+import com.parse.PushService;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -51,12 +55,6 @@ public class MainActivity extends Activity implements LocationListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        /*
-        //Register this class to receiver Parse's Pus Notification
-        PushService.setDefaultPushCallback(this, MainActivity.class);
-    	ParseInstallation.getCurrentInstallation().saveInBackground();
-		*/
 
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = getResources().getStringArray(R.array.planets_array);

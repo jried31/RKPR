@@ -62,7 +62,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 		if (HelperFuncs.myLocation!=null){
 			List<ParseObject> vbsList = HelperFuncs.queryForVBS_Blocked(HelperFuncs.myLocation.getLatitude(),
 					HelperFuncs.myLocation.getLongitude(),
-					0.5); //search within 0.5 miles radius
+					DBGlobals.searchRadius); //search within this miles radius
 			
 			if (vbsList!=null && vbsList.size()>0){ //There is at least one vehicle being stolen nearby
 				HelperFuncs.StartVibration();

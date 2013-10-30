@@ -3,6 +3,8 @@ package com.example.ridekeeper;
 import android.app.Application;
 
 import com.parse.Parse;
+import com.parse.ParseInstallation;
+import com.parse.PushService;
 
 public class App extends Application{
 	@Override public void onCreate() { 
@@ -13,7 +15,9 @@ public class App extends Application{
         Parse.initialize(this,
 				"OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f", 	//Application ID
 				"BJy2YJJA26jnRBalYHQ0VXVtHuZpERFcYqJh1n6S"); 	//Client Key
-        
+        PushService.setDefaultPushCallback(this, MainActivity.class);
+    	ParseInstallation.getCurrentInstallation().saveInBackground();
+    	
         //Initialize some HelperFuncs obj
         //Toast.makeText(this, "Application start", Toast.LENGTH_SHORT).show();
         HelperFuncs.initialize(this);

@@ -242,7 +242,7 @@ public class GoogleMapFragment extends DialogFragment implements OnMarkerClickLi
 				if (UIDtoTrack==null){ //Track everything nearby VBS if not UID is given
 					HelperFuncs.queryForVBS_NonBlocked(	HelperFuncs.myLocation.getLatitude(),
 							HelperFuncs.myLocation.getLongitude(),
-							10, //search within 10 miles radius
+							DBGlobals.searchRadius, //search within this miles radius
 							queryVBSCallback);
 	
 				}else{ //Track the VBS with the given UID only
