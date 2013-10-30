@@ -109,10 +109,11 @@ int id vehicle_year 0x7f050014
 int layout activity_main 0x7f030000
 int layout drawer_list_item 0x7f030001
 int layout fragment_my_profile 0x7f030002
-int layout fragment_vehicle_form 0x7f030003
-int layout fragment_vehicle_item 0x7f030004
-int layout fragment_vehicle_view 0x7f030005
-int layout map_fragment 0x7f030006
+int layout fragment_test 0x7f030003
+int layout fragment_vehicle_form 0x7f030004
+int layout fragment_vehicle_item 0x7f030005
+int layout fragment_vehicle_view 0x7f030006
+int layout map_fragment 0x7f030007
 int menu main 0x7f080000
 int menu menu_vbs_list 0x7f080001
 int menu menu_vehicle 0x7f080002

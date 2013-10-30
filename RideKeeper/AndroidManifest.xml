@@ -19,7 +19,7 @@
     android:versionCode="1"
     android:versionName="1.0">
 
-    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="17" />
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="18" />
 
     <permission
         android:name="com.example.ridekeeper.permission.MAPS_RECEIVE"
@@ -59,10 +59,16 @@
         
         
         <!-- Android Broadcast receiver -->
-        <!--  <receiver android:name=".MyBroadcastReceiver"></receiver>   -->
+        <receiver android:name=".MyBroadcastReceiver"></receiver>
+        
         
         <!-- Parse Service -->
         <service android:name="com.parse.PushService" />
+        <receiver android:name="com.example.ridekeeper.ParseCustomReceiver" android:exported="false">
+			<intent-filter>
+				<action android:name="ALERT" />
+			</intent-filter>
+		</receiver>
         <receiver android:name="com.parse.ParseBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

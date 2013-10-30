@@ -17,7 +17,10 @@
 package com.example.ridekeeper;
 
 import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseInstallation;
+import com.parse.ParseObject;
 import com.parse.PushService;
 
 import android.app.Activity;
@@ -55,7 +58,10 @@ public class MainActivity extends Activity implements LocationListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        
+        App.isMainActivityRunning = true;
+        HelperFuncs.bReceiver.setRepeatingAlarm(this);
+        
         mTitle = mDrawerTitle = getTitle();
         mPlanetTitles = getResources().getStringArray(R.array.planets_array);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -162,6 +168,9 @@ public class MainActivity extends Activity implements LocationListener {
     	case DBGlobals.MY_VEHICLE:
     		fragment = new MyVehicleListFragment();
     		break;
+    	case DBGlobals.SETTINGS:
+    		fragment = new TestFragment();
+    		break;
     	default:
     		fragment = new MyProfileFragment();
             //Bundle args = new Bundle();
@@ -210,10 +219,10 @@ public class MainActivity extends Activity implements LocationListener {
     	
     	//Stop alarm tone and vibration
     	HelperFuncs.stopAlarmTone();
-    	HelperFuncs.StopVibration();
+    	HelperFuncs.stopVibration();
 
     	//stop broadcastReceiver when app is active
-    	HelperFuncs.bReceiver.CancelAlarm(this);
+    	//HelperFuncs.bReceiver.cancelAlarm(this);
     	
     	//Start updating phone's location
 		HelperFuncs.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
@@ -223,10 +232,12 @@ public class MainActivity extends Activity implements LocationListener {
     @Override
     protected void onPause() {
     	//start broadcastReceiver when app is active
-    	HelperFuncs.bReceiver.setRepeatingAlarm(this);
+    	//HelperFuncs.bReceiver.setRepeatingAlarm(this);
     	
     	//stop updating phone's location
     	HelperFuncs.locationManager.removeUpdates(this);
+    	
+    	App.isMainActivityRunning = false;
     	
     	super.onPause();
     }
@@ -259,6 +270,19 @@ public class MainActivity extends Activity implements LocationListener {
 	}
 	
 	public void test(View v){
-		HelperFuncs.playAlarmTone();
+		HelperFuncs.updatetLocation_Blocked(this);
+		
+		if (HelperFuncs.myLocation != null){
+			ParseGeoPoint myGeo = new ParseGeoPoint( HelperFuncs.myLocation.getLatitude(),
+													HelperFuncs.myLocation.getLongitude() );
+			ParseInstallation.getCurrentInstallation().put("GeoPoint", myGeo);
+			
+			try {
+				ParseInstallation.getCurrentInstallation().save();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }

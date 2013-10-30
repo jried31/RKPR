@@ -7,6 +7,8 @@ import com.parse.ParseInstallation;
 import com.parse.PushService;
 
 public class App extends Application{
+	public static boolean isMainActivityRunning = false;
+	
 	@Override public void onCreate() { 
         super.onCreate();
         
@@ -21,6 +23,8 @@ public class App extends Application{
         //Initialize some HelperFuncs obj
         //Toast.makeText(this, "Application start", Toast.LENGTH_SHORT).show();
         HelperFuncs.initialize(this);
+        
+        //wake phone up periodically to do some tasks
     }
 	
 }

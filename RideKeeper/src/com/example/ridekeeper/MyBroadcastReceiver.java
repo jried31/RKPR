@@ -1,7 +1,5 @@
 package com.example.ridekeeper;
 
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -9,9 +7,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
-import android.widget.Toast;
 
-import com.parse.ParseObject;
+import com.parse.ParseGeoPoint;
+import com.parse.ParseInstallation;
 
 
 public class MyBroadcastReceiver extends BroadcastReceiver{
@@ -21,14 +19,15 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 	public void onReceive(Context context, Intent intent) {
 		// TODO Auto-generated method stub
 
-		Toast.makeText(context, "onReceiving", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(context, "onReceiving", Toast.LENGTH_SHORT).show();
 		
 		PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 		PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RideKeeper");
 		
 		//Toast.makeText(context, "Acquiring wlock", Toast.LENGTH_SHORT).show();
 		wl.acquire();
-		routineCheck(context);
+		//routineCheck(context);
+		updateLocToParse(context); //Periodically update phone's location to Parse server
 		//Toast.makeText(context, "Releasing wlock", Toast.LENGTH_SHORT).show();
 		wl.release();
 	}
@@ -37,11 +36,11 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 		AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		Intent intent = new Intent(context, MyBroadcastReceiver.class);
 		PendingIntent pi = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
-		am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 60000, 60000, pi); //do every 1 minutes
+		am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 10000, DBGlobals.repeatingAlarmRate, pi); //do every 1 minutes
 		//Toast.makeText(context, "Alarm started", Toast.LENGTH_SHORT).show();
 	}
 
-	public void CancelAlarm(Context context){
+	public void cancelAlarm(Context context){
 		AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		Intent intent = new Intent(context, MyBroadcastReceiver.class);
 		PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -49,6 +48,12 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 		//Toast.makeText(context, "Alarm canceled", Toast.LENGTH_SHORT).show();
 	}
 	
+	/* This functions will not be used.
+	 * Instead of doing routineCheck, the client app should wait for
+	 * push notification from Parse server.
+	*/
+
+	/*
 	private void routineCheck(Context context){
 		// TODO Turn Internet connection on if needed
 		
@@ -75,6 +80,20 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 			}
 		}else{
 			HelperFuncs.CreateNotif(context, "Can't get phone's GPS location", "");
+		}
+	}
+	*/
+	
+	//Update phone's location to parse server
+	private void updateLocToParse(Context context){
+		//Toast.makeText(context, "Update loc to Parse", Toast.LENGTH_SHORT).show();
+		HelperFuncs.updatetLocation_Blocked(context);
+		
+		if (HelperFuncs.myLocation != null){
+			ParseGeoPoint myGeo = new ParseGeoPoint( HelperFuncs.myLocation.getLatitude(),
+													HelperFuncs.myLocation.getLongitude() );
+			ParseInstallation.getCurrentInstallation().put("GeoPoint", myGeo);
+			ParseInstallation.getCurrentInstallation().saveInBackground();
 		}
 	}
 

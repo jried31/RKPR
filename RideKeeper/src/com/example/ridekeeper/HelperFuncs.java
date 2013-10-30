@@ -118,12 +118,17 @@ public class HelperFuncs {
 	public static void initialVibrator(Context context){
 		myVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 	}
+
 	
-	public static void StartVibration(){
+	public static void vibrationLong(){
 		myVibrator.vibrate(vibrationPattern, 0);
 	}
 	
-	public static void StopVibration(){
+	public static void vibrationShort(){
+		myVibrator.vibrate(300);
+	}
+	
+	public static void stopVibration(){
 		myVibrator.cancel();
 	}
 
