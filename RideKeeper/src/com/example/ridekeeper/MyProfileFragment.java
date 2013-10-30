@@ -29,9 +29,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.firebase.client.Firebase;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
@@ -56,12 +56,12 @@ public class MyProfileFragment extends Fragment {
 	public static final String USER_NAME="user_name";
 	public static final String MY_USER_NAME_HACKFORNOW="jried";
 	public static final String EMAIL="email";
-	public static final String NAME="name";
+	public static final String REALNAME="realName";
 	public static final String PHONE="phone";
-	public static final String PHOTO="photo";
+	public static final String AVARTA="photo";
+	public static final String ISSAVED="issaved";
 	
 	private SharedPreferences sharedPreferences;
-	
 	
 	private void reloadFragment(){
         FragmentManager fragmentManager = getFragmentManager();
@@ -203,60 +203,17 @@ public class MyProfileFragment extends Fragment {
 	
 	private void authenticatedMode(View view){
 		//Grab local saved user data
-		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(view.getContext());
-		
-		String nameVal = sharedPreferences.getString(NAME, ""),
-				emailVal = sharedPreferences.getString(EMAIL, ""),
-				phoneVal = sharedPreferences.getString(PHONE, "");
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences( view.getContext());
 
-		name = (EditText) view.findViewById(R.id.user_profile_name);
-		name.setText(nameVal);
-		email = (EditText) view.findViewById(R.id.user_profile_email);
-		email.setText(emailVal);
-		phone = (EditText) view.findViewById(R.id.user_profile_phone);
-		phone.setText(phoneVal); 
-
-		mImageView = (ImageView) view.findViewById(R.id.user_profile_photo);
-		loadSnap();
+		loadProfile(view);
 
 		save = (Button) view.findViewById(R.id.button_save);
 		save.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				//Save the Content to the Shared Preferences & Upload to Parse
-
-				Editor editor = sharedPreferences.edit();
-				String nameVal = name.getText().toString(),
-						emailVal = email.getText().toString(),
-						phoneVal = phone.getText().toString();
-
-				// Save profile image into internal storage.
-				mImageView.buildDrawingCache();
-				Bitmap bmap = mImageView.getDrawingCache();
-				try {
-					//NOTE MODE_PRIVATE saves the image file as a private file with the name designated under photo_filename
-					FileOutputStream fos = getActivity().openFileOutput(
-							getString(R.string.photo_filename), Activity.MODE_PRIVATE);
-					bmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-					fos.flush();
-					fos.close();
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-
-				//Grab the Preference Object
-				editor.putString(NAME, nameVal);
-				editor.putString(EMAIL, emailVal);
-				editor.putString(PHONE, phoneVal);
-				editor.commit();
-
-				//Update Firebase 
-				// Create a reference to a Firebase location
-				String url = "https://ridekeepr.firebaseio.com/users/"+MY_USER_NAME_HACKFORNOW;
-				Firebase fireBase = new Firebase(url);
-				fireBase.child(NAME).setValue(nameVal);
-				fireBase.child(EMAIL).setValue(emailVal);
-				fireBase.child(PHONE).setValue(phoneVal);
-				//TODO: DECIDE WHETHER TO SAVE IMAGE IN FIREBASE
+				save.setEnabled(false);
+				saveProfile(v);
+				save.setEnabled(true);
+				Toast.makeText(v.getContext(), "Saved!", Toast.LENGTH_SHORT).show();
 			}
 		});
 
@@ -265,6 +222,7 @@ public class MyProfileFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				ParseUser.logOut();
+				//clearSharedPrefs();
 				reloadFragment();
 			}
 		});
@@ -289,7 +247,6 @@ public class MyProfileFragment extends Fragment {
 
 				builder.setItems(R.array.photo_picker_items, dlistener);
 				builder.create().show();//.show(getFragmentManager(),getString(R.string.photo_picker_tag));
-
 			}
 		});
 	}
@@ -392,4 +349,59 @@ public class MyProfileFragment extends Fragment {
 		startActivityForResult(intent, REQUEST_CODE_CROP_PHOTO);
 	}
 	
+	private void loadProfile(View view){
+		name = (EditText) view.findViewById(R.id.user_profile_name);
+		email = (EditText) view.findViewById(R.id.user_profile_email);
+		phone = (EditText) view.findViewById(R.id.user_profile_phone);
+		mImageView = (ImageView) view.findViewById(R.id.user_profile_photo);
+		
+		ParseUser puser =  ParseUser.getCurrentUser();
+
+		name.setText(puser.getString(REALNAME));
+		email.setText(puser.getEmail());
+		phone.setText(puser.getString(PHONE));
+		
+		ParseFile avartaPFile = puser.getParseFile(AVARTA);
+		
+		loadSnap();
+	}
+	
+	private void saveProfile(View view){
+		String nameVal = name.getText().toString(),
+				emailVal = email.getText().toString(),
+				phoneVal = phone.getText().toString();
+		
+		// Update Parse
+		ParseUser.getCurrentUser().setUsername(emailVal);
+		ParseUser.getCurrentUser().setEmail(emailVal);
+		ParseUser.getCurrentUser().put(PHONE, phoneVal);
+		
+		try {
+			ParseUser.getCurrentUser().save();
+		} catch (ParseException e) {
+			Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+		// Save profile image into internal storage.
+		mImageView.buildDrawingCache();
+		Bitmap bmap = mImageView.getDrawingCache();
+		try {
+			//NOTE MODE_PRIVATE saves the image file as a private file with the name designated under photo_filename
+			FileOutputStream fos = getActivity().openFileOutput(
+					getString(R.string.photo_filename), Activity.MODE_PRIVATE);
+			bmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+			fos.flush();
+			fos.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+	
+	private void clearSharedPrefs(){
+		if (sharedPreferences != null){
+			sharedPreferences.edit().clear();
+			sharedPreferences.edit().commit();
+		}
+	}
 }
