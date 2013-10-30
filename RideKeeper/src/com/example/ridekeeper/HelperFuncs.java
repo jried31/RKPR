@@ -51,7 +51,12 @@ public class HelperFuncs {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         myLocation = HelperFuncs.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         
-        parseUser = new ParseUser();
+        
+        //Check if user is already previously authenticated
+        parseUser = ParseUser.getCurrentUser();
+        if (parseUser == null){
+        	parseUser = new ParseUser();
+        }
         
         //bReceiver.disable(context);
         //bReceiver.setRepeatingAlarm(context);

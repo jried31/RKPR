@@ -193,48 +193,49 @@ containing a value of this type.
         public static final int venus=0x7f020029;
     }
     public static final class id {
-        public static final int ButtonCancel=0x7f05001b;
-        public static final int ButtonChange=0x7f050015;
-        public static final int ButtonSave=0x7f05001a;
-        public static final int action_websearch=0x7f050025;
-        public static final int bottomrow=0x7f05001d;
+        public static final int ButtonCancel=0x7f05001c;
+        public static final int ButtonChange=0x7f050016;
+        public static final int ButtonSave=0x7f05001b;
+        public static final int action_websearch=0x7f050026;
+        public static final int bottomrow=0x7f05001e;
         public static final int button_change=0x7f05000b;
-        public static final int button_save=0x7f05000f;
-        public static final int button_signin=0x7f050012;
-        public static final int button_signup=0x7f050013;
+        public static final int button_save=0x7f050010;
+        public static final int button_signin=0x7f050013;
+        public static final int button_signout=0x7f05000f;
+        public static final int button_signup=0x7f050014;
         public static final int buttonlayout=0x7f050009;
         public static final int content_frame=0x7f050006;
         public static final int drawer_layout=0x7f050005;
-        public static final int editText_email=0x7f050010;
-        public static final int editText_pwd=0x7f050011;
-        public static final int edit_item=0x7f050028;
+        public static final int editText_email=0x7f050011;
+        public static final int editText_pwd=0x7f050012;
+        public static final int edit_item=0x7f050029;
         public static final int hybrid=0x7f050004;
         public static final int left_drawer=0x7f050007;
         public static final int mainLayout=0x7f050008;
-        public static final int map=0x7f050024;
-        public static final int menuItem_chat_room=0x7f050027;
-        public static final int menuItem_show_on_map=0x7f050026;
+        public static final int map=0x7f050025;
+        public static final int menuItem_chat_room=0x7f050028;
+        public static final int menuItem_show_on_map=0x7f050027;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
-        public static final int profile_email=0x7f050023;
-        public static final int profile_name=0x7f050022;
-        public static final int profile_vehicle_photo=0x7f050014;
-        public static final int remove_item=0x7f050029;
+        public static final int profile_email=0x7f050024;
+        public static final int profile_name=0x7f050023;
+        public static final int profile_vehicle_photo=0x7f050015;
+        public static final int remove_item=0x7f05002a;
         public static final int satellite=0x7f050002;
         public static final int terrain=0x7f050003;
         public static final int user_profile_email=0x7f05000d;
         public static final int user_profile_name=0x7f05000c;
         public static final int user_profile_phone=0x7f05000e;
         public static final int user_profile_photo=0x7f05000a;
-        public static final int vehicle_item_make=0x7f050020;
-        public static final int vehicle_item_model=0x7f050021;
-        public static final int vehicle_item_photo=0x7f05001c;
-        public static final int vehicle_item_status=0x7f05001f;
-        public static final int vehicle_item_year=0x7f05001e;
-        public static final int vehicle_liscense=0x7f050019;
-        public static final int vehicle_make=0x7f050016;
-        public static final int vehicle_model=0x7f050017;
-        public static final int vehicle_year=0x7f050018;
+        public static final int vehicle_item_make=0x7f050021;
+        public static final int vehicle_item_model=0x7f050022;
+        public static final int vehicle_item_photo=0x7f05001d;
+        public static final int vehicle_item_status=0x7f050020;
+        public static final int vehicle_item_year=0x7f05001f;
+        public static final int vehicle_liscense=0x7f05001a;
+        public static final int vehicle_make=0x7f050017;
+        public static final int vehicle_model=0x7f050018;
+        public static final int vehicle_year=0x7f050019;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -253,9 +254,9 @@ containing a value of this type.
         public static final int menu_vehicle=0x7f080002;
     }
     public static final class string {
-        public static final int action_websearch=0x7f06003d;
+        public static final int action_websearch=0x7f060040;
         public static final int app_name=0x7f060019;
-        public static final int app_not_available=0x7f06003e;
+        public static final int app_not_available=0x7f060041;
         /**   Title for notification shown when GooglePlayServices needs to be
         enabled for a application to work. [CHAR LIMIT=70] 
          */
@@ -279,10 +280,13 @@ containing a value of this type.
         [CHAR LIMIT=70] 
          */
         public static final int auth_client_using_bad_version_title=0x7f060013;
-        public static final int button_cancel=0x7f060023;
-        public static final int button_change=0x7f060026;
-        public static final int button_save=0x7f060022;
-        public static final int camara_photo_picker_dialog=0x7f060035;
+        public static final int button_cancel=0x7f060026;
+        public static final int button_change=0x7f060029;
+        public static final int button_save=0x7f060025;
+        public static final int button_signin=0x7f060023;
+        public static final int button_signout=0x7f060024;
+        public static final int button_signup=0x7f060022;
+        public static final int camara_photo_picker_dialog=0x7f060038;
         /**  Button in confirmation dialog to enable Google Play services.  Clicking it
         will direct user to application settings of Google Play services where they
         can enable it [CHAR LIMIT=40] 
@@ -350,29 +354,29 @@ containing a value of this type.
         /**  Long form sign-in button text [CHAR LIMIT=30] 
          */
         public static final int common_signin_button_text_long=0x7f060012;
-        public static final int drawer_close=0x7f06003c;
-        public static final int drawer_open=0x7f06003b;
-        public static final int gallery_photo_picker_dialog=0x7f060036;
-        public static final int menu_vehicle_options=0x7f06003a;
-        public static final int owner_name=0x7f060027;
-        public static final int owner_name_hint=0x7f060028;
-        public static final int photo_filename=0x7f060039;
-        public static final int photo_picker_tag=0x7f060037;
-        public static final int photo_picker_title=0x7f060038;
-        public static final int profile_photo=0x7f060033;
-        public static final int profile_vehicle_photo=0x7f060034;
-        public static final int title_button_alert_cancel=0x7f060025;
-        public static final int title_button_alert_ok=0x7f060024;
-        public static final int user_profile_email=0x7f06002a;
-        public static final int user_profile_email_hint=0x7f06002f;
-        public static final int user_profile_emergency_contact=0x7f06002d;
-        public static final int user_profile_emergency_contact_hint=0x7f06002e;
-        public static final int user_profile_emergency_status=0x7f06002b;
-        public static final int user_profile_emergency_status_hint=0x7f06002c;
-        public static final int user_profile_phone=0x7f060030;
-        public static final int user_profile_phone_hint=0x7f060031;
-        public static final int user_profile_summary=0x7f060032;
-        public static final int user_profile_title=0x7f060029;
+        public static final int drawer_close=0x7f06003f;
+        public static final int drawer_open=0x7f06003e;
+        public static final int gallery_photo_picker_dialog=0x7f060039;
+        public static final int menu_vehicle_options=0x7f06003d;
+        public static final int owner_name=0x7f06002a;
+        public static final int owner_name_hint=0x7f06002b;
+        public static final int photo_filename=0x7f06003c;
+        public static final int photo_picker_tag=0x7f06003a;
+        public static final int photo_picker_title=0x7f06003b;
+        public static final int profile_photo=0x7f060036;
+        public static final int profile_vehicle_photo=0x7f060037;
+        public static final int title_button_alert_cancel=0x7f060028;
+        public static final int title_button_alert_ok=0x7f060027;
+        public static final int user_profile_email=0x7f06002d;
+        public static final int user_profile_email_hint=0x7f060032;
+        public static final int user_profile_emergency_contact=0x7f060030;
+        public static final int user_profile_emergency_contact_hint=0x7f060031;
+        public static final int user_profile_emergency_status=0x7f06002e;
+        public static final int user_profile_emergency_status_hint=0x7f06002f;
+        public static final int user_profile_phone=0x7f060033;
+        public static final int user_profile_phone_hint=0x7f060034;
+        public static final int user_profile_summary=0x7f060035;
+        public static final int user_profile_title=0x7f06002c;
         public static final int vehicle_liscense=0x7f06001d;
         public static final int vehicle_liscense_hint=0x7f060020;
         public static final int vehicle_make=0x7f06001a;

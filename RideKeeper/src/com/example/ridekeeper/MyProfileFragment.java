@@ -8,6 +8,7 @@ import java.io.IOException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
+import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
@@ -48,10 +50,8 @@ public class MyProfileFragment extends Fragment {
 	private ImageView mImageView;
 	private boolean isTakenFromCamera;
 	
-	private boolean isSigningUp = false;
-	
 	private EditText name, email, phone, pwd;
-	private Button save, change, signup, signin;
+	private Button save, change, signup, signin, signout;
 	
 	public static final String USER_NAME="user_name";
 	public static final String MY_USER_NAME_HACKFORNOW="jried";
@@ -61,35 +61,150 @@ public class MyProfileFragment extends Fragment {
 	public static final String PHOTO="photo";
 	
 	private SharedPreferences sharedPreferences;
-
 	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-    	if (getArguments()!=null && getArguments().containsKey("SignUp")){
-    		isSigningUp = getArguments().getBoolean("SignUP");
-        	//Toast.makeText(getActivity(), UIDtoTrack, Toast.LENGTH_SHORT).show();
-    	}else{
-    		isSigningUp = false;
-    	}
+	
+	private void reloadFragment(){
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, new MyProfileFragment()).commit();
 	}
-	
+
+	// Handle data after activity returns.
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+		if (resultCode != Activity.RESULT_OK)
+			return;
+
+		switch (requestCode) {
+		case REQUEST_CODE_SELECT_FROM_GALLERY:
+			mImageCaptureUri = data.getData();
+
+		case REQUEST_CODE_TAKE_FROM_CAMERA:
+			// Send image taken from camera for cropping
+			cropImage();
+			break;
+
+		case REQUEST_CODE_CROP_PHOTO:
+			// Update image view after image crop
+
+			Bundle extras = data.getExtras();
+
+			// Set the picture image in UI
+			if (extras != null) {
+				mImageView.setImageBitmap((Bitmap) extras.getParcelable("data"));
+			}
+
+			// Delete temporary image taken by camera after crop.
+			if (isTakenFromCamera) {
+				File f = new File(mImageCaptureUri.getPath());
+				if (f.exists())
+					f.delete();
+			}
+
+			break;
+		}
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, 
 			ViewGroup container, Bundle savedInstanceState) {
-		// Inflate the layout for this fragment
-		//View view =  inflater.inflate(R.layout.fragment_my_profile, container, false);
-		View view = inflater.inflate(R.layout.fragment_sign_up_in, container, false);
 		
-		if (1==1){
+		View view;
+		
+		if (HelperFuncs.parseUser != null &&
+			HelperFuncs.parseUser.isAuthenticated() ){ // User was authenticated
+			
+			view =  inflater.inflate(R.layout.fragment_my_profile, container, false);
+			authenticatedMode(view);
+			
+		}else{ // Need sign in/up
+			view = inflater.inflate(R.layout.fragment_sign_up_in, container, false);
 			signUpsignInMode(view);
-			return view;
 		}
 		
-		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(view.getContext());
+		return view;
+	}
 
+	private void signUpsignInMode(View view){
+
+		signup = (Button) view.findViewById(R.id.button_signup);
+		signin = (Button) view.findViewById(R.id.button_signin);
+		
+		email = (EditText) view.findViewById(R.id.editText_email);
+		pwd = (EditText) view.findViewById(R.id.editText_pwd);
+		
+		signup.setOnClickListener( new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if ( email.getText().toString().isEmpty() ||
+						pwd.getText().toString().isEmpty()){
+					Toast.makeText(getActivity(), "Email or password can't be empty", Toast.LENGTH_LONG).show();
+					return;
+				}
+				
+				signup.setEnabled(false);
+				
+				if (HelperFuncs.parseUser==null){
+					HelperFuncs.parseUser = new ParseUser();
+				}
+				
+				HelperFuncs.parseUser.setUsername( email.getText().toString() );
+				HelperFuncs.parseUser.setPassword( pwd.getText().toString() );
+				HelperFuncs.parseUser.setEmail( email.getText().toString() );
+				
+				HelperFuncs.parseUser.signUpInBackground( new SignUpCallback() {
+					@Override
+					public void done(ParseException e) {
+						if (e==null){
+							//Update ownerId in Installation table
+							ParseInstallation.getCurrentInstallation().put("ownerId", HelperFuncs.parseUser.getObjectId());
+							ParseInstallation.getCurrentInstallation().saveInBackground();
+							
+							Toast.makeText(getActivity(), "Your account has been created.", Toast.LENGTH_LONG).show();
+							reloadFragment();
+						}else{
+							Toast.makeText(getActivity(), "Error signing up. " + e.getMessage(), Toast.LENGTH_LONG).show();
+						}
+						signup.setEnabled(true);
+					}
+				});
+			}
+			
+		});
+		
+		
+		signin.setOnClickListener(  new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				signin.setEnabled(false);
+				
+				ParseUser.logInInBackground(email.getText().toString(),
+											pwd.getText().toString(),
+											new LogInCallback() {
+					@Override
+					public void done(ParseUser user, ParseException e) {
+						if (e == null){
+							HelperFuncs.parseUser = user;
+							Toast.makeText(getActivity(), "You are now signed in!", Toast.LENGTH_LONG).show();
+							reloadFragment();
+						}else{
+							Toast.makeText(getActivity(), "Error signing in. " + e.getMessage(), Toast.LENGTH_LONG).show();
+						}
+						
+						signin.setEnabled(true);
+					}
+				});
+				
+			}
+		});
+		
+	}
+	
+	private void authenticatedMode(View view){
 		//Grab local saved user data
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(view.getContext());
+		
 		String nameVal = sharedPreferences.getString(NAME, ""),
 				emailVal = sharedPreferences.getString(EMAIL, ""),
 				phoneVal = sharedPreferences.getString(PHONE, "");
@@ -105,17 +220,10 @@ public class MyProfileFragment extends Fragment {
 		loadSnap();
 
 		save = (Button) view.findViewById(R.id.button_save);
-		
-		if (isSigningUp){
-			save.setText("Sign Up!");
-		}
-
-		save.setText("Sign Up!");
-		
 		save.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				//Save the Content to the Shared Preferences & Upload to Parse
-				
+
 				Editor editor = sharedPreferences.edit();
 				String nameVal = name.getText().toString(),
 						emailVal = email.getText().toString(),
@@ -152,9 +260,18 @@ public class MyProfileFragment extends Fragment {
 			}
 		});
 
+		signout = (Button) view.findViewById(R.id.button_signout);
+		signout.setOnClickListener( new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ParseUser.logOut();
+				reloadFragment();
+			}
+		});
+		
 		//Setup for Changing Profile Picture
 		change = (Button) view.findViewById(R.id.button_change);
-		
+
 		change.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				//Save the Content to the Shared Preferences & Upload to Firebase
@@ -175,8 +292,9 @@ public class MyProfileFragment extends Fragment {
 
 			}
 		});
-		return view;
 	}
+	
+	
 
 	public void onPhotoPickerItemSelected(int item) {
 		Intent intent;
@@ -222,42 +340,6 @@ public class MyProfileFragment extends Fragment {
 	}
 
 
-	// Handle data after activity returns.
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-		if (resultCode != Activity.RESULT_OK)
-			return;
-
-		switch (requestCode) {
-		case REQUEST_CODE_SELECT_FROM_GALLERY:
-			mImageCaptureUri = data.getData();
-
-		case REQUEST_CODE_TAKE_FROM_CAMERA:
-			// Send image taken from camera for cropping
-			cropImage();
-			break;
-
-		case REQUEST_CODE_CROP_PHOTO:
-			// Update image view after image crop
-
-			Bundle extras = data.getExtras();
-
-			// Set the picture image in UI
-			if (extras != null) {
-				mImageView.setImageBitmap((Bitmap) extras.getParcelable("data"));
-			}
-
-			// Delete temporary image taken by camera after crop.
-			if (isTakenFromCamera) {
-				File f = new File(mImageCaptureUri.getPath());
-				if (f.exists())
-					f.delete();
-			}
-
-			break;
-		}
-	}
 
 	private void loadSnap() {
 		// Load profile photo from internal storage
@@ -310,40 +392,4 @@ public class MyProfileFragment extends Fragment {
 		startActivityForResult(intent, REQUEST_CODE_CROP_PHOTO);
 	}
 	
-	private void signUpsignInMode(View view){
-		signup = (Button) view.findViewById(R.id.button_signup);
-		signin = (Button) view.findViewById(R.id.button_signin);
-		
-		email = (EditText) view.findViewById(R.id.editText_email);
-		pwd = (EditText) view.findViewById(R.id.editText_pwd);
-		
-		
-		signup.setOnClickListener( new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				signup.setEnabled(false);
-				
-				HelperFuncs.parseUser.setUsername( email.getText().toString() );
-				HelperFuncs.parseUser.setPassword( pwd.getText().toString() );
-				HelperFuncs.parseUser.setEmail( email.getText().toString() );
-				HelperFuncs.parseUser.signUpInBackground( new SignUpCallback() {
-					@Override
-					public void done(ParseException e) {
-						if (e==null){
-							//Update ownerId in Installation table
-							ParseInstallation.getCurrentInstallation().put("ownerId", HelperFuncs.parseUser.getObjectId());
-							ParseInstallation.getCurrentInstallation().saveInBackground();
-							Toast.makeText(getActivity(), "Your account has been created.", Toast.LENGTH_LONG).show();
-						}else{
-							Toast.makeText(getActivity(), "Error signing up. " + e.getMessage(), Toast.LENGTH_LONG).show();
-						}
-						signup.setEnabled(true);
-					}
-				});
-			}
-			
-		});
-		
-	}
-
 }
