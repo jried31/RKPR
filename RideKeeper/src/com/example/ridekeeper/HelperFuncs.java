@@ -3,6 +3,7 @@ package com.example.ridekeeper;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -17,7 +18,6 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.Marker;
 import com.parse.FindCallback;
@@ -26,7 +26,6 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SignUpCallback;
 
 public class HelperFuncs {
 	private static Ringtone alarmTone;

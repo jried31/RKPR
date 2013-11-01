@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
         
-        <ImageView
+        <com.parse.ParseImageView  
        		android:id="@+id/user_profile_photo"
        		android:layout_width="100dp"
        		android:layout_height="100dp"
@@ -32,7 +32,7 @@
        		android:orientation="horizontal"
        		android:src="@drawable/avatar" >
    		    
-   		</ImageView>
+   		</com.parse.ParseImageView  >
    		
         <Button
             android:id="@+id/button_change"

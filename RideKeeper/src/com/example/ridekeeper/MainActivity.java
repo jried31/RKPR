@@ -16,13 +16,6 @@
 
 package com.example.ridekeeper;
 
-import com.parse.Parse;
-import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
-import com.parse.ParseInstallation;
-import com.parse.ParseObject;
-import com.parse.PushService;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -44,6 +37,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
+import com.parse.ParseInstallation;
 
 public class MainActivity extends Activity implements LocationListener {
     private DrawerLayout mDrawerLayout;
