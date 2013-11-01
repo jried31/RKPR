@@ -15,8 +15,19 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 
     <item android:id="@+id/action_websearch"
           android:icon="@drawable/action_search"
           android:title="@string/action_websearch"
+          android:showAsAction="ifRoom|withText" />
+    -->
+    <item android:id="@+id/action_refreshvbslist"
+          android:icon="@drawable/refresh"
+          android:title="@string/action_refreshvbslist"
+          android:showAsAction="ifRoom|withText" />
+
+    <item android:id="@+id/action_addvehicle"
+          android:icon="@drawable/add"
+          android:title="@string/action_addvehicle"
           android:showAsAction="ifRoom|withText" />
 </menu>

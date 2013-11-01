@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class MyVehicleListFragment extends android.app.ListFragment {
+	private VehicleArrayAdapter adapter;
 	Vehicle[] values;
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -22,8 +23,7 @@ public class MyVehicleListFragment extends android.app.ListFragment {
 		
 		ArrayList<Vehicle> values = new ArrayList<Vehicle>();
 		
-		values.add(new Vehicle());
-		values.add(new Vehicle());
+		/*
 		values.add(new Vehicle());
 		
 		values.get(0).setLicense("dfds-dfdss");
@@ -32,23 +32,10 @@ public class MyVehicleListFragment extends android.app.ListFragment {
 		values.get(0).setYear(1998);
 		values.get(0).setStatus("Armed");
 		values.get(0).setPhotoURI(getString(R.string.photo_filename));
-
-
-		values.get(1).setMake("Acura");
-		values.get(1).setModel("RL");
-		values.get(1).setLicense("aaa-aaaa");
-		values.get(1).setYear(2020);
-		values.get(1).setStatus("Armed");
-		values.get(1).setPhotoURI(getString(R.string.photo_filename));
-
-		values.get(2).setMake("Ford");
-		values.get(2).setModel("Focus");
-		values.get(2).setYear(2009);
-		values.get(2).setLicense("dszge-wdfa");
-		values.get(2).setStatus("Unarmed");
-		values.get(2).setPhotoURI(getString(R.string.photo_filename));
-	    
-		VehicleArrayAdapter adapter = new VehicleArrayAdapter(getActivity(), values);
+		*/
+		
+		adapter = new VehicleArrayAdapter(getActivity(), values);
+		
 	    setListAdapter(adapter);
 	    
 		/* listView = getListView();
@@ -67,7 +54,7 @@ public class MyVehicleListFragment extends android.app.ListFragment {
 	          return true;
 	        }
 	      });*/
-	    
+	    this.setMenuVisibility(true);
 	    registerForContextMenu(getListView());
 	}
 	
@@ -90,9 +77,11 @@ public class MyVehicleListFragment extends android.app.ListFragment {
 	    case R.id.remove_item:
 	    	//JERRID: REMOVE VEHICLE RECORD
 	        //((VehicleArrayAdapter)getListAdapter()).remove(values[info.position]).notifyDataSetChanged();
-	    	values[info.position]=null;
+	    	adapter.remove( adapter.getItem(info.position) );
+	    	adapter.notifyDataSetChanged();
 	        return true;
 	    }
 	    return false;
 	}
+	
 }

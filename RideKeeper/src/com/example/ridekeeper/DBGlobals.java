@@ -10,7 +10,7 @@ package com.example.ridekeeper;
 	
 	public static final double searchRadius = 10; //radius to scan for VBS (in miles)
 	public static final int vbsPosMapUpdateRate = 2000; //update rate for VBS position on the map (in ms);
-	public static final int repeatingAlarmRate = 60000; //wake up phone and run some tasks every X ms
+	public static final int repeatingAlarmRate = 1000 * 60 * 5; //wake up phone and run some tasks every X ms
 	
 	public static final String PARSE_VEHICLE_TBL = "Vehicle";
 }

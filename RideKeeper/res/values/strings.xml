@@ -37,6 +37,8 @@
     <string name="button_signup">Sign Up!</string>
     <string name="button_signin">Sign In</string>
     <string name="button_signout">Sign Out</string>
+    <string name="button_resetpwd">Reset password</string>
+    
     
     <string name="button_save">Save</string>
     <string name="button_cancel">Cancel</string>
@@ -72,6 +74,9 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="action_websearch">Web search</string>
+    <string name="action_addvehicle">Add vehicle</string>
+    <string name="action_refreshvbslist">Refresh</string>
+    
     <string name="app_not_available">Sorry, there\'s no web browser available</string>
 
 </resources>

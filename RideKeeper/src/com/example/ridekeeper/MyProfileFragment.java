@@ -37,6 +37,7 @@ import com.parse.ParseFile;
 import com.parse.ParseImageView;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
+import com.parse.RequestPasswordResetCallback;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
@@ -55,7 +56,7 @@ public class MyProfileFragment extends Fragment {
 	private boolean isTakenFromCamera;
 	
 	private EditText name, email, phone, pwd;
-	private Button save, change, signup, signin, signout;
+	private Button save, change, signup, signin, signout, resetpwd;
 	
 	public static final String USER_NAME="user_name";
 	public static final String MY_USER_NAME_HACKFORNOW="jried";
@@ -135,6 +136,7 @@ public class MyProfileFragment extends Fragment {
 
 		signup = (Button) view.findViewById(R.id.button_signup);
 		signin = (Button) view.findViewById(R.id.button_signin);
+		resetpwd = (Button) view.findViewById(R.id.button_resetpwd);
 		
 		email = (EditText) view.findViewById(R.id.editText_email);
 		pwd = (EditText) view.findViewById(R.id.editText_pwd);
@@ -206,11 +208,28 @@ public class MyProfileFragment extends Fragment {
 						}else{
 							Toast.makeText(getActivity(), "Error signing in. " + e.getMessage(), Toast.LENGTH_LONG).show();
 						}
-						
 						signin.setEnabled(true);
 					}
 				});
 				
+			}
+		});
+		
+		resetpwd.setOnClickListener( new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				resetpwd.setEnabled(false);
+				ParseUser.requestPasswordResetInBackground(email.getText().toString(), new RequestPasswordResetCallback() {
+					@Override
+					public void done(ParseException e) {
+						if (e==null){
+							Toast.makeText(getActivity(), "Password reset instruction has been sent to your email." , Toast.LENGTH_SHORT).show();
+						}else{
+							Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+						}
+						resetpwd.setEnabled(true);
+					}
+				});
 			}
 		});
 		
@@ -345,8 +364,6 @@ public class MyProfileFragment extends Fragment {
 		}
 	}
 	
-
-
 	// Crop and resize the image for profile
 	private void cropImage() {
 		// Use existing crop activity.
