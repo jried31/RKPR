@@ -21,8 +21,6 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.SearchManager;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationListener;
@@ -298,19 +296,15 @@ public class MainActivity extends Activity implements LocationListener {
 	}
 
 	public void test(View v){
-		HelperFuncs.updatetLocation_Blocked(this);
-
-		if (HelperFuncs.myLocation != null){
-			ParseGeoPoint myGeo = new ParseGeoPoint( HelperFuncs.myLocation.getLatitude(),
-					HelperFuncs.myLocation.getLongitude() );
-			ParseInstallation.getCurrentInstallation().put("GeoPoint", myGeo);
-
-			try {
-				ParseInstallation.getCurrentInstallation().save();
-			} catch (ParseException e) {
-				e.printStackTrace();
+		Toast.makeText(getApplicationContext(), "START", Toast.LENGTH_SHORT).show();
+		
+		HelperFuncs.updatetLocation_inBackground(this, new HelperFuncs.GetLocCallback() {
+			@Override
+			public void done() {
+				Toast.makeText(getApplicationContext(), "GOT LOC", Toast.LENGTH_SHORT).show();
 			}
-		}
+		});
+		
 	}
 	
 	private void action_AddVehicle(){

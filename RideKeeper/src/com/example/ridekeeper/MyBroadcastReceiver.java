@@ -27,7 +27,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 		//Toast.makeText(context, "Acquiring wlock", Toast.LENGTH_SHORT).show();
 		wl.acquire();
 		//routineCheck(context);
-		updateLocToParse(context); //Periodically update phone's location to Parse server
+		HelperFuncs.updateLocToParse(context); //Periodically update phone's location to Parse server
 		//Toast.makeText(context, "Releasing wlock", Toast.LENGTH_SHORT).show();
 		wl.release();
 	}
@@ -84,17 +84,24 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 	}
 	*/
 	
+	/*
 	//Update phone's location to parse server
 	private void updateLocToParse(Context context){
 		//Toast.makeText(context, "Update loc to Parse", Toast.LENGTH_SHORT).show();
-		HelperFuncs.updatetLocation_Blocked(context);
+		//HelperFuncs.updatetLocation_Blocked(context);
 		
-		if (HelperFuncs.myLocation != null){
-			ParseGeoPoint myGeo = new ParseGeoPoint( HelperFuncs.myLocation.getLatitude(),
-													HelperFuncs.myLocation.getLongitude() );
-			ParseInstallation.getCurrentInstallation().put("GeoPoint", myGeo);
-			ParseInstallation.getCurrentInstallation().saveInBackground();
-		}
+		HelperFuncs.updatetLocation_inBackground(context, new HelperFuncs.GetLocCallback() {
+			@Override
+			public void done() {
+				if (HelperFuncs.myLocation != null){
+					ParseGeoPoint myGeo = new ParseGeoPoint( HelperFuncs.myLocation.getLatitude(),
+															HelperFuncs.myLocation.getLongitude() );
+					ParseInstallation.getCurrentInstallation().put("GeoPoint", myGeo);
+					ParseInstallation.getCurrentInstallation().saveInBackground();
+				}
+			}
+		});
 	}
+	*/
 
 }

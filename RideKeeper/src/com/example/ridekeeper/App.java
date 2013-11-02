@@ -23,8 +23,8 @@ public class App extends Application{
         //Initialize some HelperFuncs obj
         //Toast.makeText(this, "Application start", Toast.LENGTH_SHORT).show();
         HelperFuncs.initialize(this);
-        
-        //wake phone up periodically to do some tasks
+
+        HelperFuncs.updateOwnerIdInInstallation();
     }
 	
 }

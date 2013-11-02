@@ -21,8 +21,10 @@ import android.support.v4.app.TaskStackBuilder;
 
 import com.google.android.gms.maps.model.Marker;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -40,6 +42,10 @@ public class HelperFuncs {
 	
 	public static List<ParseObject> myVBSList;
 	public static List<Marker> myMarkerList;
+	
+	interface GetLocCallback{
+		void done();;
+	}
 	
 	public static void initialize(Context context){
         bReceiver = new MyBroadcastReceiver(); //For receiving wake lock and do routine check
@@ -87,6 +93,25 @@ public class HelperFuncs {
 		if (myLocation == null){
 			myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 		}
+	}
+	
+	public static void updatetLocation_inBackground(Context context, final GetLocCallback callback){
+		LocationListener locationListener = new LocationListener() {
+			public void onLocationChanged(Location location) {
+				myLocation = location;
+				callback.done();
+				locationManager.removeUpdates(this);
+			}
+
+			public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+			public void onProviderEnabled(String provider) {}
+
+			public void onProviderDisabled(String provider) {}
+		};
+		
+		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 	}
 	
 	public static void updatetLocation_Blocked(Context context){
@@ -204,6 +229,45 @@ public class HelperFuncs {
 		query.findInBackground(callback);
 	}
 	
+	//Update phone's location to parse server
+	public static void updateLocToParse(Context context){
+		//Toast.makeText(context, "Update loc to Parse", Toast.LENGTH_SHORT).show();
+		//HelperFuncs.updatetLocation_Blocked(context);
+		
+		updatetLocation_inBackground(context, new HelperFuncs.GetLocCallback() {
+			@Override
+			public void done() {
+				if (myLocation != null){
+					ParseGeoPoint myGeo = new ParseGeoPoint( myLocation.getLatitude(),
+															 myLocation.getLongitude() );
+					ParseInstallation.getCurrentInstallation().put("GeoPoint", myGeo);
+					ParseInstallation.getCurrentInstallation().saveInBackground();
+				}
+			}
+		});
+	}
+	
+	//Update the ownerId field in Installation table in Parse
+	//Used when user log in or phone reboot
+	public static void updateOwnerIdInInstallation(){
+		parseUser = ParseUser.getCurrentUser();
+		
+		if (parseUser != null && parseUser.isAuthenticated()){
+			ParseInstallation.getCurrentInstallation().put(DBGlobals.PARSE_INSTL_OWERID, parseUser.getObjectId());
+			ParseInstallation.getCurrentInstallation().saveInBackground();
+		}
+	}
+	
+	//Remove the ownerId field in Installation table in Parse
+	//Used when user log out
+	public static void removeOwnerIdInInstallation(){
+		parseUser = ParseUser.getCurrentUser();
+		
+		if (parseUser != null && parseUser.isAuthenticated()){
+			ParseInstallation.getCurrentInstallation().put(DBGlobals.PARSE_INSTL_OWERID, "");
+			ParseInstallation.getCurrentInstallation().saveInBackground();
+		}
+	}
 	
 	public static void postToParse(){
 		ParseObject VBS = new ParseObject(DBGlobals.PARSE_VEHICLE_TBL);

@@ -171,8 +171,7 @@ public class MyProfileFragment extends Fragment {
 					public void done(ParseException e) {
 						if (e==null){
 							//Update ownerId in Installation table
-							ParseInstallation.getCurrentInstallation().put("ownerId", HelperFuncs.parseUser.getObjectId());
-							ParseInstallation.getCurrentInstallation().saveInBackground();
+							HelperFuncs.updateOwnerIdInInstallation();
 							
 							Toast.makeText(getActivity(), "Your account has been created.", Toast.LENGTH_LONG).show();
 							reloadFragment();
@@ -203,6 +202,7 @@ public class MyProfileFragment extends Fragment {
 					public void done(ParseUser user, ParseException e) {
 						if (e == null){
 							HelperFuncs.parseUser = user;
+							HelperFuncs.updateOwnerIdInInstallation();
 							Toast.makeText(getActivity(), "You are now signed in!", Toast.LENGTH_LONG).show();
 							reloadFragment();
 						}else{
@@ -250,6 +250,7 @@ public class MyProfileFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				ParseUser.logOut();
+				HelperFuncs.removeOwnerIdInInstallation();
 				reloadFragment();
 			}
 		});
