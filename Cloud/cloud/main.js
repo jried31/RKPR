@@ -45,7 +45,7 @@ Parse.Cloud.job( "sendTiltNotification", function( request, status ) {
 			status.success( "Succesfully notified tilted vehicles.") ;
 		},
 		error: function( error ) {
-    		success.error( "Error: " + error.code + " " + error.message );
+    		status.error( "Error: " + error.code + " " + error.message );
     	}
 	} );
 } );
@@ -104,7 +104,7 @@ Parse.Cloud.job( "updateStolenStatus", function( request, status ) {
         	status.success( "Successfully notified stolen vehicles." );
 		},
 		error: function( error ) {
-    		success.error( "Error: " + error.code + " " + error.message );
+    		status.error( "Error: " + error.code + " " + error.message );
     	}
 	} );
 } );
@@ -148,7 +148,7 @@ Parse.Cloud.job( "addNearbyUsersToChat", function( request, status ) {
                             installQuery.find( { 
                                 success: function ( results ) {
                                     if ( results.length == 0 ) {
-                                        success.message( "No nearby users to notify for " + vehicle.id );
+                                        status.message( "No nearby users to notify for " + vehicle.id );
                                     }
 
                                     for ( var i = 0; i < results.length; i++ ) {
@@ -158,7 +158,7 @@ Parse.Cloud.job( "addNearbyUsersToChat", function( request, status ) {
                                         // 1. Add them to the user list, if they're not already there
                                         // 2. Notify them.
 
-                                        success.message( "Adding " + nearby_user.id + " to list for " + vehicle.id );
+                                        status.message( "Adding " + nearby_user.id + " to list for " + vehicle.id );
 
                                         if ( -1 == room.get( "members" ).indexOf( nearby_user.get( "ownerId" ) ) ) {
                                             // We still use addUnique here for safety, even though we did the check
@@ -186,20 +186,20 @@ Parse.Cloud.job( "addNearbyUsersToChat", function( request, status ) {
                                     }
                                 },
                                 error: function( error ) {
-                                    success.error( "Error: " + error.code + " " + error.message );
+                                    status.error( "Error: " + error.code + " " + error.message );
                                 }
                             } );
                         }
                     },
                     error: function( error ) {
-                        success.error( "Error: " + error.code + " " + error.message );
+                        status.error( "Error: " + error.code + " " + error.message );
                     }
                 } );
             }
             status.success( "Succesfully added users to chatrooms." );
         },
         error: function( error ) {
-            success.error( "Error: " + error.code + " " + error.message );
+            status.error( "Error: " + error.code + " " + error.message );
         }
     } );
 } );
