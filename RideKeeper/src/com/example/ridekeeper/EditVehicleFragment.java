@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseImageView;
 import com.parse.ParseQuery;
@@ -120,11 +121,10 @@ public class EditVehicleFragment extends DialogFragment {
 						
 						btSave.setEnabled(true);
 						
-						
-						MyVehicleListFragment.myVehicleAdapter.notifyDataSetChanged();
+						//MyVehicleListFragment.myVehicleAdapter.notifyDataSetChanged();
 						ParseQuery.clearAllCachedResults();
-						
-						getFragmentManager().popBackStack();
+						MyVehicleListFragment.refreshList();
+						getFragmentManager().popBackStack(); //Remove the Edit fragment
 					}
 				});
 				

@@ -38,7 +38,7 @@
     
     <application
         android:label="@string/app_name"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/motorbike_inv"
         android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
         android:name=".App">
 

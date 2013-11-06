@@ -2,7 +2,12 @@ package com.example.ridekeeper;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import android.app.AlertDialog;
+import android.app.DownloadManager.Query;
 import android.app.ListFragment;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -11,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Toast;
+
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -19,11 +25,13 @@ import com.parse.ParseUser;
 
 public class MyVehicleListFragment extends ListFragment {
 	public static ParseVehicleArrayAdapter myVehicleAdapter;
-
+	private static Context myContext;
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
+		myContext = getActivity();
 		myVehicleAdapter = new ParseVehicleArrayAdapter(getActivity(), new ArrayList<ParseVehicle>());		
 		setListAdapter(myVehicleAdapter);
 		
@@ -59,16 +67,14 @@ public class MyVehicleListFragment extends ListFragment {
 	    	return true;
 	    	
 	    case R.id.remove_item:
-	    	// TODO remove from Parse server
-	    	myVehicleAdapter.remove( myVehicleAdapter.getItem(info.position) );
-	    	myVehicleAdapter.notifyDataSetChanged();
+	    	removeVehicle(info.position);
 	        return true;
 	    }
 	    return false;
 	}
 	
 	//Should be called only when ParseUser.getCurrentUser() is authenticated
-	public void refreshList(){
+	public static void refreshList(){
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("Vehicle");
 		query.whereContains(ParseVehicle.OWNERID, ParseUser.getCurrentUser().getObjectId());
 		query.setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK);
@@ -84,10 +90,43 @@ public class MyVehicleListFragment extends ListFragment {
 						myVehicleAdapter.add( (ParseVehicle) objects.get(i) );
 					}
 				}else{
-					Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+					Toast.makeText(myContext, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
 	}
 	
+	private static void removeVehicle(final int position){
+		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+		    @Override
+		    public void onClick(DialogInterface dialog, int which) {
+		        switch (which){
+		        case DialogInterface.BUTTON_POSITIVE:
+		        	try {
+		        		//remove from Parse
+		        		myVehicleAdapter.getItem(position).delete();
+		        		
+						//remove from the list
+			        	myVehicleAdapter.remove( myVehicleAdapter.getItem(position) );
+			        	myVehicleAdapter.notifyDataSetChanged();
+			        	ParseQuery.clearAllCachedResults();
+			        	refreshList();
+		        	} catch (ParseException e) {
+						Toast.makeText(myContext, "Error removing: " + e.getMessage() , Toast.LENGTH_SHORT).show();
+					}
+		        	
+		            break;
+
+		        case DialogInterface.BUTTON_NEGATIVE:
+		            //No button clicked
+		            break;
+		        }
+		    }
+		};
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(myContext);
+		builder.setMessage("Confirm removing selected vehicle?").setPositiveButton("Yes", dialogClickListener)
+		    .setNegativeButton("No", dialogClickListener).show();
+		
+	}
 }

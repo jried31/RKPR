@@ -239,7 +239,6 @@ public class MainActivity extends Activity implements LocationListener {
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 
 		//Stop alarm tone and vibration
