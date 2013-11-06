@@ -12,7 +12,7 @@ public class ParseCustomReceiver extends BroadcastReceiver{
 	/* Sample Push 
 	    {
 		  "action": "ALERT",
-		  "detail": "stolen" 
+		  "status": "stolen" 
 		}
 	 */
 	
@@ -21,7 +21,7 @@ public class ParseCustomReceiver extends BroadcastReceiver{
 		try {
 			//String action = intent.getAction();
 			JSONObject json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
-			String detail = json.getString("detail");
+			String detail = json.getString("status");
 
 			if (App.isMainActivityRunning){
 				HelperFuncs.vibrationShort();

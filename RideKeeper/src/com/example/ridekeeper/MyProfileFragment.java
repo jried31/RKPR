@@ -36,6 +36,8 @@ import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseImageView;
 import com.parse.ParseInstallation;
+import com.parse.ParseQuery;
+import com.parse.ParseQueryAdapter;
 import com.parse.ParseUser;
 import com.parse.RequestPasswordResetCallback;
 import com.parse.SaveCallback;
@@ -251,6 +253,7 @@ public class MyProfileFragment extends Fragment {
 			public void onClick(View v) {
 				ParseUser.logOut();
 				HelperFuncs.removeOwnerIdInInstallation();
+				ParseQuery.clearAllCachedResults();
 				reloadFragment();
 			}
 		});
@@ -268,7 +271,7 @@ public class MyProfileFragment extends Fragment {
 				builder.setTitle(R.string.photo_picker_title);
 				dlistener = new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int item) {
-						onPhotoPickerItemSelected(item);					
+						onPhotoPickerItemSelected(item);
 					}
 				};
 
@@ -322,7 +325,7 @@ public class MyProfileFragment extends Fragment {
 		}
 	}
 
-	private void loadSnap() {
+	private void loadSnap( ParseImageView mImageView ) {
 		// Load profile photo from internal storage
 		try {
 			FileInputStream fis = getActivity().openFileInput(getString(R.string.photo_filename));
@@ -345,8 +348,6 @@ public class MyProfileFragment extends Fragment {
 				public void done(byte[] data, ParseException e) {
 				}
 			});
-
-	    	// TODO: Save image to internal storage
 	    }
 	    
 	}
@@ -397,7 +398,7 @@ public class MyProfileFragment extends Fragment {
 		email.setText(puser.getEmail());
 		phone.setText(puser.getString(PHONE));
 		
-		loadSnap();
+		loadSnap(mImageView);
 	}
 	
 	private void saveProfile(View view){

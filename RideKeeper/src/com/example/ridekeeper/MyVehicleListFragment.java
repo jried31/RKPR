@@ -1,9 +1,8 @@
 package com.example.ridekeeper;
 
 import java.util.ArrayList;
-
-import com.example.ridekeeper.R;
-
+import java.util.List;
+import android.app.ListFragment;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -11,51 +10,35 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.Toast;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
-public class MyVehicleListFragment extends android.app.ListFragment {
-	private VehicleArrayAdapter adapter;
-	Vehicle[] values;
+public class MyVehicleListFragment extends ListFragment {
+	public static ParseVehicleArrayAdapter myVehicleAdapter;
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-		//JERRID: GRAB THE VEHICLE VALUES FROM THE DB
+		myVehicleAdapter = new ParseVehicleArrayAdapter(getActivity(), new ArrayList<ParseVehicle>());		
+		setListAdapter(myVehicleAdapter);
 		
-		ArrayList<Vehicle> values = new ArrayList<Vehicle>();
-		
-		/*
-		values.add(new Vehicle());
-		
-		values.get(0).setLicense("dfds-dfdss");
-		values.get(0).setMake("Honda");
-		values.get(0).setModel("Accord");
-		values.get(0).setYear(1998);
-		values.get(0).setStatus("Armed");
-		values.get(0).setPhotoURI(getString(R.string.photo_filename));
-		*/
-		
-		adapter = new VehicleArrayAdapter(getActivity(), values);
-		
-	    setListAdapter(adapter);
-	    
-		/* listView = getListView();
-	    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-	    listView.setOnItemLongClickListener(new OnItemLongClickListener() {
-	        @Override
-	        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
-	        	//SHOW THE Vehicle Profile Edit Menu
-	        	Toast.makeText(getActivity(), "LIST ITEM CLICKED @ Position "+position ,4000).show();
-        		
-	          
-	          // start the CAB using the ActionMode.Callback defined above
-	          //mActionMode = MyListActivityActionbar.this.startActionMode(mActionModeCallback);
-	          //view.setSelected(true);
-	          return true;
-	        }
-	      });*/
 	    this.setMenuVisibility(true);
 	    registerForContextMenu(getListView());
+	    
+		if (ParseUser.getCurrentUser() != null &&
+				ParseUser.getCurrentUser().isAuthenticated() ){ // User was authenticated
+			
+		    refreshList();
+
+		}else{ // Need sign in/up
+			Toast.makeText(getActivity(), "You need to sign in in My Profile first!!", Toast.LENGTH_LONG).show();
+		}
+		
 	}
 	
 	@Override
@@ -72,16 +55,39 @@ public class MyVehicleListFragment extends android.app.ListFragment {
 	 
 	    switch (item.getItemId()) {
 	    case R.id.edit_item:
-	    	//JERRID: OPEN THE VEHICLE EDIT IMENU
+	    	EditVehicleFragment.editVehicle(getFragmentManager(), info.position );
 	    	return true;
+	    	
 	    case R.id.remove_item:
-	    	//JERRID: REMOVE VEHICLE RECORD
-	        //((VehicleArrayAdapter)getListAdapter()).remove(values[info.position]).notifyDataSetChanged();
-	    	adapter.remove( adapter.getItem(info.position) );
-	    	adapter.notifyDataSetChanged();
+	    	// TODO remove from Parse server
+	    	myVehicleAdapter.remove( myVehicleAdapter.getItem(info.position) );
+	    	myVehicleAdapter.notifyDataSetChanged();
 	        return true;
 	    }
 	    return false;
+	}
+	
+	//Should be called only when ParseUser.getCurrentUser() is authenticated
+	public void refreshList(){
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Vehicle");
+		query.whereContains(ParseVehicle.OWNERID, ParseUser.getCurrentUser().getObjectId());
+		query.setCachePolicy(ParseQuery.CachePolicy.CACHE_ELSE_NETWORK);
+		
+		query.findInBackground(new FindCallback<ParseObject>() {
+			@Override
+			public void done(List<ParseObject> objects, ParseException e) {
+				if (e==null){
+					
+					myVehicleAdapter.clear();
+					
+					for (int i=0; i < objects.size(); i++){
+						myVehicleAdapter.add( (ParseVehicle) objects.get(i) );
+					}
+				}else{
+					Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
 	}
 	
 }

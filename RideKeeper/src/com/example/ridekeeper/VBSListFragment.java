@@ -107,8 +107,8 @@ public class VBSListFragment extends ListFragment{
 		registerForContextMenu(getListView());
 		
 		//Refresh the list
-		mHandler.postDelayed(runQueryVBS, 500);
-	}	
+		mHandler.post(runQueryVBS);
+	}
 
 	@Override
 	public void onResume() {

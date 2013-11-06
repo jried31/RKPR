@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.parse.Parse;
 import com.parse.ParseInstallation;
+import com.parse.ParseObject;
 import com.parse.PushService;
 
 public class App extends Application{
@@ -13,6 +14,7 @@ public class App extends Application{
         super.onCreate();
         
         // MUST Initialize Parse here, otherwise BroadcastReceiver will crash when doing query
+        ParseObject.registerSubclass(ParseVehicle.class);
         //Register with Parse server
         Parse.initialize(this,
 				"OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f", 	//Application ID

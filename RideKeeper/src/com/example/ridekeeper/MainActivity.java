@@ -155,12 +155,13 @@ public class MainActivity extends Activity implements LocationListener {
 			return true;
 		*/
 		case R.id.action_refreshvbslist:
-			VBSListFragment.mHandler.postDelayed(VBSListFragment.runQueryVBS, 500);
+			VBSListFragment.mHandler.post(VBSListFragment.runQueryVBS);
 			return true;
 		
 		case R.id.action_addvehicle:
 			//Toast.makeText(getApplicationContext(), "Add...", Toast.LENGTH_SHORT).show();
-			action_AddVehicle();
+			//action_AddVehicle();
+			EditVehicleFragment.addVehicle(getFragmentManager());
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -307,6 +308,7 @@ public class MainActivity extends Activity implements LocationListener {
 		
 	}
 	
+	/*
 	private void action_AddVehicle(){
     	FragmentTransaction ft = getFragmentManager().beginTransaction();
     	Fragment prev = getFragmentManager().findFragmentByTag("Add Vehicle Dialog");
@@ -315,11 +317,11 @@ public class MainActivity extends Activity implements LocationListener {
     	}
     	ft.addToBackStack(null);
     	
-    	//Putting the UID of the select vehicle to the Google Map fragment argument
     	DialogFragment editVehicleFrag = new EditVehicleFragment();
     	Bundle args = new Bundle();
     	args.putString("mode", "add");
     	editVehicleFrag.setArguments(args);
     	editVehicleFrag.show(ft, "Add Vehicle Dialog");
 	}
+	*/
 }
