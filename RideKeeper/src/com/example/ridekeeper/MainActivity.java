@@ -159,8 +159,6 @@ public class MainActivity extends Activity implements LocationListener {
 			return true;
 		
 		case R.id.action_addvehicle:
-			//Toast.makeText(getApplicationContext(), "Add...", Toast.LENGTH_SHORT).show();
-			//action_AddVehicle();
 			EditVehicleFragment.addVehicle(getFragmentManager());
 			return true;
 		default:

@@ -1,27 +1,35 @@
 package com.example.ridekeeper;
 
-import com.parse.ParseImageView;
-
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.parse.ParseException;
+import com.parse.ParseImageView;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 public class EditVehicleFragment extends DialogFragment {
     private ParseImageView pivPhoto;
     private EditText etMake, etModel, etYear, etLicense;
-    private Button btEdit;
+    private Button btSave;
     
 	private String mode = "add"; //Default is add mode
     private int pos = 0;
-	
+    ParseVehicle vehicle; //current vehicle being add/edit
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -47,38 +55,99 @@ public class EditVehicleFragment extends DialogFragment {
 	    etModel = (EditText) view.findViewById(R.id.editText_model);
 	    etYear = (EditText) view.findViewById(R.id.editText_year);
 	    etLicense = (EditText) view.findViewById(R.id.editText_license);
-		btEdit = (Button) view.findViewById(R.id.button_edit_vehicle);
+		btSave = (Button) view.findViewById(R.id.button_save_vehicle);
 	    
 		
 		if (mode.equals("add")){
-			btEdit.setText("Add");
+			btSave.setText("Add");
+			vehicle = new ParseVehicle();
+
+			vehicle.put("ownerId", ParseUser.getCurrentUser().getObjectId());
+			
 		}else if (mode.equals("edit")){
-			ParseVehicle vehicle = MyVehicleListFragment.myVehicleAdapter.getItem(pos);
+			vehicle = MyVehicleListFragment.myVehicleAdapter.getItem(pos);
+			
+			//Load data from Parse
 			etMake.setText(vehicle.getMake());
 			etModel.setText(vehicle.getModel());
 			etYear.setText(vehicle.getYear().toString());
 			etLicense.setText(vehicle.getLicense());
-			vehicle.loadIntoImage(getActivity(), pivPhoto);
+			vehicle.loadPhoto(getActivity(), pivPhoto);
 			
-			btEdit.setText("Save");
+			btSave.setText("Save");
 		}
 
 		
-		btEdit.setOnClickListener(new View.OnClickListener() {
+		pivPhoto.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ParseVehicle vehicle = MyVehicleListFragment.myVehicleAdapter.getItem(pos);
+				Intent intent = new Intent(getActivity() , GetPhoto.class);
+				startActivityForResult(intent, 0);
+				//will get the result in onActivityResult
+			}
+		});
+		
+		
+		btSave.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				btSave.setEnabled(false);
+				
 				vehicle.setMake(etMake.getText().toString());
 				vehicle.setModel(etModel.getText().toString());
 				vehicle.setYear( etYear.getText().toString());
 				vehicle.setLicense(etLicense.getText().toString());
+				vehicle.prepareSavingPhoto(getActivity(), pivPhoto);
+				
+				if (mode.equals("add")){
+					MyVehicleListFragment.myVehicleAdapter.add(vehicle);
+				}else if (mode.equals("edit")){
+				}
+				
+				//Add the new vehicle / save modified vehicle
+				vehicle.saveInBackground(new SaveCallback() {
+					@Override
+					public void done(ParseException e) {
+						if (e==null){
+							//Now the 'objectId' of the vehicle is available.
+							vehicle.savePhotoLocally(getActivity());
+							
+							Toast.makeText(getActivity(), "Saved!", Toast.LENGTH_SHORT).show();
+							
+						}else{
+							Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+						}
+						
+						btSave.setEnabled(true);
+						
+						
+						MyVehicleListFragment.myVehicleAdapter.notifyDataSetChanged();
+						ParseQuery.clearAllCachedResults();
+						
+						getFragmentManager().popBackStack();
+					}
+				});
 				
 				
-				vehicle.loadIntoImage(getActivity(), pivPhoto);
+
 			}
 		});
 		
 		return view;
+    }
+    
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	super.onActivityResult(requestCode, resultCode, data);
+    	
+    	if (resultCode==Activity.RESULT_OK){
+    		
+    		Bundle extras = data.getExtras();
+    		if (extras != null) {
+    			pivPhoto.setImageBitmap((Bitmap) extras.getParcelable("data"));
+			}
+    		
+    	}
     }
     
     

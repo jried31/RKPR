@@ -3,14 +3,12 @@
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:padding="6dip" >
 
-    <ImageView
+    <com.parse.ParseImageView
         android:id="@+id/vehicle_item_photo"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="6dip"
-        android:contentDescription="TODO"
         android:src="@drawable/motorcycle" />
     
      <LinearLayout

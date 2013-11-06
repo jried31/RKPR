@@ -2,6 +2,7 @@ package com.example.ridekeeper;
 
 
 import java.util.List;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.parse.ParseImageView;
 
 public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
   private final Context context;
@@ -31,7 +34,7 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
     TextView modelView = (TextView) rowView.findViewById(R.id.vehicle_item_model);
     TextView statusView = (TextView) rowView.findViewById(R.id.vehicle_item_status);
     TextView yearView = (TextView) rowView.findViewById(R.id.vehicle_item_year);
-    ImageView imageView = (ImageView) rowView.findViewById(R.id.vehicle_item_photo);
+    ParseImageView imageView = (ParseImageView) rowView.findViewById(R.id.vehicle_item_photo);
     
     //Assign values to widgets
     ParseVehicle vehicle = parseVehicleLst.get(position);
@@ -40,6 +43,8 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
     yearView.setText( vehicle.getYear().toString() );
     statusView.setText(""); // TODO set status
     
+    
+    vehicle.loadPhoto(getContext(), imageView);
 	// Load profile photo from internal storage
     /*
 	try {

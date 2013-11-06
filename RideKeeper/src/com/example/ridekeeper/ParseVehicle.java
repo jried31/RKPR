@@ -31,6 +31,8 @@ public class ParseVehicle extends ParseObject {
 	private static final String PHOTOFILE_PREFIX = "vehicle_photo_",
 								PHOTOFILE_SUBFIX = ".png";
 	
+	byte[] photoData;
+	
 	public ParseVehicle() {
 	}
 
@@ -72,32 +74,40 @@ public class ParseVehicle extends ParseObject {
 	void setPhoto(ParseFile photo){
 		// TODO save to cache
 		put(PHOTO, photo);
-		
-		
 	}
 	
-	public void saveFromImage(Context contexct, ParseImageView mImageView){
+	//Preparing the photo data to be saved to Parse
+	public void prepareSavingPhoto(Context contexct, ParseImageView mImageView){
 		mImageView.buildDrawingCache();
 		Bitmap bmap = mImageView.getDrawingCache();
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		bmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
-		byte[] croppedData = bos.toByteArray();
+		photoData = bos.toByteArray();
 		
-		try {
-			FileOutputStream fos = contexct.openFileOutput(
-					PHOTOFILE_PREFIX + getObjectId() + PHOTOFILE_SUBFIX, Activity.MODE_PRIVATE);
-			fos.write(croppedData);
-			fos.flush();
-			fos.close();
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (IOException e2){
-			e2.printStackTrace();
+		setPhoto( new ParseFile("photo.png", photoData) );
+	}
+	
+	//Save the photo locally
+	public void savePhotoLocally(Context contexct){
+		if (photoData != null){
+			try {
+				FileOutputStream fos = contexct.openFileOutput(
+						PHOTOFILE_PREFIX + getObjectId() + PHOTOFILE_SUBFIX, Activity.MODE_PRIVATE);
+				fos.write(photoData);
+				fos.flush();
+				fos.close();
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			} catch (IOException e2){
+				e2.printStackTrace();
+			}
 		}
 	}
 	
-	public void loadIntoImage(Context context, ParseImageView mImageView ) {
-		// Load profile photo from internal storage
+	
+	
+	public void loadPhoto(Context context, ParseImageView mImageView ) {
+		// Try to load profile photo from internal storage first
 		try {
 			FileInputStream fis = context.openFileInput( PHOTOFILE_PREFIX + getObjectId() + PHOTOFILE_SUBFIX );
 			Bitmap bmap = BitmapFactory.decodeStream(fis);

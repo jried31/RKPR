@@ -263,8 +263,6 @@ public class MyProfileFragment extends Fragment {
 
 		change.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				//Save the Content to the Shared Preferences & Upload to Parse
-
 				final Activity parent = getActivity();
 				AlertDialog.Builder builder = new AlertDialog.Builder(parent);
 				DialogInterface.OnClickListener dlistener;
@@ -276,7 +274,7 @@ public class MyProfileFragment extends Fragment {
 				};
 
 				builder.setItems(R.array.photo_picker_items, dlistener);
-				builder.create().show();//.show(getFragmentManager(),getString(R.string.photo_picker_tag));
+				builder.create().show();
 			}
 		});
 	}
