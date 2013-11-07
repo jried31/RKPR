@@ -246,7 +246,7 @@ public class MyVehicleFormFragment extends Fragment {
 		private void loadSnap() {
 			// Load profile photo from internal storage
 			try {
-				FileInputStream fis = getActivity().openFileInput(getString(R.string.photo_filename));
+				FileInputStream fis = getActivity().openFileInput("avatar.png");
 				Bitmap bmap = BitmapFactory.decodeStream(fis);
 				mImageView.setImageBitmap(bmap);
 				fis.close();
@@ -265,7 +265,7 @@ public class MyVehicleFormFragment extends Fragment {
 			try {
 				//NOTE MODE_PRIVATE saves teh image file as a private file with the name designated under photo_filename
 				FileOutputStream fos = getActivity().openFileOutput(
-						getString(R.string.photo_filename), Activity.MODE_PRIVATE);
+						"avatar.png", Activity.MODE_PRIVATE);
 				bmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
 				fos.flush();
 				fos.close();

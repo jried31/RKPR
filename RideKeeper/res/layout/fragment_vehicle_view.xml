@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginBottom="20dp"
-            android:text="@string/owner_name" >
+            android:text="@string/owner_display_name" >
         </TextView>
 
         <TextView

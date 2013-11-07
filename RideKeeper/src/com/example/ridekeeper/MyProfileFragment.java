@@ -52,7 +52,10 @@ public class MyProfileFragment extends Fragment {
 
 	private static final String IMAGE_UNSPECIFIED = "image/*";
 	private static final String URI_INSTANCE_STATE_KEY = "saved_uri";
-
+	
+	private static final String USER_PHOTO_PREFIX = "user_photo",
+								USER_PHOTO_SUBFIX = ".png";
+	
 	private Uri mImageCaptureUri;
 	private ParseImageView mImageView;
 	private boolean isTakenFromCamera;
@@ -326,7 +329,7 @@ public class MyProfileFragment extends Fragment {
 	private void loadSnap( ParseImageView mImageView ) {
 		// Load profile photo from internal storage
 		try {
-			FileInputStream fis = getActivity().openFileInput(getString(R.string.photo_filename));
+			FileInputStream fis = getActivity().openFileInput( USER_PHOTO_PREFIX + ParseUser.getCurrentUser().getObjectId() + USER_PHOTO_SUBFIX );
 			Bitmap bmap = BitmapFactory.decodeStream(fis);
 			mImageView.setImageBitmap(bmap);
 			fis.close();
@@ -353,7 +356,8 @@ public class MyProfileFragment extends Fragment {
 	private void saveLocSnap(byte[] data){
 		try {
 			FileOutputStream fos = getActivity().openFileOutput(
-					getString(R.string.photo_filename), Activity.MODE_PRIVATE);
+					USER_PHOTO_PREFIX + ParseUser.getCurrentUser().getObjectId() + USER_PHOTO_SUBFIX,
+					Activity.MODE_PRIVATE);
 			fos.write(data);
 			fos.flush();
 			fos.close();
@@ -415,7 +419,7 @@ public class MyProfileFragment extends Fragment {
 
 		saveLocSnap(croppedData);
 		
-		ParseFile pfAvatar = new ParseFile(getString(R.string.photo_filename), croppedData);
+		ParseFile pfAvatar = new ParseFile("avatar.png", croppedData);
 		
 		// Update Parse
 		ParseUser.getCurrentUser().setUsername(emailVal);
