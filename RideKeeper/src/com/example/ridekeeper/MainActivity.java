@@ -155,7 +155,7 @@ public class MainActivity extends Activity implements LocationListener {
 			return true;
 		*/
 		case R.id.action_refreshvbslist:
-			VBSListFragment.mHandler.post(VBSListFragment.runQueryVBS);
+			VBSListFragment.refreshList();
 			return true;
 		
 		case R.id.action_addvehicle:

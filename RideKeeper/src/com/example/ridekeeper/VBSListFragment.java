@@ -21,75 +21,25 @@ import android.widget.Toast;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 
 public class VBSListFragment extends ListFragment{
-	private static VehicleArrayAdapter vbsArrayAdapter;
-	private static boolean canRunVBSQuery = false;
+	private static ParseVehicleArrayAdapter vbsArrayAdapter;
 	private static Context myContext;
 	
 	private static FindCallback<ParseObject> queryVBSCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
-			if (!canRunVBSQuery)
-				return;
-			
 			if (e== null){ // no error
-				HelperFuncs.myVBSList = objects;
-				if (HelperFuncs.myVBSList.size()>0){ 
-					//make sure the list has the exact size as the VBS list
-					while( vbsArrayAdapter.getCount() < HelperFuncs.myVBSList.size()){
-						vbsArrayAdapter.add(new Vehicle());
-					}
-					while( vbsArrayAdapter.getCount() > HelperFuncs.myVBSList.size()){
-						vbsArrayAdapter.remove( vbsArrayAdapter.getItem(0) );
-					}
-					
-					//Update each item in the list
-					for (int i=0; i < HelperFuncs.myVBSList.size(); i++){
-						ParseObject parseObj = HelperFuncs.myVBSList.get(i);
-						//ParseGeoPoint p =  parseObj.getParseGeoPoint("pos");
-						Vehicle v = vbsArrayAdapter.getItem(i);
-						v.setUID( parseObj.getObjectId() );
-						v.setMake( parseObj.getString("make") );
-						v.setModel( parseObj.getString("model") );
-						v.setYear( parseObj.getNumber("year").intValue() );
-					}
-				}else{ //No VBS nearby
-					vbsArrayAdapter.clear();
+				vbsArrayAdapter.clear();
+
+				for (int i = 0; i < objects.size(); i++){
+					vbsArrayAdapter.add( (ParseVehicle) objects.get(i));
 				}
-				
-				//mHandler.postDelayed(runQueryVBS, 20000); //Refresh rate = 20 seconds if no error
-				
 			}else{ //error occurred when query to Parse
-				Toast.makeText(myContext, "Error querying Parse server", Toast.LENGTH_SHORT).show();
-				//HelperFuncs.myVBSList.removeAll(objects);
-				
-				//mHandler.postDelayed(runQueryVBS, 30000);  //Refresh rate = 30 seconds if error occurs
-			}
-		}
-	};
-	
-	//Dynamically update VBS on map
-	public static final Handler mHandler = new Handler();
-    public static final Runnable runQueryVBS = new Runnable() {
-    	@Override
-		public void run() {
-			// TODO Turn Internet connection on if needed
-    		
-			//Toast.makeText(context, "Querying VBS", Toast.LENGTH_SHORT).show();
-			//Query Parse server for nearby VBS
-    		if (!canRunVBSQuery){
-    			return;
-    		}else if (HelperFuncs.myLocation == null){
-				HelperFuncs.getLastGoodLoc();
-				
-				mHandler.postDelayed(runQueryVBS, 3000);
-			}else{
-				HelperFuncs.queryForVBS_NonBlocked(	HelperFuncs.myLocation.getLatitude(),
-													HelperFuncs.myLocation.getLongitude(),
-													DBGlobals.searchRadius,
-													queryVBSCallback);
+				Toast.makeText(myContext, "Error: " + e.getMessage() , Toast.LENGTH_SHORT).show();
 			}
 		}
 	};
@@ -101,33 +51,18 @@ public class VBSListFragment extends ListFragment{
 
 		myContext = getActivity();
 		
-	    vbsArrayAdapter = new VehicleArrayAdapter(getActivity(), new ArrayList<Vehicle>());		
+	    vbsArrayAdapter = new ParseVehicleArrayAdapter(getActivity(), new ArrayList<ParseVehicle>());		
 		setListAdapter(vbsArrayAdapter);
 		
 		registerForContextMenu(getListView());
-		
-		//Refresh the list
-		mHandler.post(runQueryVBS);
 	}
-
+	
 	@Override
 	public void onResume() {
 		super.onResume();
-		canRunVBSQuery = true;
-		//mHandler.postDelayed(runQueryVBS, 2000);
+		refreshList();
 	}
-	
-	@Override
-	public void onPause() {
-		canRunVBSQuery = false;
-		super.onPause();
-	}
-	
-	@Override
-	public void onDestroy() {
-    	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the list
-		super.onDestroy();
-	}
+
 	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
@@ -140,7 +75,7 @@ public class VBSListFragment extends ListFragment{
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-	    String uid = vbsArrayAdapter.getItem( info.position ).getUID();
+	    String uid = vbsArrayAdapter.getItem( info.position ).getObjectId();
 	    
 	    switch (item.getItemId()) {
 	    case R.id.menuItem_show_on_map:
@@ -166,6 +101,20 @@ public class VBSListFragment extends ListFragment{
 	        return true;
 	    }
 	    return false;
+	}
+	
+	//Should be called only when ParseUser.getCurrentUser() is authenticated
+	public static void refreshList(){
+		if (HelperFuncs.myLocation == null){
+			HelperFuncs.getLastGoodLoc();
+		}
+	
+		if (HelperFuncs.myLocation != null){
+			HelperFuncs.queryForVBS_NonBlocked(	HelperFuncs.myLocation.getLatitude(),
+					HelperFuncs.myLocation.getLongitude(),
+					DBGlobals.searchRadius,
+					queryVBSCallback);
+		}
 	}
 	
 }
