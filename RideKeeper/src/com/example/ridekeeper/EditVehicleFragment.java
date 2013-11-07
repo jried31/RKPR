@@ -1,13 +1,22 @@
 package com.example.ridekeeper;
 
+import java.io.File;
+import java.io.IOException;
+
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +24,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseImageView;
 import com.parse.ParseQuery;
@@ -23,9 +31,22 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 public class EditVehicleFragment extends DialogFragment {
+	// For taking picture:
+	public static final int ID_PHOTO_PICKER_FROM_CAMERA = 0;
+	public static final int ID_PHOTO_PICKER_FROM_GALLERY = 1;
+	public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 100;
+	public static final int REQUEST_CODE_CROP_PHOTO = 101;
+	public static final int REQUEST_CODE_SELECT_FROM_GALLERY = 102;
+
+	private static final String IMAGE_UNSPECIFIED = "image/*";
+	private Uri mImageCaptureUri;
+	private boolean isTakenFromCamera;
+	// End for taking picture
+	
+	
     private ParseImageView pivPhoto;
     private EditText etMake, etModel, etYear, etLicense;
-    private Button btSave;
+    private Button btSave, btChangePhoto;
     
 	private String mode = "add"; //Default is add mode
     private int pos = 0;
@@ -57,7 +78,7 @@ public class EditVehicleFragment extends DialogFragment {
 	    etYear = (EditText) view.findViewById(R.id.editText_year);
 	    etLicense = (EditText) view.findViewById(R.id.editText_license);
 		btSave = (Button) view.findViewById(R.id.button_save_vehicle);
-	    
+	    btChangePhoto = (Button) view.findViewById(R.id.button_change_vehicle_photo);
 		
 		if (mode.equals("add")){
 			btSave.setText("Add");
@@ -79,12 +100,27 @@ public class EditVehicleFragment extends DialogFragment {
 		}
 
 		
-		pivPhoto.setOnClickListener(new View.OnClickListener() {
+		btChangePhoto.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(getActivity() , GetPhoto.class);
-				startActivityForResult(intent, 0);
+				//Intent intent = new Intent(getActivity() , GetPhoto.class);
+				//startActivityForResult(intent, 0);
 				//will get the result in onActivityResult
+				
+				final Activity parent = getActivity();
+				AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+				DialogInterface.OnClickListener dlistener;
+				builder.setTitle(R.string.photo_picker_title);
+				dlistener = new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int item) {
+						onPhotoPickerItemSelected(item);
+					}
+				};
+
+				builder.setItems(R.array.photo_picker_items, dlistener);
+				builder.create().show();
+
+				
 			}
 		});
 		
@@ -136,6 +172,7 @@ public class EditVehicleFragment extends DialogFragment {
 		return view;
     }
     
+    /*
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	super.onActivityResult(requestCode, resultCode, data);
@@ -148,7 +185,45 @@ public class EditVehicleFragment extends DialogFragment {
 			}
     		
     	}
-    }
+    }*/
+    
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+		if (resultCode != Activity.RESULT_OK)
+			return;
+
+		switch (requestCode) {
+		case REQUEST_CODE_SELECT_FROM_GALLERY:
+			mImageCaptureUri = data.getData();
+			cropImage();
+			break;
+
+		case REQUEST_CODE_TAKE_FROM_CAMERA:
+			// Send image taken from camera for cropping
+			cropImage();
+			break;
+
+		case REQUEST_CODE_CROP_PHOTO:
+			// Update image view after image crop
+
+			Bundle extras = data.getExtras();
+
+			// Set the picture image in UI
+			if (extras != null) {
+				Bitmap bitmap = (Bitmap) extras.getParcelable("data");
+				pivPhoto.setImageBitmap(bitmap);
+			}
+
+			// Delete temporary image taken by camera after crop.
+			if (isTakenFromCamera) {
+				File f = new File(mImageCaptureUri.getPath());
+				if (f.exists())
+					f.delete();
+			}
+
+			break;
+		}
+	}
     
     
 	public static void addVehicle(FragmentManager fm){
@@ -180,6 +255,71 @@ public class EditVehicleFragment extends DialogFragment {
     	args.putInt("pos", position);
     	editVehicleFrag.setArguments(args);
     	editVehicleFrag.show(ft, "Add Vehicle Dialog");
+	}
+	
+	
+	//For taking picture from camera / gallery:
+	private void onPhotoPickerItemSelected(int item) {
+		Intent intent;
+		isTakenFromCamera = false;
+
+		switch(item){
+		case ID_PHOTO_PICKER_FROM_CAMERA:
+			intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			mImageCaptureUri = Uri.fromFile(new File(Environment
+					.getExternalStorageDirectory(), "tmp_"
+							+ String.valueOf(System.currentTimeMillis()) + ".jpg"));
+			intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
+					mImageCaptureUri);
+			intent.putExtra("return-data", true);
+			try {
+				startActivityForResult(intent, REQUEST_CODE_TAKE_FROM_CAMERA);
+			} catch (ActivityNotFoundException e) {
+				e.printStackTrace();
+			}
+			isTakenFromCamera = true;
+			break;
+
+		case ID_PHOTO_PICKER_FROM_GALLERY:
+			intent = new Intent(Intent.ACTION_PICK);
+			intent.setType("image/*");
+			mImageCaptureUri = Uri.fromFile(new File(Environment
+					.getExternalStorageDirectory(), "tmp_"
+							+ String.valueOf(System.currentTimeMillis()) + ".jpg"));
+			intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
+					mImageCaptureUri);
+			intent.putExtra("return-data", true);
+			try{
+				startActivityForResult(intent, REQUEST_CODE_SELECT_FROM_GALLERY);
+			}catch(ActivityNotFoundException e){
+				e.printStackTrace();
+			}
+			isTakenFromCamera = false;
+			break;
+
+		default:
+			return;
+		}
+	}
+
+	// Crop and resize the image for profile
+	private void cropImage() {
+		// Use existing crop activity.
+		Intent intent = new Intent("com.android.camera.action.CROP");
+		intent.setDataAndType(mImageCaptureUri, IMAGE_UNSPECIFIED);
+
+		// Specify image size
+		intent.putExtra("outputX", 100);
+		intent.putExtra("outputY", 100);
+
+		// Specify aspect ratio, 1:1
+		intent.putExtra("aspectX", 1);
+		intent.putExtra("aspectY", 1);
+		intent.putExtra("scale", true);
+		intent.putExtra("return-data", true);
+		// REQUEST_CODE_CROP_PHOTO is an integer tag you defined to
+		// identify the activity in onActivityResult() when it returns
+		startActivityForResult(intent, REQUEST_CODE_CROP_PHOTO);
 	}
 	
 }
