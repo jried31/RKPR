@@ -29,7 +29,7 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 
 
-public class GoogleMapFragment extends DialogFragment implements OnMarkerClickListener, LocationListener {
+public class GoogleMapFragment extends DialogFragment implements LocationListener {
 	private GoogleMap mMap;
 	private MapView mMapView;
 	private Bundle mBundle;
@@ -77,17 +77,6 @@ public class GoogleMapFragment extends DialogFragment implements OnMarkerClickLi
         canRunVBSQuery = true;
         HelperFuncs.removeAllMarker();
         mHandler.postDelayed(runQueryVBS, 1000);
-  		
-  		//Add a test marker on the map
-  		/*
-  		MarkerOptions markerOption = new MarkerOptions();
-  		LatLng ll = new LatLng(34.068765, -118.446314);
-  		markerOption.position(ll).title("UCLA");
-  		mMarker = mMap.addMarker(markerOption);
-  		*/
-  		
-  		//for demo: moving the marker in the map
-  		//updateMarker();
         
         return view;
     }
@@ -132,15 +121,6 @@ public class GoogleMapFragment extends DialogFragment implements OnMarkerClickLi
     	mMapView.onDestroy();
     	super.onDestroy();
     }
-
-	@Override
-	public boolean onMarkerClick(final Marker marker){
-		//Intent intent = new Intent(this , Report.class);
-		//startActivity(intent);
-		
-		//Toast.makeText(getActivity(), "Clicked!", Toast.LENGTH_SHORT).show();
-		return true;
-	}
 
 	@Override
 	public void onLocationChanged(Location location) {

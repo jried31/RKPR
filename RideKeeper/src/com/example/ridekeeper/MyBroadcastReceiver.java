@@ -17,18 +17,11 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 	@SuppressLint("Wakelock")
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		// TODO Auto-generated method stub
-
-		//Toast.makeText(context, "onReceiving", Toast.LENGTH_SHORT).show();
-		
 		PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 		PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RideKeeper");
 		
-		//Toast.makeText(context, "Acquiring wlock", Toast.LENGTH_SHORT).show();
 		wl.acquire();
-		//routineCheck(context);
 		HelperFuncs.updateLocToParse(context); //Periodically update phone's location to Parse server
-		//Toast.makeText(context, "Releasing wlock", Toast.LENGTH_SHORT).show();
 		wl.release();
 	}
 	

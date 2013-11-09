@@ -51,7 +51,10 @@ public class ParseVehicle extends ParseObject {
 	}
 	
 	public Number getYear(){
-		return getNumber(YEAR);
+		Number res = getNumber(YEAR);
+		if (res==null)
+			return 0;
+		return res;
 	}
 	void setYear(Number year){
 		put(YEAR, year);
@@ -72,7 +75,6 @@ public class ParseVehicle extends ParseObject {
 	}
 	
 	void setPhoto(ParseFile photo){
-		// TODO save to cache
 		put(PHOTO, photo);
 	}
 	

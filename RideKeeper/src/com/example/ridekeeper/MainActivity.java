@@ -245,9 +245,6 @@ public class MainActivity extends Activity implements LocationListener {
 		HelperFuncs.stopAlarmTone();
 		HelperFuncs.stopVibration();
 
-		//stop broadcastReceiver when app is active
-		//HelperFuncs.bReceiver.cancelAlarm(this);
-
 		//Start updating phone's location
 		HelperFuncs.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 	}
@@ -255,9 +252,6 @@ public class MainActivity extends Activity implements LocationListener {
 
 	@Override
 	protected void onPause() {
-		//start broadcastReceiver when app is active
-		//HelperFuncs.bReceiver.setRepeatingAlarm(this);
-
 		//stop updating phone's location
 		HelperFuncs.locationManager.removeUpdates(this);
 
@@ -284,15 +278,6 @@ public class MainActivity extends Activity implements LocationListener {
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 	}
 
-	//Functions for testing:
-	// Start/Stop MyBroadcastReceiver.routineCheck();
-	public void startBroadcastReceiver(View v){
-		//HelperFuncs.startBroadcastReceiver(getApplicationContext());
-	}
-	public void stopBroadcastReceiver(View v){
-		//HelperFuncs.stopBroadcastReceiver(getApplicationContext());
-	}
-
 	public void test(View v){
 		Toast.makeText(getApplicationContext(), "START", Toast.LENGTH_SHORT).show();
 		
@@ -304,21 +289,4 @@ public class MainActivity extends Activity implements LocationListener {
 		});
 		
 	}
-	
-	/*
-	private void action_AddVehicle(){
-    	FragmentTransaction ft = getFragmentManager().beginTransaction();
-    	Fragment prev = getFragmentManager().findFragmentByTag("Add Vehicle Dialog");
-    	if (prev != null) {
-    		ft.remove(prev);
-    	}
-    	ft.addToBackStack(null);
-    	
-    	DialogFragment editVehicleFrag = new EditVehicleFragment();
-    	Bundle args = new Bundle();
-    	args.putString("mode", "add");
-    	editVehicleFrag.setArguments(args);
-    	editVehicleFrag.show(ft, "Add Vehicle Dialog");
-	}
-	*/
 }
