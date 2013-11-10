@@ -163,6 +163,7 @@ Parse.Cloud.job( "addNearbyUsersToChat", function( request, status ) {
                                         if ( -1 == room.get( "members" ).indexOf( nearby_user.get( "ownerId" ) ) ) {
                                             // We still use addUnique here for safety, even though we did the check
                                             room.addUnique( "members", nearby_user.get( "ownerId" ) );
+                                            room.save();
 
                                             var query = new Parse.Query( Parse.Installation );
                                             query.equalTo( "ownerId", nearby_user.get( "ownerId" ) );
