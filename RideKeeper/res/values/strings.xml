@@ -18,13 +18,13 @@
 
     <string name="app_name">RideKeeper 3</string>
 
-    <string-array name="drawer_menu_title_array">
+	<string-array name="drawer_menu_title_array">
         <item>Vehicles Being Stolen</item>
         <item>My Profile</item>
         <item>My Vehicles</item>
         <item>Settings</item>
     </string-array>
-
+    
     <string name="vehicle_make">Make</string>
     <string name="vehicle_model">Model</string>
     <string name="vehicle_year">Year</string>

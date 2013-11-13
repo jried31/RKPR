@@ -22,22 +22,15 @@ public class ParseCustomReceiver extends BroadcastReceiver{
 			//String action = intent.getAction();
 			JSONObject json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
 			String detail = json.getString("status");
-
-			if (App.isMainActivityRunning){
-				HelperFuncs.vibrationShort();
-			}else{
-				HelperFuncs.vibrationLong();
-				HelperFuncs.playAlarmTone();
-			}
-			
+				
 			if (detail.equalsIgnoreCase("nearby")){
-				HelperFuncs.CreateNotif(context, "There are vehicle(s) being stolen nearby", "Click for more info");
+				HelperFuncs.nearbyVBSAlert(context, App.isMainActivityRunning);
 			}else if (detail.equalsIgnoreCase("tilted")){
-				HelperFuncs.CreateNotif(context, "Your vehicle has been tilted!!", "");
+				HelperFuncs.ownerVehicleLTAlert(context, App.isMainActivityRunning);
 			}else if (detail.equalsIgnoreCase("lifted")){
-				HelperFuncs.CreateNotif(context, "Your vehicle has been lifted!!", "");
+				HelperFuncs.ownerVehicleLTAlert(context, App.isMainActivityRunning);
 			}else if (detail.equalsIgnoreCase("stolen")){
-				HelperFuncs.CreateNotif(context, "Your vehicle has been STOLEN!!", "");
+				HelperFuncs.ownerVehicleStolenAlert(context, App.isMainActivityRunning);
 			}
 			
 		} catch (JSONException e) {

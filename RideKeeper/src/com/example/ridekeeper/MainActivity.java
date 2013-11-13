@@ -193,7 +193,7 @@ public class MainActivity extends Activity implements LocationListener {
 			selectedFrag = SelectedFrag.MYVEHICLES;
 			break;
 		case DBGlobals.SETTINGS:
-			fragment = new TestFragment();
+			fragment = new SettingsFragment();
 			selectedFrag = SelectedFrag.SETTINGS;
 			break;
 		default:

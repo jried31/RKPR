@@ -12,14 +12,17 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
@@ -36,6 +39,23 @@ public class HelperFuncs {
 	private static Ringtone alarmTone;
 	private static Vibrator myVibrator;
 	private static long[] vibrationPattern = {0, 200, 500, 100, 0, 0, 0, 0};
+	private static MediaPlayer mediaPlayer;
+	
+	public static boolean 	setting_other_beep,
+							setting_other_alert,
+							setting_other_shortvibration,
+							setting_other_longvibration,
+							
+							setting_owner_stolen_beep,
+							setting_owner_stolen_alert,
+							setting_owner_stolen_shortvibration,
+							setting_owner_stolen_longvibration,
+							
+							setting_owner_lt_beep,
+							setting_owner_lt_alert,
+							setting_owner_lt_shortvibration,
+							setting_owner_lt_longvibration;
+	
 	
 	public static ParseUser parseUser;
 	public static MyBroadcastReceiver bReceiver;
@@ -55,6 +75,8 @@ public class HelperFuncs {
         initialAlarmTone(context);
         initialVibrator(context);
 
+        mediaPlayer = MediaPlayer.create(context,R.raw.beep3);
+        
         myMarkerList = new ArrayList<Marker>();
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         myLocation = HelperFuncs.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -68,6 +90,7 @@ public class HelperFuncs {
         
         //bReceiver.disable(context);
         //bReceiver.setRepeatingAlarm(context);
+        loadSettings(context);
 	}
 	
 	public static void CreateNotif(Context context, String title, String contentText){
@@ -186,6 +209,10 @@ public class HelperFuncs {
 			HelperFuncs.alarmTone.stop();
 	}
 	
+	public static void playBeep(){
+		mediaPlayer.start();
+	}
+	
 	//Query for any stolen vehicle that is within a certain miles
 	public static List<ParseObject> queryForVBS_Blocked(double lat, double lng, double withInMiles){
 		ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL); //Query the VBS table
@@ -299,5 +326,62 @@ public class HelperFuncs {
     	}
     	fragment.show(ft, dialogName);
     	
+	}
+	
+	public static void loadSettings(Context context){
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+		setting_other_beep = pref.getBoolean("other_beep", true);
+		setting_other_alert = pref.getBoolean("other_alert", true);
+		setting_other_shortvibration = pref.getBoolean("other_shortvibration", true);
+		setting_other_longvibration = pref.getBoolean("other_longvibration", true);
+		
+		setting_owner_stolen_beep= pref.getBoolean("owner_stolen_beep", true);
+		setting_owner_stolen_alert= pref.getBoolean("owner_stolen_alert", true);
+		setting_owner_stolen_shortvibration = pref.getBoolean("owner_stolen_shortvibration", true);
+		setting_owner_stolen_longvibration = pref.getBoolean("owner_stolen_longvibration", true);
+		
+		setting_owner_lt_beep = pref.getBoolean("owner_lt_beep", true);
+		setting_owner_lt_alert = pref.getBoolean("owner_lt_alert", true);
+		setting_owner_lt_shortvibration = pref.getBoolean("owner_lt_shortvibration", true);
+		setting_owner_lt_longvibration = pref.getBoolean("owner_lt_longvibration", true);
+	}
+	
+	public static void nearbyVBSAlert(Context context, boolean isAppRunning){
+		CreateNotif(context, "There are vehicle(s) being stolen nearby", "Click for more info");
+		
+		if (setting_other_beep)
+			playBeep();
+		if (setting_other_alert && !isAppRunning)
+			playAlarmTone();
+		if (setting_other_shortvibration || isAppRunning)
+			vibrationShort();
+		if (setting_other_longvibration && !isAppRunning)
+			vibrationLong();
+	}
+	
+	public static void ownerVehicleLTAlert(Context context, boolean isAppRunning){
+		CreateNotif(context, "Your vehicle has been tilted/lifted!!", "");
+		
+		if (setting_owner_lt_beep)
+			playBeep();
+		if (setting_owner_lt_alert && !isAppRunning)
+			playAlarmTone();
+		if (setting_owner_lt_shortvibration || isAppRunning)
+			vibrationShort();
+		if (setting_owner_lt_longvibration && !isAppRunning)
+			vibrationLong();
+	}
+	
+	public static void ownerVehicleStolenAlert(Context context, boolean isAppRunning){
+		CreateNotif(context, "Your vehicle has been STOLEN!!", "");
+		
+		if (setting_owner_stolen_beep)
+			playBeep();
+		if (setting_owner_stolen_alert && !isAppRunning)
+			playAlarmTone();
+		if (setting_owner_stolen_shortvibration || isAppRunning)
+			vibrationShort();
+		if (setting_owner_stolen_longvibration && !isAppRunning)
+			vibrationLong();
 	}
 }

@@ -30,8 +30,8 @@ public class ParseVehicle extends ParseObject {
 	
 	private static final String PHOTOFILE_PREFIX = "vehicle_photo_",
 								PHOTOFILE_SUBFIX = ".png";
-	
-	byte[] photoData;
+	private Context myContext;
+	private byte[] photoData;
 	
 	public ParseVehicle() {
 	}
@@ -90,10 +90,10 @@ public class ParseVehicle extends ParseObject {
 	}
 	
 	//Save the photo locally
-	public void savePhotoLocally(Context contexct){
+	public void savePhotoLocally(Context context){
 		if (photoData != null){
 			try {
-				FileOutputStream fos = contexct.openFileOutput(
+				FileOutputStream fos = context.openFileOutput(
 						PHOTOFILE_PREFIX + getObjectId() + PHOTOFILE_SUBFIX, Activity.MODE_PRIVATE);
 				fos.write(photoData);
 				fos.flush();
@@ -107,8 +107,8 @@ public class ParseVehicle extends ParseObject {
 	}
 	
 	
-	
 	public void loadPhoto(Context context, ParseImageView mImageView ) {
+		myContext = context;
 		// Try to load profile photo from internal storage first
 		try {
 			FileInputStream fis = context.openFileInput( PHOTOFILE_PREFIX + getObjectId() + PHOTOFILE_SUBFIX );
@@ -129,10 +129,14 @@ public class ParseVehicle extends ParseObject {
 	    	mImageView.loadInBackground( new GetDataCallback() {
 				@Override
 				public void done(byte[] data, ParseException e) {
+					//save to local disk
+					photoData = data;
+					savePhotoLocally(myContext);
 				}
 			});
 	    	
-	    	// TODO save to local disk
+	    	
+	    	
 	    }
 	    
 	}
