@@ -3,13 +3,9 @@ package com.example.ridekeeper;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
@@ -21,7 +17,6 @@ import android.widget.Toast;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 
@@ -60,7 +55,9 @@ public class VBSListFragment extends ListFragment{
 	@Override
 	public void onResume() {
 		super.onResume();
-		refreshList();
+		if (ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated()){
+			refreshList();
+		}
 	}
 
 	
@@ -79,21 +76,10 @@ public class VBSListFragment extends ListFragment{
 	    
 	    switch (item.getItemId()) {
 	    case R.id.menuItem_show_on_map:
-	    	//Show the google map as DialogFragment
-	    	FragmentTransaction ft = getFragmentManager().beginTransaction();
-	    	Fragment prev = getFragmentManager().findFragmentByTag("Map Dialog");
-	    	if (prev != null) {
-	    		ft.remove(prev);
-	    	}
-	    	ft.addToBackStack(null);
-	    	
 	    	//Putting the UID of the select vehicle to the Google Map fragment argument
-	    	DialogFragment googleMapFragment = new GoogleMapFragment();
-	    	Bundle args = new Bundle();
-	    	args.putString("UID", uid);
-	    	googleMapFragment.setArguments(args);
-	    	googleMapFragment.show(ft, "Map Dialog");
-	    	
+	    	Bundle bundle = new Bundle();
+	    	bundle.putString("UID", uid);
+	    	HelperFuncs.showDialogFragment(getActivity(), new GoogleMapFragment(), "Map Dialog", true, bundle);
 	    	return true;
 	    	
 	    case R.id.menuItem_chat_room:
@@ -117,4 +103,7 @@ public class VBSListFragment extends ListFragment{
 		}
 	}
 	
+	public static void clearList(){
+		vbsArrayAdapter.clear();
+	}
 }

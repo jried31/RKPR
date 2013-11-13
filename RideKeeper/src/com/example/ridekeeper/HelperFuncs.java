@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -21,7 +25,6 @@ import android.support.v4.app.TaskStackBuilder;
 
 import com.google.android.gms.maps.model.Marker;
 import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseInstallation;
@@ -281,5 +284,20 @@ public class HelperFuncs {
 			myMarkerList.get(0).remove();
 			myMarkerList.remove(0);
 		}
+	}
+	
+	public static void showDialogFragment(Activity activity, DialogFragment fragment, String dialogName, boolean cancelable, Bundle bundle){
+    	FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
+    	Fragment prev = activity.getFragmentManager().findFragmentByTag(dialogName);
+    	if (prev != null) {
+    		ft.remove(prev);
+    	}
+    	ft.addToBackStack(null);
+    	fragment.setCancelable(cancelable);
+    	if (bundle != null){
+    		fragment.setArguments(bundle);
+    	}
+    	fragment.show(ft, dialogName);
+    	
 	}
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog;
-import android.app.DownloadManager.Query;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.DialogInterface;

@@ -16,11 +16,11 @@
 
 package com.example.ridekeeper;
 
+import com.parse.ParseUser;
+
 import android.app.Activity;
-import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationListener;
@@ -38,10 +38,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
-import com.parse.ParseInstallation;
-
 public class MainActivity extends Activity implements LocationListener {
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
@@ -49,7 +45,7 @@ public class MainActivity extends Activity implements LocationListener {
 
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
-	private String[] mPlanetTitles;
+	private String[] mDrawerMenuTitles;
 
 	private enum SelectedFrag{
 		VBS, MYPROFILE, MYVEHICLES, SETTINGS
@@ -65,7 +61,7 @@ public class MainActivity extends Activity implements LocationListener {
 		HelperFuncs.bReceiver.setRepeatingAlarm(this);
 
 		mTitle = mDrawerTitle = getTitle();
-		mPlanetTitles = getResources().getStringArray(R.array.planets_array);
+		mDrawerMenuTitles = getResources().getStringArray(R.array.drawer_menu_title_array);
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
@@ -73,7 +69,7 @@ public class MainActivity extends Activity implements LocationListener {
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		// set up the drawer's list view with items and click listener
 		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-				R.layout.drawer_list_item, mPlanetTitles));
+				R.layout.drawer_list_item, mDrawerMenuTitles));
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 		// enable ActionBar app icon to behave as action to toggle nav drawer
@@ -102,7 +98,11 @@ public class MainActivity extends Activity implements LocationListener {
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
 		if (savedInstanceState == null) {
-			selectItem(0);
+			if (ParseUser.getCurrentUser()!= null && ParseUser.getCurrentUser().isAuthenticated()){
+				selectItem(0); //Select VBS List Fragment as default if user is authenticated
+			}else{
+				selectItem(1); //Otherwise, Select My Profile Fragment so that user can login
+			}
 		}
 	}
 
@@ -208,7 +208,7 @@ public class MainActivity extends Activity implements LocationListener {
 
 		// update selected item and title, then close the drawer
 		mDrawerList.setItemChecked(position, true);
-		setTitle(mPlanetTitles[position]);
+		setTitle(mDrawerMenuTitles[position]);
 		mDrawerLayout.closeDrawer(mDrawerList);
 	}
 
@@ -244,7 +244,7 @@ public class MainActivity extends Activity implements LocationListener {
 		//Stop alarm tone and vibration
 		HelperFuncs.stopAlarmTone();
 		HelperFuncs.stopVibration();
-
+		
 		//Start updating phone's location
 		HelperFuncs.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 	}

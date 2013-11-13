@@ -18,7 +18,7 @@
 
     <string name="app_name">RideKeeper 3</string>
 
-    <string-array name="planets_array">
+    <string-array name="drawer_menu_title_array">
         <item>Vehicles Being Stolen</item>
         <item>My Profile</item>
         <item>My Vehicles</item>
@@ -38,7 +38,7 @@
     <string name="button_signin">Sign In</string>
     <string name="button_signout">Sign Out</string>
     <string name="button_resetpwd">Reset password</string>
-    
+    <string name="button_exit">Exit</string>
     
     <string name="button_save">Save</string>
     <string name="button_cancel">Cancel</string>

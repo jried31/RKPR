@@ -5,8 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.example.ridekeeper.R;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;

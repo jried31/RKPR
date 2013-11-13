@@ -14,34 +14,26 @@ import android.app.FragmentManager;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.parse.GetDataCallback;
-import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseImageView;
-import com.parse.ParseInstallation;
 import com.parse.ParseQuery;
-import com.parse.ParseQueryAdapter;
 import com.parse.ParseUser;
-import com.parse.RequestPasswordResetCallback;
 import com.parse.SaveCallback;
-import com.parse.SignUpCallback;
 
 public class MyProfileFragment extends Fragment {
 	public static final int ID_PHOTO_PICKER_FROM_CAMERA = 0;
@@ -60,8 +52,8 @@ public class MyProfileFragment extends Fragment {
 	private ParseImageView mImageView;
 	private boolean isTakenFromCamera;
 	
-	private EditText name, email, phone, pwd;
-	private Button save, change, signup, signin, signout, resetpwd;
+	private EditText name, email, phone;
+	private Button save, change, signout;
 	
 	public static final String USER_NAME="user_name";
 	public static final String MY_USER_NAME_HACKFORNOW="jried";
@@ -73,9 +65,8 @@ public class MyProfileFragment extends Fragment {
 	
 	//private SharedPreferences sharedPreferences;
 	
-	private void reloadFragment(){
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, new MyProfileFragment()).commit();
+	public static void reloadFragment(Activity activity){
+		activity.getFragmentManager().beginTransaction().replace(R.id.content_frame, new MyProfileFragment()).commit();
 	}
 
 	// Handle data after activity returns.
@@ -130,114 +121,11 @@ public class MyProfileFragment extends Fragment {
 			authenticatedMode(view);
 			
 		}else{ // Need sign in/up
-			view = inflater.inflate(R.layout.fragment_sign_up_in, container, false);
-			signUpsignInMode(view);
+			HelperFuncs.showDialogFragment(getActivity(), new WelcomeFragment(), "Map Dialog", false, null);
+			view = inflater.inflate(R.layout.fragment_blank, container, false);
 		}
 		
 		return view;
-	}
-
-	private void signUpsignInMode(View view){
-
-		signup = (Button) view.findViewById(R.id.button_signup);
-		signin = (Button) view.findViewById(R.id.button_signin);
-		resetpwd = (Button) view.findViewById(R.id.button_resetpwd);
-		
-		email = (EditText) view.findViewById(R.id.editText_email);
-		pwd = (EditText) view.findViewById(R.id.editText_pwd);
-		
-		SharedPreferences prefs =  PreferenceManager.getDefaultSharedPreferences(getActivity());
-		email.setText( prefs.getString(EMAIL, "") );
-		
-		signup.setOnClickListener( new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if ( email.getText().toString().isEmpty() ||
-						pwd.getText().toString().isEmpty()){
-					Toast.makeText(getActivity(), "Email or password can't be empty", Toast.LENGTH_LONG).show();
-					return;
-				}
-				
-				signup.setEnabled(false);
-				
-				if (HelperFuncs.parseUser==null){
-					HelperFuncs.parseUser = new ParseUser();
-				}
-				
-				HelperFuncs.parseUser.setUsername( email.getText().toString() );
-				HelperFuncs.parseUser.setPassword( pwd.getText().toString() );
-				HelperFuncs.parseUser.setEmail( email.getText().toString() );
-				
-				SharedPreferences prefs =  PreferenceManager.getDefaultSharedPreferences(v.getContext());
-				prefs.edit().putString(EMAIL, email.getText().toString()).commit();
-				
-				HelperFuncs.parseUser.signUpInBackground( new SignUpCallback() {
-					@Override
-					public void done(ParseException e) {
-						if (e==null){
-							//Update ownerId in Installation table
-							HelperFuncs.updateOwnerIdInInstallation();
-							
-							Toast.makeText(getActivity(), "Your account has been created.", Toast.LENGTH_LONG).show();
-							reloadFragment();
-						}else{
-							Toast.makeText(getActivity(), "Error signing up. " + e.getMessage(), Toast.LENGTH_LONG).show();
-						}
-						signup.setEnabled(true);
-					}
-				});
-			}
-			
-		});
-		
-		
-		signin.setOnClickListener(  new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				signin.setEnabled(false);
-				
-				SharedPreferences prefs =  PreferenceManager.getDefaultSharedPreferences(v.getContext());
-				prefs.edit().putString(EMAIL, email.getText().toString()).commit();
-				
-				ParseUser.logInInBackground(email.getText().toString(),
-											pwd.getText().toString(),
-											new LogInCallback() {
-					@Override
-					public void done(ParseUser user, ParseException e) {
-						if (e == null){
-							HelperFuncs.parseUser = user;
-							HelperFuncs.updateOwnerIdInInstallation();
-							Toast.makeText(getActivity(), "You are now signed in!", Toast.LENGTH_LONG).show();
-							reloadFragment();
-						}else{
-							Toast.makeText(getActivity(), "Error signing in. " + e.getMessage(), Toast.LENGTH_LONG).show();
-						}
-						signin.setEnabled(true);
-					}
-				});
-				
-			}
-		});
-		
-		resetpwd.setOnClickListener( new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				resetpwd.setEnabled(false);
-				ParseUser.requestPasswordResetInBackground(email.getText().toString(), new RequestPasswordResetCallback() {
-					@Override
-					public void done(ParseException e) {
-						if (e==null){
-							Toast.makeText(getActivity(), "Password reset instruction has been sent to your email." , Toast.LENGTH_SHORT).show();
-						}else{
-							Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-						}
-						resetpwd.setEnabled(true);
-					}
-				});
-			}
-		});
-		
 	}
 	
 	private void authenticatedMode(View view){
@@ -257,7 +145,8 @@ public class MyProfileFragment extends Fragment {
 				ParseUser.logOut();
 				HelperFuncs.removeOwnerIdInInstallation();
 				ParseQuery.clearAllCachedResults();
-				reloadFragment();
+				
+				reloadFragment(getActivity());
 			}
 		});
 		
