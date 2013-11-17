@@ -20,11 +20,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 
 public class GoogleMapFragment extends DialogFragment implements LocationListener {
@@ -33,7 +35,7 @@ public class GoogleMapFragment extends DialogFragment implements LocationListene
 	private Bundle mBundle;
 	
 	private String UIDtoTrack = null;	//VBS UID to be tracked, null for all VBS
-	private boolean canRunVBSQuery = false;
+	private Marker markerVehicle;
 	
     public Fragment newInstance(Context context) {
     	GoogleMapFragment f = new GoogleMapFragment();
@@ -43,7 +45,7 @@ public class GoogleMapFragment extends DialogFragment implements LocationListene
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
-    	View view = inflater.inflate(R.layout.map_fragment, container, false);
+    	View view = inflater.inflate(R.layout.fragment_googlemap, container, false);
         
         try{
         	MapsInitializer.initialize(getActivity());
@@ -71,9 +73,11 @@ public class GoogleMapFragment extends DialogFragment implements LocationListene
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng , 15f));
   		}
   		
-  		//Start dynamically showing markers on the map
-        canRunVBSQuery = true;
-        HelperFuncs.removeAllMarker();
+  		//Start dynamically showing marker on the map
+  		MarkerOptions markerOption = new MarkerOptions();
+  		markerOption.position(new LatLng(0, 0)).visible(false);
+  		markerVehicle = mMap.addMarker(markerOption);
+  		
         mHandler.postDelayed(runQueryVBS, 1000);
         
         return view;
@@ -90,7 +94,8 @@ public class GoogleMapFragment extends DialogFragment implements LocationListene
         	UIDtoTrack = getArguments().getString("UID");
         	//Toast.makeText(getActivity(), UIDtoTrack, Toast.LENGTH_SHORT).show();
     	}else{
-    		UIDtoTrack = null;
+    		Toast.makeText(getActivity(), "No vehicle UID provided to track.", Toast.LENGTH_SHORT).show();
+    		UIDtoTrack = "";
     	}
     	
     	//setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme_Holo_Light_NoActionBar_Fullscreen);
@@ -101,164 +106,83 @@ public class GoogleMapFragment extends DialogFragment implements LocationListene
     public void onResume() {
     	super.onResume();
     	mMapView.onResume();
-    	canRunVBSQuery = true;
     }
     
     @Override
     public void onPause() {
     	super.onPause();
-    	
     	mMapView.onPause();
-    	canRunVBSQuery = false;
     }
     
     @Override
     public void onDestroy() {
     	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
-    	HelperFuncs.removeAllMarker();		//Only need to remove onCreate
     	mMapView.onDestroy();
     	super.onDestroy();
     }
 
 	@Override
 	public void onLocationChanged(Location location) {
-		// TODO Auto-generated method stub
-
 		//Update phone's GPS location
 		HelperFuncs.myLocation = location;
 	}
 	
 	@Override
 	public void onProviderDisabled(String arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onProviderEnabled(String arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	
 	//Callback when query gets result from Parse
-	private FindCallback<ParseObject> queryVBSCallback = new FindCallback<ParseObject>() {
+	private FindCallback<ParseObject> queryVehicleCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
 			
 			if (e== null){ // no error
-				HelperFuncs.myVBSList = objects;
-				if (HelperFuncs.myVBSList.size()>0){ 
-					
-					//make sure we have enough markers
-					while ( HelperFuncs.myMarkerList.size() < HelperFuncs.myVBSList.size() ){
-				  		MarkerOptions markerOption = new MarkerOptions();
-				  		markerOption.position(new LatLng(0, 0)).visible(false);
-				  		HelperFuncs.myMarkerList.add(mMap.addMarker(markerOption));
-					}
-					while ( HelperFuncs.myMarkerList.size() > HelperFuncs.myVBSList.size() ){
-						HelperFuncs.myMarkerList.get(0).remove();
-						HelperFuncs.myMarkerList.remove(0);
-					}
-					
-					for (int i=0; i < HelperFuncs.myVBSList.size(); i++){
-						ParseGeoPoint p =  HelperFuncs.myVBSList.get(i).getParseGeoPoint("pos");
-						HelperFuncs.myMarkerList.get(i).setPosition( new LatLng(p.getLatitude(), p.getLongitude()) );
-						HelperFuncs.myMarkerList.get(i).setTitle(
-										HelperFuncs.myVBSList.get(i).getString("make") + " " +
-										HelperFuncs.myVBSList.get(i).getString("model") + " " +
-										HelperFuncs.myVBSList.get(i).getNumber("year").toString() + " "
-										);
-						HelperFuncs.myMarkerList.get(i).setVisible(true);
-					}
-				}else{ //No VBS nearby
-					for (int i=0; i < HelperFuncs.myMarkerList.size(); i++){
-						HelperFuncs.myMarkerList.get(i).remove();
-						HelperFuncs.myMarkerList.remove(i);
-					}
+				if (objects.size()>0){
+					ParseGeoPoint p =  objects.get(0).getParseGeoPoint("pos");
+					markerVehicle.setPosition( new LatLng(p.getLatitude(), p.getLongitude()) );
+					markerVehicle.setTitle(	objects.get(0).getString("make") + " " +
+											objects.get(0).getString("model") + " " +
+											objects.get(0).getNumber("year").toString() + " "
+											);
+					markerVehicle.setVisible(true);
+				}else{ //Can't find vehicle
+	
 				}
 				
-				if (canRunVBSQuery)
-					mHandler.postDelayed(runQueryVBS, DBGlobals.vbsPosMapUpdateRate); //Refresh rate = 3 seconds if no error
+				mHandler.postDelayed(runQueryVBS, DBGlobals.vehiclePosUpdateInGMapRate); //Refresh rate = 3 seconds if no error
 
 			}else{ //error occurred when query to Parse
 				Toast.makeText(getActivity(), "Error querying Parse server", Toast.LENGTH_SHORT).show();
-				HelperFuncs.myVBSList.removeAll(objects);
-
-				for (int i=0; i < HelperFuncs.myMarkerList.size(); i++){
-					HelperFuncs.myMarkerList.get(i).remove();
-					HelperFuncs.myMarkerList.remove(i);
-				}
 				
-				if (canRunVBSQuery)
-					mHandler.postDelayed(runQueryVBS, 15000);  //Refresh rate = 15 seconds if error occurs
+				mHandler.postDelayed(runQueryVBS, 15000);  //Refresh rate = 15 seconds if error occurs
 			}
 		}
 	};
 	
 
-	//Dynamically update VBS on map
+	//Dynamically update vehicle position on map
 	final Handler mHandler = new Handler();
     final Runnable runQueryVBS = new Runnable() {
     	@Override
 		public void run() {
 			// TODO Turn Internet connection on if needed
     		
-			//Toast.makeText(context, "Querying VBS", Toast.LENGTH_SHORT).show();
-			//Query Parse server for nearby VBS
-			if (HelperFuncs.myLocation == null){
-				HelperFuncs.getLastGoodLoc();
-				
-				mHandler.postDelayed(runQueryVBS, 3000);
-			}else{
-				if (UIDtoTrack==null){ //Track everything nearby VBS if not UID is given
-					HelperFuncs.queryForVBS_NonBlocked(	HelperFuncs.myLocation.getLatitude(),
-							HelperFuncs.myLocation.getLongitude(),
-							DBGlobals.searchRadius, //search within this miles radius
-							queryVBSCallback);
-	
-				}else{ //Track the VBS with the given UID only
-					HelperFuncs.queryForVBSwithUID_NonBlocked(UIDtoTrack, queryVBSCallback);
-				}
-			}
+			ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL);
+			query.whereEqualTo("objectId", UIDtoTrack);
+			query.findInBackground(queryVehicleCallback);
 		}
 	};
 	
-
-	//For demo: update the marker
-	/*
-		public void updateMarker(){
-			final Handler handler = new Handler();
-
-	        final Runnable r = new Runnable() {
-	        	int i = 0;
-	    		double lat = 34.068765;
-	    		double lng = -118.446314;
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					if (i == 8){
-						i = 0;
-					}
-					
-					mMarker.setPosition(new LatLng( lat, lng ));
-			        //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mMarker.getPosition(), 15f));
-			        
-			        lat += 0.0001;
-			        lng += 0.00007;
-					handler.postDelayed(this, 1000);
-				}
-			};
-			
-			handler.post(r);
-		}
-	*/
 }
 
 

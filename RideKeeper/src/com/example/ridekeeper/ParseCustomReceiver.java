@@ -26,9 +26,9 @@ public class ParseCustomReceiver extends BroadcastReceiver{
 			if (detail.equalsIgnoreCase("nearby")){
 				HelperFuncs.nearbyVBSAlert(context, App.isMainActivityRunning);
 			}else if (detail.equalsIgnoreCase("tilted")){
-				HelperFuncs.ownerVehicleLTAlert(context, App.isMainActivityRunning);
+				HelperFuncs.ownerVehicleLiftTiltAlert(context, App.isMainActivityRunning);
 			}else if (detail.equalsIgnoreCase("lifted")){
-				HelperFuncs.ownerVehicleLTAlert(context, App.isMainActivityRunning);
+				HelperFuncs.ownerVehicleLiftTiltAlert(context, App.isMainActivityRunning);
 			}else if (detail.equalsIgnoreCase("stolen")){
 				HelperFuncs.ownerVehicleStolenAlert(context, App.isMainActivityRunning);
 			}

@@ -114,8 +114,8 @@ public class MyProfileFragment extends Fragment {
 		
 		View view;
 		
-		if (HelperFuncs.parseUser != null &&
-			HelperFuncs.parseUser.isAuthenticated() ){ // User was authenticated
+		if (ParseUser.getCurrentUser() != null &&
+				ParseUser.getCurrentUser().isAuthenticated() ){ // User was authenticated
 			
 			view =  inflater.inflate(R.layout.fragment_my_profile, container, false);
 			authenticatedMode(view);

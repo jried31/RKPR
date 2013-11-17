@@ -20,7 +20,7 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 
-public class VBSListFragment extends ListFragment{
+public class StolenVehicleListFragment extends ListFragment{
 	private static ParseVehicleArrayAdapter vbsArrayAdapter;
 	private static Context myContext;
 	
@@ -101,7 +101,7 @@ public class VBSListFragment extends ListFragment{
 		}
 	
 		if (HelperFuncs.myLocation != null){
-			HelperFuncs.queryForVBS_NonBlocked(	HelperFuncs.myLocation.getLatitude(),
+			HelperFuncs.queryParseForStolenVehicle_InBackground(	HelperFuncs.myLocation.getLatitude(),
 					HelperFuncs.myLocation.getLongitude(),
 					DBGlobals.searchRadius,
 					queryVBSCallback);

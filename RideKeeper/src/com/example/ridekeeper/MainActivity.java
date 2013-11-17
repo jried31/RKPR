@@ -155,7 +155,7 @@ public class MainActivity extends Activity implements LocationListener {
 			return true;
 		*/
 		case R.id.action_refreshvbslist:
-			VBSListFragment.refreshList();
+			StolenVehicleListFragment.refreshList();
 			return true;
 		
 		case R.id.action_addvehicle:
@@ -181,7 +181,7 @@ public class MainActivity extends Activity implements LocationListener {
 
 		switch(position){
 		case DBGlobals.VBS_LIST:
-			fragment = new VBSListFragment();
+			fragment = new StolenVehicleListFragment();
 			selectedFrag = SelectedFrag.VBS;
 			break;
 		case DBGlobals.MY_PROFILE:

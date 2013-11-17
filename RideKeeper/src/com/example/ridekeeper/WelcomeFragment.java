@@ -20,6 +20,7 @@ import android.widget.Toast;
 public class WelcomeFragment extends DialogFragment {
 	private Button btSignup, btSignin, btResetpwd, btExit;
 	private EditText etEmail, etPwd;
+	private ParseUser parseSigningUpUser;
 	
 	public static final String USER_NAME="user_name";
 	public static final String MY_USER_NAME_HACKFORNOW="jried";
@@ -55,18 +56,16 @@ public class WelcomeFragment extends DialogFragment {
 
 				btSignup.setEnabled(false);
 
-				if (HelperFuncs.parseUser==null){
-					HelperFuncs.parseUser = new ParseUser();
-				}
+				parseSigningUpUser = new ParseUser();
 
-				HelperFuncs.parseUser.setUsername( etEmail.getText().toString() );
-				HelperFuncs.parseUser.setPassword( etPwd.getText().toString() );
-				HelperFuncs.parseUser.setEmail( etEmail.getText().toString() );
+				parseSigningUpUser.setUsername( etEmail.getText().toString() );
+				parseSigningUpUser.setPassword( etPwd.getText().toString() );
+				parseSigningUpUser.setEmail( etEmail.getText().toString() );
 
 				SharedPreferences prefs =  PreferenceManager.getDefaultSharedPreferences(v.getContext());
 				prefs.edit().putString(EMAIL, etEmail.getText().toString()).commit();
 
-				HelperFuncs.parseUser.signUpInBackground( new SignUpCallback() {
+				parseSigningUpUser.signUpInBackground( new SignUpCallback() {
 					@Override
 					public void done(ParseException e) {
 						if (e==null){
@@ -101,7 +100,7 @@ public class WelcomeFragment extends DialogFragment {
 					@Override
 					public void done(ParseUser user, ParseException e) {
 						if (e == null){
-							HelperFuncs.parseUser = user;
+							//HelperFuncs.parseUser = user;
 							HelperFuncs.updateOwnerIdInInstallation();
 							Toast.makeText(getActivity(), "You are now signed in!", Toast.LENGTH_LONG).show();
 							MyProfileFragment.reloadFragment(getActivity());
