@@ -17,7 +17,6 @@ import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseImageView;
 import com.parse.ParseObject;
-import com.parse.ParseUser;
 
 @ParseClassName("Vehicle")
 public class ParseVehicle extends ParseObject {
@@ -134,9 +133,6 @@ public class ParseVehicle extends ParseObject {
 					savePhotoLocally(myContext);
 				}
 			});
-	    	
-	    	
-	    	
 	    }
 	    
 	}

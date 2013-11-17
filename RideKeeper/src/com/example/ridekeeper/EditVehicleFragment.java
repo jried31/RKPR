@@ -1,7 +1,6 @@
 package com.example.ridekeeper;
 
 import java.io.File;
-import java.io.IOException;
 
 import android.app.Activity;
 import android.app.AlertDialog;

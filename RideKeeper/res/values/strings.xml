@@ -45,7 +45,7 @@
     <string name="title_button_alert_ok">OK</string>
     <string name="title_button_alert_cancel">Cancel</string>
     <string name="button_change">Change</string>
-    <string name="owner_display_name">Display name</string>
+    <string name="owner_display_name">Name</string>
     <string name="owner_name_hint">Your name here</string>
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_email">Email</string>

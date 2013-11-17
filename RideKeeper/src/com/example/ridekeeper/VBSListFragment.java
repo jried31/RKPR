@@ -73,11 +73,16 @@ public class VBSListFragment extends ListFragment{
 	public boolean onContextItemSelected(MenuItem item) {
 	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 	    String uid = vbsArrayAdapter.getItem( info.position ).getObjectId();
-	    
+	    Bundle bundle = new Bundle();
 	    switch (item.getItemId()) {
+	    case R.id.menuItem_owner_info:
+	    	//Displayig the owner's profile for the stolen vehicle
+	    	bundle.putString("UID", uid);
+	    	HelperFuncs.showDialogFragment(getActivity(), new OwnerInfoFragment(), "Owner Information", true, bundle);
+	    	
+	    	return true;
 	    case R.id.menuItem_show_on_map:
 	    	//Putting the UID of the select vehicle to the Google Map fragment argument
-	    	Bundle bundle = new Bundle();
 	    	bundle.putString("UID", uid);
 	    	HelperFuncs.showDialogFragment(getActivity(), new GoogleMapFragment(), "Map Dialog", true, bundle);
 	    	return true;
