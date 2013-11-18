@@ -8,6 +8,17 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
+		<TextView
+		    android:id="@+id/user_profile_loginname"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_marginBottom="20dp"
+		    android:layout_marginLeft="10dp"
+		    android:text="Login Name:"
+		    android:textSize="16sp" >
+
+        </TextView>
+        
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -42,6 +53,8 @@
             android:text="@string/button_change">
         </Button>
         </RelativeLayout>
+        
+
         
         <TextView
             android:layout_width="wrap_content"

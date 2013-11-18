@@ -10,7 +10,6 @@ import java.io.IOException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.GetDataCallback;
@@ -52,16 +52,15 @@ public class MyProfileFragment extends Fragment {
 	private ParseImageView mImageView;
 	private boolean isTakenFromCamera;
 	
+	private TextView loginname;
 	private EditText name, email, phone;
 	private Button save, change, signout;
 	
 	public static final String USER_NAME="user_name";
-	public static final String MY_USER_NAME_HACKFORNOW="jried";
 	public static final String EMAIL="email";
-	public static final String REALNAME="realName";
+	public static final String REALNAME="name";
 	public static final String PHONE="phone";
-	public static final String AVATAR="photo";
-	public static final String ISSAVED="issaved";
+	public static final String AVATAR="avatar";
 	
 	//private SharedPreferences sharedPreferences;
 	
@@ -278,6 +277,7 @@ public class MyProfileFragment extends Fragment {
 	}
 	
 	private void loadProfile(View view){
+		loginname = (TextView) view.findViewById(R.id.user_profile_loginname);
 		name = (EditText) view.findViewById(R.id.user_profile_name);
 		email = (EditText) view.findViewById(R.id.user_profile_email);
 		phone = (EditText) view.findViewById(R.id.user_profile_phone);
@@ -285,6 +285,7 @@ public class MyProfileFragment extends Fragment {
 		
 		ParseUser puser =  ParseUser.getCurrentUser();
 
+		loginname.setText("Your Login Name: " + puser.getUsername());
 		name.setText(puser.getString(REALNAME));
 		email.setText(puser.getEmail());
 		phone.setText(puser.getString(PHONE));

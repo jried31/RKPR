@@ -17,11 +17,11 @@
         android:textStyle="bold|italic" />
 
     <EditText
-        android:id="@+id/editText_email"
+        android:id="@+id/editText_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Email"
+        android:hint="Username"
         android:inputType="textEmailAddress" />
 
     <EditText

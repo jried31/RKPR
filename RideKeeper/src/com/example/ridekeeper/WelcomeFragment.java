@@ -1,12 +1,8 @@
 package com.example.ridekeeper;
 
-import com.parse.LogInCallback;
-import com.parse.ParseException;
-import com.parse.ParseUser;
-import com.parse.RequestPasswordResetCallback;
-import com.parse.SignUpCallback;
-
+import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -17,18 +13,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.parse.LogInCallback;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.RequestPasswordResetCallback;
+import com.parse.SignUpCallback;
+
 public class WelcomeFragment extends DialogFragment {
 	private Button btSignup, btSignin, btResetpwd, btExit;
-	private EditText etEmail, etPwd;
+	private EditText etUsername, etPwd, etEmail = null;
 	private ParseUser parseSigningUpUser;
+	public static final String LAST_SIGNIN_USERNAME="lastusername";
 	
-	public static final String USER_NAME="user_name";
-	public static final String MY_USER_NAME_HACKFORNOW="jried";
-	public static final String EMAIL="email";
-	public static final String REALNAME="realName";
-	public static final String PHONE="phone";
-	public static final String AVATAR="photo";
-	public static final String ISSAVED="issaved";
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -39,48 +35,31 @@ public class WelcomeFragment extends DialogFragment {
 		btResetpwd = (Button) view.findViewById(R.id.button_resetpwd);
 		btExit = (Button) view.findViewById(R.id.button_exit);
 
-		etEmail = (EditText) view.findViewById(R.id.editText_email);
+		etUsername = (EditText) view.findViewById(R.id.editText_username);
 		etPwd = (EditText) view.findViewById(R.id.editText_pwd);
 
 		SharedPreferences prefs =  PreferenceManager.getDefaultSharedPreferences(getActivity());
-		etEmail.setText( prefs.getString(EMAIL, "") );
+		etUsername.setText( prefs.getString(LAST_SIGNIN_USERNAME, "") );
 
 		btSignup.setOnClickListener( new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if ( etEmail.getText().toString().isEmpty() ||
+				if ( etUsername.getText().toString().isEmpty() ||
 						etPwd.getText().toString().isEmpty()){
-					Toast.makeText(getActivity(), "Email or password can't be empty", Toast.LENGTH_LONG).show();
+					Toast.makeText(getActivity(), "Error: Username or password can't be empty", Toast.LENGTH_LONG).show();
+					return;
+				}else if ( etUsername.getText().toString().contains(" ")){
+					Toast.makeText(getActivity(), "Error: Username can't have space", Toast.LENGTH_LONG).show();
+					return;
+				}else if ( etUsername.getText().toString().length() > 10 ){
+					Toast.makeText(getActivity(), "Error: Username is at most 10 characters", Toast.LENGTH_LONG).show();
 					return;
 				}
-
-				btSignup.setEnabled(false);
-
-				parseSigningUpUser = new ParseUser();
-
-				parseSigningUpUser.setUsername( etEmail.getText().toString() );
-				parseSigningUpUser.setPassword( etPwd.getText().toString() );
-				parseSigningUpUser.setEmail( etEmail.getText().toString() );
-
-				SharedPreferences prefs =  PreferenceManager.getDefaultSharedPreferences(v.getContext());
-				prefs.edit().putString(EMAIL, etEmail.getText().toString()).commit();
-
-				parseSigningUpUser.signUpInBackground( new SignUpCallback() {
-					@Override
-					public void done(ParseException e) {
-						if (e==null){
-							//Update ownerId in Installation table
-							HelperFuncs.updateOwnerIdInInstallation();
-
-							Toast.makeText(getActivity(), "Your account has been created.", Toast.LENGTH_LONG).show();
-							MyProfileFragment.reloadFragment(getActivity());
-							dismiss();
-						}else{
-							Toast.makeText(getActivity(), "Error signing up. " + e.getMessage(), Toast.LENGTH_LONG).show();
-						}
-						btSignup.setEnabled(true);
-					}
-				});
+				
+				SharedPreferences prefs =  PreferenceManager.getDefaultSharedPreferences( v.getContext() );
+				prefs.edit().putString(LAST_SIGNIN_USERNAME, etUsername.getText().toString()).commit();
+				
+				showSignUpEmailInput();
 			}
 
 		});
@@ -92,9 +71,9 @@ public class WelcomeFragment extends DialogFragment {
 				btSignin.setEnabled(false);
 
 				SharedPreferences prefs =  PreferenceManager.getDefaultSharedPreferences(v.getContext());
-				prefs.edit().putString(EMAIL, etEmail.getText().toString()).commit();
+				prefs.edit().putString(LAST_SIGNIN_USERNAME, etUsername.getText().toString()).commit();
 
-				ParseUser.logInInBackground(etEmail.getText().toString(),
+				ParseUser.logInInBackground(etUsername.getText().toString(),
 						etPwd.getText().toString(),
 						new LogInCallback() {
 					@Override
@@ -119,7 +98,7 @@ public class WelcomeFragment extends DialogFragment {
 			@Override
 			public void onClick(View v) {
 				btResetpwd.setEnabled(false);
-				ParseUser.requestPasswordResetInBackground(etEmail.getText().toString(), new RequestPasswordResetCallback() {
+				ParseUser.requestPasswordResetInBackground(etUsername.getText().toString(), new RequestPasswordResetCallback() {
 					@Override
 					public void done(ParseException e) {
 						if (e==null){
@@ -143,6 +122,55 @@ public class WelcomeFragment extends DialogFragment {
 		return view;
 	}
 
+	private void showSignUpEmailInput(){
+		etEmail = new EditText(getActivity());
+
+		AlertDialog.Builder alertDialogEmailInput = new AlertDialog.Builder(getActivity());
+		alertDialogEmailInput.setTitle("Sign Up");
+		alertDialogEmailInput.setMessage("Your E-mail:");
+		alertDialogEmailInput.setView(etEmail);
+		alertDialogEmailInput.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			//Start signing up process
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (etEmail.getText().toString().isEmpty()){
+					Toast.makeText(getActivity(), "Error: Email can't be empty", Toast.LENGTH_LONG).show();
+					return;
+				}
+				
+				btSignup.setEnabled(false);
+
+				parseSigningUpUser = new ParseUser();
+				parseSigningUpUser.setUsername( etUsername.getText().toString() );
+				parseSigningUpUser.setPassword( etPwd.getText().toString() );
+				parseSigningUpUser.setEmail( etEmail.getText().toString() );
+				parseSigningUpUser.signUpInBackground( new SignUpCallback() {
+					@Override
+					public void done(ParseException e) {
+						if (e==null){
+							//Update ownerId in Installation table
+							HelperFuncs.updateOwnerIdInInstallation();
+
+							Toast.makeText(getActivity(), "Your account has been created.", Toast.LENGTH_LONG).show();
+							MyProfileFragment.reloadFragment(getActivity());
+							dismiss();
+						}else{
+							Toast.makeText(getActivity(), "Error signing up. " + e.getMessage(), Toast.LENGTH_LONG).show();
+						}
+						btSignup.setEnabled(true);
+					}
+				});
+			}
+		});
+
+		alertDialogEmailInput.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+			}
+		});
+		
+		alertDialogEmailInput.show();
+	}
 }
 
 

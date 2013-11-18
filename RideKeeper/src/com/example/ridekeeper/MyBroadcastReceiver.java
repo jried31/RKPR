@@ -8,9 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 
-import com.parse.ParseGeoPoint;
-import com.parse.ParseInstallation;
-
 
 public class MyBroadcastReceiver extends BroadcastReceiver{
 	
@@ -47,7 +44,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 	*/
 
 	/*
-	private void routineCheck(Context context){
+	private void routineCheck(Context context){	
 		// TODO Turn Internet connection on if needed
 		
 		//Get phone's GPS location
