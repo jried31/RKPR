@@ -80,7 +80,7 @@ public class WelcomeFragment extends DialogFragment {
 					public void done(ParseUser user, ParseException e) {
 						if (e == null){
 							//HelperFuncs.parseUser = user;
-							HelperFuncs.updateOwnerIdInInstallation();
+							ParseFunctions.updateOwnerIdInInstallation();
 							Toast.makeText(getActivity(), "You are now signed in!", Toast.LENGTH_LONG).show();
 							MyProfileFragment.reloadFragment(getActivity());
 							dismiss();
@@ -97,18 +97,7 @@ public class WelcomeFragment extends DialogFragment {
 		btResetpwd.setOnClickListener( new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				btResetpwd.setEnabled(false);
-				ParseUser.requestPasswordResetInBackground(etUsername.getText().toString(), new RequestPasswordResetCallback() {
-					@Override
-					public void done(ParseException e) {
-						if (e==null){
-							Toast.makeText(getActivity(), "Password reset instruction has been sent to your email." , Toast.LENGTH_SHORT).show();
-						}else{
-							Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-						}
-						btResetpwd.setEnabled(true);
-					}
-				});
+				showResetEmailInput();
 			}
 		});
 
@@ -149,7 +138,7 @@ public class WelcomeFragment extends DialogFragment {
 					public void done(ParseException e) {
 						if (e==null){
 							//Update ownerId in Installation table
-							HelperFuncs.updateOwnerIdInInstallation();
+							ParseFunctions.updateOwnerIdInInstallation();
 
 							Toast.makeText(getActivity(), "Your account has been created.", Toast.LENGTH_LONG).show();
 							MyProfileFragment.reloadFragment(getActivity());
@@ -171,6 +160,39 @@ public class WelcomeFragment extends DialogFragment {
 		
 		alertDialogEmailInput.show();
 	}
+	
+	private void showResetEmailInput(){
+		etEmail = new EditText(getActivity());
+
+		AlertDialog.Builder alertDialogEmailInput = new AlertDialog.Builder(getActivity());
+		alertDialogEmailInput.setTitle("Reset Password");
+		alertDialogEmailInput.setMessage("Your E-mail:");
+		alertDialogEmailInput.setView(etEmail);
+		alertDialogEmailInput.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			//Start reseting password process
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				btResetpwd.setEnabled(false);
+				ParseUser.requestPasswordResetInBackground(etEmail.getText().toString(), new RequestPasswordResetCallback() {
+					@Override
+					public void done(ParseException e) {
+						if (e==null){
+							Toast.makeText(getActivity(), "Password reset instruction has been sent to your email." , Toast.LENGTH_SHORT).show();
+						}else{
+							Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+						}
+						btResetpwd.setEnabled(true);
+					}
+				});
+			}
+		});
+
+		alertDialogEmailInput.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+			}
+		});
+		
+		alertDialogEmailInput.show();
+	}
 }
-
-

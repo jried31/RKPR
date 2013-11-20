@@ -66,10 +66,10 @@ public class GoogleMapFragment extends DialogFragment implements LocationListene
   		
   		
   		//Move camera to current phone's location
-  		HelperFuncs.getLastGoodLoc();
+  		LocationMgr.getLastGoodLoc();
   		
-  		if (HelperFuncs.myLocation!=null){
-  			LatLng myLatLng = new LatLng( HelperFuncs.myLocation.getLatitude(), HelperFuncs.myLocation.getLongitude() );
+  		if (LocationMgr.myLocation!=null){
+  			LatLng myLatLng = new LatLng( LocationMgr.myLocation.getLatitude(), LocationMgr.myLocation.getLongitude() );
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng , 15f));
   		}
   		
@@ -124,7 +124,7 @@ public class GoogleMapFragment extends DialogFragment implements LocationListene
 	@Override
 	public void onLocationChanged(Location location) {
 		//Update phone's GPS location
-		HelperFuncs.myLocation = location;
+		LocationMgr.myLocation = location;
 	}
 	
 	@Override

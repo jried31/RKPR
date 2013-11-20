@@ -24,13 +24,13 @@ public class ParseCustomReceiver extends BroadcastReceiver{
 			String detail = json.getString("status");
 				
 			if (detail.equalsIgnoreCase("nearby")){
-				HelperFuncs.nearbyVBSAlert(context, App.isMainActivityRunning);
+				NotificationMgr.nearbyVBSAlert(context, App.isMainActivityRunning);
 			}else if (detail.equalsIgnoreCase("tilted")){
-				HelperFuncs.ownerVehicleLiftTiltAlert(context, App.isMainActivityRunning);
+				NotificationMgr.ownerVehicleLiftTiltAlert(context, App.isMainActivityRunning);
 			}else if (detail.equalsIgnoreCase("lifted")){
-				HelperFuncs.ownerVehicleLiftTiltAlert(context, App.isMainActivityRunning);
+				NotificationMgr.ownerVehicleLiftTiltAlert(context, App.isMainActivityRunning);
 			}else if (detail.equalsIgnoreCase("stolen")){
-				HelperFuncs.ownerVehicleStolenAlert(context, App.isMainActivityRunning);
+				NotificationMgr.ownerVehicleStolenAlert(context, App.isMainActivityRunning);
 			}
 			
 		} catch (JSONException e) {

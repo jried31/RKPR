@@ -9,7 +9,9 @@ import com.parse.PushService;
 
 public class App extends Application{
 	public static boolean isMainActivityRunning = false;
-	
+	public static MyBroadcastReceiver bReceiver;
+
+
 	@Override public void onCreate() { 
         super.onCreate();
         
@@ -22,11 +24,13 @@ public class App extends Application{
         PushService.setDefaultPushCallback(this, MainActivity.class);
     	ParseInstallation.getCurrentInstallation().saveInBackground();
     	
-        //Initialize some HelperFuncs obj
-        //Toast.makeText(this, "Application start", Toast.LENGTH_SHORT).show();
-        HelperFuncs.initialize(this);
-
-        HelperFuncs.updateOwnerIdInInstallation();
+    	bReceiver = new MyBroadcastReceiver(); //For receiving wake lock and do routine check
+    	
+    	NotificationMgr.initialize(this);
+    	Preferences.loadSettingsFromSharedPref(this);
+    	
+    	LocationMgr.initialize(this);
+    	ParseFunctions.updateOwnerIdInInstallation();
     }
 	
 }

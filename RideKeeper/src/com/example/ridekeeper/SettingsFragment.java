@@ -10,4 +10,10 @@ public class SettingsFragment extends PreferenceFragment {
 		super.onCreate(savedInstanceState);
 		this.addPreferencesFromResource(R.xml.settings);
 	}
+	
+	@Override
+	public void onDetach() {
+		Preferences.loadSettingsFromSharedPref(getActivity());
+		super.onDetach();
+	}
 }

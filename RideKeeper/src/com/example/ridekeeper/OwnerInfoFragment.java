@@ -56,7 +56,7 @@ public class OwnerInfoFragment extends DialogFragment {
 			
 			loadProfile(view);
 		}else{ // Need sign in/up
-			HelperFuncs.showDialogFragment(getActivity(), new WelcomeFragment(), "Map Dialog", false, null);
+			DialogFragmentMgr.showDialogFragment(getActivity(), new WelcomeFragment(), "Map Dialog", false, null);
 			view = inflater.inflate(R.layout.fragment_blank, container, false);
 		}
 		

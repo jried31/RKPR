@@ -120,7 +120,7 @@ public class MyProfileFragment extends Fragment {
 			authenticatedMode(view);
 			
 		}else{ // Need sign in/up
-			HelperFuncs.showDialogFragment(getActivity(), new WelcomeFragment(), "Map Dialog", false, null);
+			DialogFragmentMgr.showDialogFragment(getActivity(), new WelcomeFragment(), "Map Dialog", false, null);
 			view = inflater.inflate(R.layout.fragment_blank, container, false);
 		}
 		
@@ -142,7 +142,7 @@ public class MyProfileFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				ParseUser.logOut();
-				HelperFuncs.removeOwnerIdInInstallation();
+				ParseFunctions.removeOwnerIdInInstallation();
 				ParseQuery.clearAllCachedResults();
 				
 				reloadFragment(getActivity());
@@ -312,7 +312,7 @@ public class MyProfileFragment extends Fragment {
 		ParseFile pfAvatar = new ParseFile("avatar.png", croppedData);
 		
 		// Update Parse
-		ParseUser.getCurrentUser().setUsername(emailVal);
+		//ParseUser.getCurrentUser().setUsername(UserName);
 		ParseUser.getCurrentUser().setEmail(emailVal);
 		ParseUser.getCurrentUser().put(REALNAME, nameVal);
 		ParseUser.getCurrentUser().put(PHONE, phoneVal);

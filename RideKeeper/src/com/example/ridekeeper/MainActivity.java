@@ -58,7 +58,7 @@ public class MainActivity extends Activity implements LocationListener {
 		setContentView(R.layout.activity_main);
 
 		App.isMainActivityRunning = true;
-		HelperFuncs.bReceiver.setRepeatingAlarm(this);
+		App.bReceiver.setRepeatingAlarm(this);
 
 		mTitle = mDrawerTitle = getTitle();
 		mDrawerMenuTitles = getResources().getStringArray(R.array.drawer_menu_title_array);
@@ -242,18 +242,18 @@ public class MainActivity extends Activity implements LocationListener {
 		super.onResume();
 
 		//Stop alarm tone and vibration
-		HelperFuncs.stopAlarmTone();
-		HelperFuncs.stopVibration();
+		NotificationMgr.stopAlarmTone();
+		NotificationMgr.stopVibration();
 		
 		//Start updating phone's location
-		HelperFuncs.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+		LocationMgr.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 	}
 
 
 	@Override
 	protected void onPause() {
 		//stop updating phone's location
-		HelperFuncs.locationManager.removeUpdates(this);
+		LocationMgr.locationManager.removeUpdates(this);
 
 		App.isMainActivityRunning = false;
 
@@ -263,7 +263,7 @@ public class MainActivity extends Activity implements LocationListener {
 	@Override
 	public void onLocationChanged(Location location) {
 		//Toast.makeText(this, "Location updated!", Toast.LENGTH_SHORT).show();
-		HelperFuncs.myLocation = location;
+		LocationMgr.myLocation = location;
 	}
 
 	@Override
@@ -281,7 +281,7 @@ public class MainActivity extends Activity implements LocationListener {
 	public void test(View v){
 		Toast.makeText(getApplicationContext(), "START", Toast.LENGTH_SHORT).show();
 		
-		HelperFuncs.updatetLocation_inBackground(this, new HelperFuncs.GetLocCallback() {
+		LocationMgr.updatetLocation_inBackground(this, new LocationMgr.GetLocCallback() {
 			@Override
 			public void done() {
 				Toast.makeText(getApplicationContext(), "GOT LOC", Toast.LENGTH_SHORT).show();

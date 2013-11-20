@@ -78,13 +78,13 @@ public class StolenVehicleListFragment extends ListFragment{
 	    case R.id.menuItem_owner_info:
 	    	//Displayig the owner's profile for the stolen vehicle
 	    	bundle.putString("UID", uid);
-	    	HelperFuncs.showDialogFragment(getActivity(), new OwnerInfoFragment(), "Owner Information", true, bundle);
+	    	DialogFragmentMgr.showDialogFragment(getActivity(), new OwnerInfoFragment(), "Owner Information", true, bundle);
 	    	
 	    	return true;
 	    case R.id.menuItem_show_on_map:
 	    	//Putting the UID of the select vehicle to the Google Map fragment argument
 	    	bundle.putString("UID", uid);
-	    	HelperFuncs.showDialogFragment(getActivity(), new GoogleMapFragment(), "Map Dialog", true, bundle);
+	    	DialogFragmentMgr.showDialogFragment(getActivity(), new GoogleMapFragment(), "Map Dialog", true, bundle);
 	    	return true;
 	    	
 	    case R.id.menuItem_chat_room:
@@ -96,13 +96,13 @@ public class StolenVehicleListFragment extends ListFragment{
 	
 	//Should be called only when ParseUser.getCurrentUser() is authenticated
 	public static void refreshList(){
-		if (HelperFuncs.myLocation == null){
-			HelperFuncs.getLastGoodLoc();
+		if (LocationMgr.myLocation == null){
+			LocationMgr.getLastGoodLoc();
 		}
 	
-		if (HelperFuncs.myLocation != null){
-			HelperFuncs.queryParseForStolenVehicle_InBackground(	HelperFuncs.myLocation.getLatitude(),
-					HelperFuncs.myLocation.getLongitude(),
+		if (LocationMgr.myLocation != null){
+			ParseFunctions.queryParseForStolenVehicle_InBackground(	LocationMgr.myLocation.getLatitude(),
+					LocationMgr.myLocation.getLongitude(),
 					DBGlobals.searchRadius,
 					queryVBSCallback);
 		}
