@@ -13,15 +13,14 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 public class ParseFunctions {
-	//Query for any stolen vehicle that is within a certain miles
+		//Query for any vehicle in the list can we're allow to see
 		public static List<ParseObject> queryParseForStolenVehicle_Blocked(double lat, double lng, double withInMiles){
 			ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL); //Query the VBS table
 
 			ParseGeoPoint myPoint = new ParseGeoPoint(lat, lng);
 
-			//Constraints: Find any VBS within 'withInMiles' miles of given lat, lng
-			query.whereWithinMiles("pos", myPoint, withInMiles);
-			query.whereEqualTo("stolen", true);
+			//query.whereWithinMiles("pos", myPoint, withInMiles);
+			query.whereEqualTo("stolen", true); //FIX THIS: query only the vehicles that we're allow to see
 			
 			try {
 				List<ParseObject> results = query.find();

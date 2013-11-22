@@ -50,6 +50,9 @@ public class StolenVehicleListFragment extends ListFragment{
 		setListAdapter(vbsArrayAdapter);
 		
 		registerForContextMenu(getListView());
+		
+		//FOR TESTING
+		DialogFragmentMgr.showDialogFragment(getActivity(), new ChatFragment(), "Chat Dialog", true, null);
 	}
 	
 	@Override
@@ -88,7 +91,8 @@ public class StolenVehicleListFragment extends ListFragment{
 	    	return true;
 	    	
 	    case R.id.menuItem_chat_room:
-	    	Toast.makeText(getActivity(), "Not yet implemented", Toast.LENGTH_SHORT).show();
+	    	//bundle.putString("UID", uid);
+	    	DialogFragmentMgr.showDialogFragment(getActivity(), new ChatFragment(), "Chat Dialog", true, bundle);
 	        return true;
 	    }
 	    return false;
