@@ -2,6 +2,12 @@
 //copy and paste the following into a new js file (eg: server.js)
 var restify = require('restify');
 var request = require('request');
+var Kaiseki = require('kaiseki');
+// instantiate
+var APP_ID = 'OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f';
+var REST_API_KEY = 'bPlqPguhK51mbRXaYcfnf73uTri07sk6uB64ZdPb';
+var kaiseki = new Kaiseki(APP_ID, REST_API_KEY);
+
 
 /**
 * Return a timestamp with the format "m/d/yy h:MM:ss TT"
@@ -33,19 +39,35 @@ sec = '0' + sec;
 return month + '-' + date + '-' + year + " " + hour + ":" + min + ":" + sec;
 }
 
-function respond(req, res, next) {
-res.send('hello ' + req.params.name);
+function updateParse(req,res,next){
+  console.log('Got Data %s \n',req.body.id);
+  var tmpObj = req.body;
+  var position = {location: {
+    __type: 'GeoPoint',
+    latitude: parseFloat(tmpObj.lat),
+    longitude: parseFloat(tmpObj.lng)
+    }
+  };
+  
+  kaiseki.updateObject('Vehicle', tmpObj.id,
+                       {'AlertLevel': parseInt(tmpObj.alertLevel), 
+                        'pos': position.location},
+              function(err, res, body, success) {
+                       console.log(body.error);
+              }
+   );
 }
 
 function forward(req,res,next){
-res.send('hello '+JSON.stringify(req.body));
+res.send(JSON.stringify(req.body));
+console.log('Got Data \n %s',req.body);
 var tmpObj = JSON.parse(JSON.stringify(req.body));
 tmpObj.time = timestamp() ;
 var id = tmpObj.id;
 delete tmpObj.id;
 request.post({
-headers: {'content-type' : 'application/json'},
-url: 'https://ridekeepr.firebaseio.com/cases/' + id + '/map.json',
+headers: {'User-Agent' : 'curl/7.26.0','X-Parse-Application-Id' : 'OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f','X-Parse-REST-API-Key' : 'bPlqPguhK51mbRXaYcfnf73uTri07sk6uB64ZdPb','content-type' : 'application/json'},
+url: '107.22.188.163:8080/1/classes/Vehicle/bht5oha6ix',
 body: JSON.stringify(tmpObj)
 }, function(error, response, body){
 console.log(body);
@@ -54,9 +76,8 @@ console.log(body);
 var server = restify.createServer();
 server.use(restify.bodyParser({ mapParams: false }));
 
-server.get('/hello/:name', respond);
-server.head('/hello/:name', respond);
-server.post('/update', forward);
+server.post('/update', updateParse);
+server.post('/forward', forward);
 
 server.listen(8080, function() {
 console.log('%s listening at %s', server.name, server.url);
