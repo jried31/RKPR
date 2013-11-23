@@ -37,7 +37,17 @@ function timestamp()
 	return month + '-' + date + '-' + year + " " + hour + ":" + min + ":" + sec;
 }
 
-function updateParse(req,res,next){
+/**
+ * updateVehicleStatus
+ *
+ * Updates the status of a vehicle. Generally called by the GeogramONE, using
+ * information read from the sensor.
+ *
+ * @param string 	id 				Vehicle ID
+ * @param int 		alertLevel 		New alertLevel (based on ambigious alert leveling...)
+ * @param GeoPoint 	location		Vehicle location
+ */
+function updateVehicleStatus(req,res,next){
   console.log('Got Data %s \n',req.body.id);
   var tmpObj = req.body;
   var position = {location: {
@@ -80,7 +90,7 @@ function forward(req,res,next){
 var server = restify.createServer();
 server.use(restify.bodyParser({ mapParams: false }));
 
-server.post('/update', updateParse);
+server.post('/update', updateVehicleStatus);
 server.post('/forward', forward);
 
 server.listen(8080, function() {
