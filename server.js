@@ -19,7 +19,7 @@ function timestamp()
 	var month 	= d.getMonth() + 1,
 	var date 	= d.getDate(),
 	var year 	= d.getFullYear(),
-	var hour 	= d.getHours() -2 ,
+	var hour 	= d.getHours() - 2 ,
 	var min 	= d.getMinutes(),
 	var sec 	= d.getSeconds();
 
