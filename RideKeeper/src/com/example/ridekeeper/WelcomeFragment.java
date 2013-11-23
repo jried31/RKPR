@@ -18,6 +18,8 @@ import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.RequestPasswordResetCallback;
 import com.parse.SignUpCallback;
+import com.quickblox.core.QBCallback;
+import com.quickblox.core.result.Result;
 
 public class WelcomeFragment extends DialogFragment {
 	private Button btSignup, btSignin, btResetpwd, btExit;
@@ -44,7 +46,7 @@ public class WelcomeFragment extends DialogFragment {
 		btSignup.setOnClickListener( new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if ( etUsername.getText().toString().isEmpty() ||
+				if (etUsername.getText().toString().isEmpty() ||
 						etPwd.getText().toString().isEmpty()){
 					Toast.makeText(getActivity(), "Error: Username or password can't be empty", Toast.LENGTH_LONG).show();
 					return;
@@ -81,6 +83,12 @@ public class WelcomeFragment extends DialogFragment {
 						if (e == null){
 							//HelperFuncs.parseUser = user;
 							ParseFunctions.updateOwnerIdInInstallation();
+							
+							//sign into QB
+							MyQBUser.signin(etUsername.getText().toString(), MyQBUser.DUMMPY_PASSWORD);
+							
+							//update phone's location to parse
+							ParseFunctions.updateLocToParse(getActivity());
 							Toast.makeText(getActivity(), "You are now signed in!", Toast.LENGTH_LONG).show();
 							MyProfileFragment.reloadFragment(getActivity());
 							dismiss();
@@ -140,6 +148,12 @@ public class WelcomeFragment extends DialogFragment {
 							//Update ownerId in Installation table
 							ParseFunctions.updateOwnerIdInInstallation();
 
+							//Signup QB user
+							MyQBUser.signUpSignin(etUsername.getText().toString(), MyQBUser.DUMMPY_PASSWORD);
+							
+							//Update phone location to Parse
+							ParseFunctions.updateLocToParse(getActivity());
+							
 							Toast.makeText(getActivity(), "Your account has been created.", Toast.LENGTH_LONG).show();
 							MyProfileFragment.reloadFragment(getActivity());
 							dismiss();

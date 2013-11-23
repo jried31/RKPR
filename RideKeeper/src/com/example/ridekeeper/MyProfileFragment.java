@@ -34,6 +34,8 @@ import com.parse.ParseImageView;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.quickblox.core.QBCallback;
+import com.quickblox.core.result.Result;
 
 public class MyProfileFragment extends Fragment {
 	public static final int ID_PHOTO_PICKER_FROM_CAMERA = 0;
@@ -127,6 +129,7 @@ public class MyProfileFragment extends Fragment {
 		return view;
 	}
 	
+	//Parse user was authenticated
 	private void authenticatedMode(View view){
 		loadProfile(view);
 

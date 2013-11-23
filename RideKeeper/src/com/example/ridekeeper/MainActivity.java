@@ -198,9 +198,6 @@ public class MainActivity extends Activity implements LocationListener {
 			break;
 		default:
 			fragment = new MyProfileFragment();
-			//Bundle args = new Bundle();
-			//args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
-			//fragment.setArguments(args);
 		}
 
 		FragmentManager fragmentManager = getFragmentManager();

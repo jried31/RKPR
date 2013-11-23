@@ -53,6 +53,7 @@ public class MultiUserChatController {
 				//setup connection
 	        	connection.connect();
 	        	connection.login(userJID, password);
+	        	//connection.loginAnonymously();
 	        	
 				return null;
 			} catch (XMPPException e) {
@@ -86,20 +87,9 @@ public class MultiUserChatController {
 		}
 	}
 	
-	public String join(){
-		if (connection != null){
-			muc = new MultiUserChat(connection, roomname + ROOM_SUBFIX);
-			try {
-				muc.join(nickname);
-				return null;
-			} catch (XMPPException e) {
-				return e.getMessage();
-				//Toast.makeText(myContext, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-			}
-		}else{
-			return "Connection is null!";
-			//Toast.makeText(myContext, "Error: connection is null", Toast.LENGTH_SHORT).show();
-		}
+	public void join() throws XMPPException{
+		muc = new MultiUserChat(connection, roomname + ROOM_SUBFIX);
+		muc.join(nickname);
 	}
 	
 	public void leaveRoom(){

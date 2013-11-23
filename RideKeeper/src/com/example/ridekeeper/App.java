@@ -1,11 +1,16 @@
 package com.example.ridekeeper;
 
 import android.app.Application;
+import android.widget.Toast;
 
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.PushService;
+import com.quickblox.core.QBCallback;
+import com.quickblox.core.QBSettings;
+import com.quickblox.core.result.Result;
+import com.quickblox.module.auth.QBAuth;
 
 public class App extends Application{
 	public static boolean isMainActivityRunning = false;
@@ -25,6 +30,27 @@ public class App extends Application{
     	ParseInstallation.getCurrentInstallation().saveInBackground();
     	
     	bReceiver = new MyBroadcastReceiver(); //For receiving wake lock and do routine check
+    	
+    	//Register with QuickBlox server
+    	MyQBUser.initContext(getApplicationContext());
+    	QBSettings.getInstance().fastConfigInit("5111", "GKtDOrCEdMpjFtQ", "VQcw5PmGbdExTyQ");
+    	QBAuth.createSession(null);
+    	
+    	/*
+		QBAuth.createSession(new QBCallback() {
+			@Override
+			public void onComplete(Result result) {
+		        if (result.isSuccess()) {
+		        	MyQBUser.sessionCreated = true;
+		        } else {
+		        	Toast.makeText(getApplicationContext(), "Error: " + result.getErrors(), Toast.LENGTH_SHORT).show();
+		        }
+			}
+			@Override
+			public void onComplete(Result arg0, Object arg1) {
+			}
+		});
+		*/
     	
     	NotificationMgr.initialize(this);
     	Preferences.loadSettingsFromSharedPref(this);
