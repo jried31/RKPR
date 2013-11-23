@@ -1,10 +1,11 @@
-var restify = require('restify');
-var request = require('request');
-var Kaiseki = require('kaiseki');
+var restify 		= require('restify');
+var request 		= require('request');
+var kaiseki_inc 	= require('kaiseki');
+
 // instantiate
 var APP_ID = 'OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f';
 var REST_API_KEY = 'bPlqPguhK51mbRXaYcfnf73uTri07sk6uB64ZdPb';
-var kaiseki = new Kaiseki(APP_ID, REST_API_KEY);
+var kaiseki = new kaiseki_inc(APP_ID, REST_API_KEY);
 
 
 /**
