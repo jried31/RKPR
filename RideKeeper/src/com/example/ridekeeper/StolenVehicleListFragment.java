@@ -50,9 +50,6 @@ public class StolenVehicleListFragment extends ListFragment{
 		setListAdapter(vbsArrayAdapter);
 		
 		registerForContextMenu(getListView());
-		
-		//FOR TESTING
-		DialogFragmentMgr.showDialogFragment(getActivity(), new ChatFragment(), "Chat Dialog", true, null);
 	}
 	
 	@Override
@@ -91,7 +88,7 @@ public class StolenVehicleListFragment extends ListFragment{
 	    	return true;
 	    	
 	    case R.id.menuItem_chat_room:
-	    	//bundle.putString("UID", uid);
+	    	bundle.putString("roomname", "5111_room01"); //FIX THIS
 	    	DialogFragmentMgr.showDialogFragment(getActivity(), new ChatFragment(), "Chat Dialog", true, bundle);
 	        return true;
 	    }

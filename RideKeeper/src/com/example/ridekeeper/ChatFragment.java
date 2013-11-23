@@ -1,9 +1,13 @@
 package com.example.ridekeeper;
 
 import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.util.StringUtils;
+
+import com.parse.Parse;
+import com.parse.ParseUser;
 
 import android.app.DialogFragment;
 import android.graphics.Color;
@@ -27,34 +31,22 @@ public class ChatFragment extends DialogFragment {
 	private ScrollView scrollContainer;
 	private LinearLayout msgContainer;
 	
-	//FIX THIS:
-	
-	private String 	roomname = "5111_room01",
-					userJID = "667457-5111",
-					password = "password",
-					nickname = "romeo";
-	
-	/*
-	private String 	roomname = "5111_room01",
-					userJID = "669104-5111",
-					password = "abcde123",
-					nickname = "user1";
-	*/
-	
+	private String roomname;
 	private MultiUserChatController mucController;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_DeviceDefault);
-		//setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen);
+		roomname = getArguments().getString("roomname");
+		
+		setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_DeviceDefault_Light);
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_chat, container, false);
-	
+		
 		ivSendPic = (ImageView) view.findViewById(R.id.imageView_sendPic);
 		etMessage = (EditText) view.findViewById(R.id.editText_msg);
 		btSendMsg = (Button) view.findViewById(R.id.buttton_sendMsg);
@@ -80,12 +72,24 @@ public class ChatFragment extends DialogFragment {
 		btSendMsg.setEnabled(false);
 		btSendMsg.setText("Connecting...");
 
-		mucController = new MultiUserChatController(getActivity(), roomname, userJID, password, nickname);
+		mucController = new MultiUserChatController(getActivity(),
+													roomname,
+													MyQBUser.getUserJabberIDfromCache(),
+													MyQBUser.DUMMPY_PASSWORD,
+													ParseUser.getCurrentUser().getUsername()); // use parse username as chat room nickname
+		
 		mucController.connect( new AfterConnectCallback() {
 			@Override
 			public void done(String errorMsg) {
 				if (errorMsg == null){
-					mucController.join();
+					try {
+						mucController.join();
+					} catch (XMPPException e) {
+						btSendMsg.setText("Error Joining");
+						Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+						e.printStackTrace();
+						return;
+					}
 
 					mucController.addMsgListener(new PacketListener() {
 						@Override
@@ -93,8 +97,8 @@ public class ChatFragment extends DialogFragment {
 							Message msg = (Message) packet;
 							//convert "5111_room123@muc.chat.quickblox.com/romeo" to "romeo"
 							String from = StringUtils.parseResource(msg.getFrom());
-							Log.d("RECEIVED MSG", from + ": " + msg.getBody());
-							showMessage( from + ": " + msg.getBody());
+							//Log.d("RECEIVED MSG", from + ": " + msg.getBody());
+							pushMessageToContainer( from + ": " + msg.getBody());
 							//Toast.makeText(getActivity(), msg.getBody(), Toast.LENGTH_SHORT).show();
 						}
 					});
@@ -125,10 +129,9 @@ public class ChatFragment extends DialogFragment {
 	}
 	
 	//Put a text into the chat window
-	private void showMessage(String msg){
+	private void pushMessageToContainer(String msg){
 		final TextView textView = new TextView(getActivity());
 		textView.setText(msg);
-		textView.setTextColor(Color.WHITE);
 		textView.setTextSize(20);
 		textView.setPadding(5, 0, 5, 10);
 		
