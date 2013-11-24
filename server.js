@@ -65,33 +65,10 @@ function updateVehicleStatus(req,res,next){
               }
    );
 }
-
-function forward(req,res,next){
-	res.send(JSON.stringify(req.body));
-	console.log('Got Data \n %s',req.body);
-
-	var tmpObj = JSON.parse(JSON.stringify(req.body));
-	tmpObj.time = timestamp();
-
-	var id = tmpObj.id;
-	delete tmpObj.id;
-	request.post({
-		headers: {
-			'User-Agent' : 'curl/7.26.0','X-Parse-Application-Id' : APP_ID,
-			'X-Parse-REST-API-Key' : REST_API_KEY,
-			'content-type' : 'application/json'
-		},
-		url: '107.22.188.163:8080/1/classes/Vehicle/bht5oha6ix',
-		body: JSON.stringify(tmpObj)
-	}, function(error, response, body){
-		console.log(body);
-	});
-}
 var server = restify.createServer();
 server.use(restify.bodyParser({ mapParams: false }));
 
 server.post('/update', updateVehicleStatus);
-server.post('/forward', forward);
 
 server.listen(8080, function() {
 	console.log('%s listening at %s', server.name, server.url);
