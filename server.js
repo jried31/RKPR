@@ -16,11 +16,11 @@ var kaiseki = new kaiseki_inc(APP_ID, REST_API_KEY);
 function timestamp()
 {
 	var d 		= new Date();
-	var month 	= d.getMonth() + 1,
-	var date 	= d.getDate(),
-	var year 	= d.getFullYear(),
-	var hour 	= d.getHours() - 2 ,
-	var min 	= d.getMinutes(),
+	var month 	= d.getMonth() + 1;
+	var date 	= d.getDate();
+	var year 	= d.getFullYear();
+	var hour 	= d.getHours() - 2;
+	var min 	= d.getMinutes();
 	var sec 	= d.getSeconds();
 
 	if(month < 10)
@@ -61,7 +61,11 @@ function updateVehicleStatus(req,res,next){
                        {'AlertLevel': parseInt(tmpObj.alertLevel), 
                         'pos': position.location},
               function(err, res, body, success) {
-                       console.log(body.error);
+              	if (success) {
+              		sendTiltNotification(tmpObj.id, parseInt(tmpObj.alertLevel));
+              	} else {
+					console.log(body.error);
+              	}
               }
    );
 }
@@ -73,7 +77,32 @@ server.post('/update', updateVehicleStatus);
 server.listen(8080, function() {
 	console.log('%s listening at %s', server.name, server.url);
 });
-/*
- * do "npm install restify" if it's missing that dependency
- * and "npm install" afterwards to install any other missing files
+
+/**
+ * sendTiltNotification
+ *
+ * If necessary, notifies the owner of a vehicle that their vehicle
+ * has been tilted.
+ *
+ * @param 	string		id 			Vehicle ID
+ * @param 	int 		alert_level	Vehicle's alert level
  */
+ function sendTiltNotification(id, alert_level) {
+ 	if ( true ) { // @todo figure out what alert_level means so we can use that to compare
+ 		
+ 		// first, fetch vehicle info
+ 		kaiseki.getObject('Vehicle', id, { }, function(err, body, success) {
+ 			// then, send the owner notification
+			var notification_data = {
+	 			where: { ownerId: body.ownerId },
+	 			data: {
+	 				alert: "Your " + body.make + " " + body.model + " has been tilted."
+	 			}
+	 		};
+	 		kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
+	 			if (!success)
+	 				console.log(body.error);
+	 		});
+ 		});
+ 	}
+ }
