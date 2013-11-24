@@ -7,6 +7,16 @@ var APP_ID = 'OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f';
 var REST_API_KEY = 'bPlqPguhK51mbRXaYcfnf73uTri07sk6uB64ZdPb';
 var kaiseki = new kaiseki_inc(APP_ID, REST_API_KEY);
 
+/**
+ * The magic status codes, which you will see here and there:
+ OK : status ok
+ LFT: lifted
+ TLT: titled
+ STL: stolen
+ RVD: recovered
+ NRD: not recoved
+ */
+
 
 /**
 * Return a timestamp with the format "m/d/yy h:MM:ss TT"
@@ -88,21 +98,27 @@ server.listen(8080, function() {
  * @param 	int 		alert_level	Vehicle's alert level
  */
  function sendTiltNotification(id, alert_level) {
- 	if ( true ) { // @todo figure out what alert_level means so we can use that to compare
- 		
- 		// first, fetch vehicle info
- 		kaiseki.getObject('Vehicle', id, { }, function(err, body, success) {
- 			// then, send the owner notification
+	// first, fetch vehicle info
+	kaiseki.getObject('Vehicle', id, { }, function(err, body, success) {
+		// then, send the owner notification if the vehicle is tilted
+		if (body.status == "TLT") {
 			var notification_data = {
-	 			where: { ownerId: body.ownerId },
-	 			data: {
-	 				alert: "Your " + body.make + " " + body.model + " has been tilted."
-	 			}
-	 		};
-	 		kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
-	 			if (!success)
-	 				console.log(body.error);
-	 		});
- 		});
- 	}
+					where: { ownerId: body.ownerId },
+					data: {
+						alert: "Your " + body.make + " " + body.model + " has been tilted."
+					}
+				};
+				kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
+					if (success) {
+						kaiseki.updateObject('Vehicle', id, { status: 'OK' }, function(err, res, body, success) {
+							if (!success)
+								console.log(body.error);
+						});
+					}
+					else {
+						console.log(body.error);
+					}
+				});
+			});
+		}
  }
