@@ -5,6 +5,7 @@ import java.util.List;
 import android.content.Context;
 
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseInstallation;
@@ -35,7 +36,7 @@ public class ParseFunctions {
 			return null;
 		}*/
 		
-		public static void queryParseForStolenVehicle_InBackground(double lat, double lng, double withInMiles, FindCallback<ParseObject> callback){
+		public static void queryForStolenVehicle_InBackground(double lat, double lng, double withInMiles, FindCallback<ParseObject> callback){
 			ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL); //Query the VBS table
 
 			ParseGeoPoint myPoint = new ParseGeoPoint(lat, lng);
@@ -45,6 +46,11 @@ public class ParseFunctions {
 			query.whereEqualTo("stolen", true); //FIX THIS: query only the vehicles that we're allow to see
 			
 			query.findInBackground(callback);
+		}
+		
+		public static void queryForChatPhoto(String objectId, GetCallback<ParseChatRoomPhoto> callback){
+			ParseQuery<ParseChatRoomPhoto> query = ParseQuery.getQuery(DBGlobals.PARSE_CHATROOMPHOTO_TBL); //Query the VBS table
+			query.getInBackground(objectId, callback);
 		}
 		
 		//Update phone's location to parse server

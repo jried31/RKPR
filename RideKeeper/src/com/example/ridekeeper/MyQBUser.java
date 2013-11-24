@@ -12,7 +12,7 @@ import com.quickblox.module.users.model.QBUser;
 public class MyQBUser {
 	private static Context myContext;
 	private static QBUser user = null;
-	public static final String DUMMPY_PASSWORD = "abcde123";
+	public static final String DUMMY_PASSWORD = "abcde123";
 	//public static boolean sessionCreated = false;
 	
 	public static void signUpSignin(String username, String password){

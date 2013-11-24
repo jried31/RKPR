@@ -93,7 +93,7 @@ public class EditVehicleFragment extends DialogFragment {
 			etModel.setText(vehicle.getModel());
 			etYear.setText(vehicle.getYear().toString());
 			etLicense.setText(vehicle.getLicense());
-			vehicle.loadPhoto(getActivity(), pivPhoto);
+			vehicle.loadPhotoIntoParseImageView(getActivity(), pivPhoto);
 			
 			btSave.setText("Save");
 		}

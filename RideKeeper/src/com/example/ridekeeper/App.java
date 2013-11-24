@@ -22,6 +22,7 @@ public class App extends Application{
         
         // MUST Initialize Parse here, otherwise BroadcastReceiver will crash when doing query
         ParseObject.registerSubclass(ParseVehicle.class);
+        ParseObject.registerSubclass(ParseChatRoomPhoto.class);
         //Register with Parse server
         Parse.initialize(this,
 				"OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f", 	//Application ID
