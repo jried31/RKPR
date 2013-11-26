@@ -68,11 +68,11 @@ function updateVehicleStatus(req,res,next){
   };
   
   kaiseki.updateObject('Vehicle', tmpObj.id,
-                       {'status': parseInt(tmpObj.status), 
+                       {'status': tmpObj.status.toUpperCase(), 
                         'pos': position.location},
               function(err, res, body, success) {
               	if (success) {
-              		console.log("Marked" + tmpObj.id + " as " + parseInt(tmpObj.alertLevel));
+              		console.log("Marked " + tmpObj.id + " as " + tmpObj.status);
               		sendTiltNotification(tmpObj.id);
               		sendStolenNotification(tmpObj.id);
               	} else {
@@ -86,7 +86,7 @@ server.use(restify.bodyParser({ mapParams: false }));
 
 server.post('/update', updateVehicleStatus);
 
-server.listen(8080, function() {
+server.listen(8081, function() {
 	console.log('%s listening at %s', server.name, server.url);
 });
 
