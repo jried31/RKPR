@@ -54,7 +54,7 @@ function timestamp()
  * information read from the sensor.
  *
  * @param string 	id 				Vehicle ID
- * @param int 		alertLevel 		New alertLevel (based on ambigious alert leveling...)
+ * @param string 	status			New vehicle status.
  * @param GeoPoint 	location		Vehicle location
  */
 function updateVehicleStatus(req,res,next){
@@ -68,14 +68,15 @@ function updateVehicleStatus(req,res,next){
   };
   
   kaiseki.updateObject('Vehicle', tmpObj.id,
-                       {'AlertLevel': parseInt(tmpObj.alertLevel), 
+                       {'status': parseInt(tmpObj.status), 
                         'pos': position.location},
               function(err, res, body, success) {
               	if (success) {
-              		sendTiltNotification(tmpObj.id, parseInt(tmpObj.alertLevel));
+              		console.log("Marked" + tmpObj.id + " as " + parseInt(tmpObj.alertLevel));
+              		sendTiltNotification(tmpObj.id);
               		sendStolenNotification(tmpObj.id);
               	} else {
-					console.log(err);
+					console.log(body.error);
               	}
               }
    );
@@ -96,15 +97,14 @@ server.listen(8080, function() {
  * has been tilted.
  *
  * @param 	string		id 			Vehicle ID
- * @param 	int 		alert_level	Vehicle's alert level
  */
- function sendTiltNotification(id, alert_level) {
+ function sendTiltNotification(id) {
 	// first, fetch vehicle info
 	kaiseki.getObject('Vehicle', id, { }, function(err, res, body, success) {
 		// then, send the owner notification if the vehicle is tilted
 		if (body.status == "TLT") {
 			var notification_data = {
-					where: { ownerId: body.ownerId },
+					where: { objectId: body.ownerId },
 					data: {
 						alert: "Your " + body.make + " " + body.model + " has been tilted."
 					}
@@ -113,11 +113,11 @@ server.listen(8080, function() {
 					if (success) {
 						kaiseki.updateObject('Vehicle', id, { status: 'OK' }, function(err, res, body, success) {
 							if (!success)
-								console.log(err);
+								console.log(body.error);
 						});
 					}
 					else {
-						console.log(err);
+						console.log(body.error);
 					}
 				});
 		}
@@ -138,7 +138,7 @@ function sendStolenNotification(id) {
 		// then, send the owner notification if the vehicle is tilted
 		if (body.status == "STL") {
 			var notification_data = {
-					where: { ownerId: body.ownerId },
+					where: { objectId: body.ownerId },
 					data: {
 						alert: "Your " + body.make + " " + body.model + " has been stolen."
 					}
@@ -148,7 +148,7 @@ function sendStolenNotification(id) {
 						createChatroom(id);
 					}
 					else {
-						console.log(err);
+						console.log(body.error);
 					}
 				});
 		}
@@ -167,6 +167,111 @@ function createChatroom(id) {
 		if (success)
 			console.log("Created chatroom for " + id); // @todo also create physical xmpp room
 		else
-			console.log(err);
+			console.log(body.error);
 	});
+}
+
+/**
+ * notifyNearbyUsers()
+ *
+ * Cycle through every stolen vehicle and notify users within
+ * .5 miles that the vehicle is stolen.
+ */
+function notifyNearbyUsers() {
+	kaiseki.getObjects('Vehicle', {  where: { status: "STL" } }, function(err, res, body, success) {
+		if (success) {
+			for (veh in body.results) {
+				console.log("Notifying users near " + veh.id);
+
+				var geopoint_where = {
+					GeoPoint: {
+						"$nearSphere": {
+							__type: "GeoPoint",
+							"latitude": veh.pos.latitude,
+							"longitude": veh.pos.longitude
+						},
+						"$maxDistanceInMiles": 0.5
+					}
+				};
+
+				kaiseki.getObjects('Installation', geopoint_where, function(err, res, body, success) {
+					if (success) {
+						var nearby_owners = new Array();
+						for (user in body.results) {
+							nearby_owners.push(body.results.objectId);
+						}
+
+						kaiseki.getObject('Chatroom', { where: { vehicleId: veh.objectId } }, function(err, res, body, success) {
+							if (success) {
+								var new_users = arrayExclude(nearby_owners, body.members);
+								var new_members = arrayUnique(body.members.concat(nearby_owners));
+
+								// Update chatroom
+								kaiseki.updateObject('Chatroom', body.objectId, function(err, res, body, success) {
+									if (success) {
+										// Notify users
+										for (var i = 0; i < new_users.length; ++i) {
+											var notification_data = {
+												where: { objectId: new_users[i] },
+												data: {
+													alert: "A nearby vehicle has been stolen!"
+												}
+											};
+											kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
+												if (success) {
+													console.log("Notified " + new_users[i] + " of theft.");
+												}
+												else {
+													console.log(body.error);
+												}
+											});
+										}
+									}
+									else {
+										console.log(body.error);
+									}
+								});
+							} else {
+								console.log(body.error);
+							}
+						})
+					} else {
+						console.log(body.error);
+					}
+				});
+			}
+		}
+		else {
+			console.log(body.error);
+		}
+	});
+}
+
+function arrayUnique(array) {
+    var a = array.concat();
+    for(var i=0; i<a.length; ++i) {
+        for(var j=i+1; j<a.length; ++j) {
+            if(a[i] === a[j])
+                a.splice(j--, 1);
+        }
+    }
+
+    return a;
+};
+
+/**
+ * Removes all items in a that are also in b
+ */
+function arrayExclude(a, b) {
+	res = new Array();
+
+	for (x in a) {
+		for (y in b) {
+			if (x == y) 
+				continue;
+		}
+		res.push(a);
+	}
+
+	return res;
 }
