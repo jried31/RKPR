@@ -143,7 +143,7 @@ Parse.Cloud.job( "addNearbyUsersToChat", function( request, status ) {
                             // Since it's still stolen, find nearby users
                             console.log( "Notifying nearby users." );
                             var installQuery = new Parse.Query( Installation );
-                            installQuery.withinMiles( 0.5 ); // For now, notify users within half a mile
+                            installQuery.withinMiles('GeoPoint', vehicle.pos, 0.5 ); // For now, notify users within half a mile
 
                             installQuery.find( { 
                                 success: function ( results ) {
