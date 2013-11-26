@@ -165,7 +165,7 @@ function sendStolenNotification(id) {
 function createChatroom(id) {
 	kaiseki.createObject('Chatroom', { vehicleId: id }, function(err, res, body, success) {
 		if (success)
-			console.log("Created chatroom for " + id);
+			console.log("Created chatroom for " + id); // @todo also create physical xmpp room
 		else
 			console.log(err);
 	});
