@@ -57,7 +57,7 @@ function timestamp()
  * @param string 	status			New vehicle status.
  * @param GeoPoint 	location		Vehicle location
  */
-function updateVehicleStatus(req,res,next){
+function updateVehicleStatus(req,resp,next){
   console.log('Got Data %s \n',req.body.id);
   var tmpObj = req.body;
   var position = {location: {
@@ -75,6 +75,7 @@ function updateVehicleStatus(req,res,next){
               		console.log("Marked " + tmpObj.id + " as " + tmpObj.status);
               		sendTiltNotification(tmpObj.id);
               		sendStolenNotification(tmpObj.id);
+              		resp.send('ok');
               	} else {
 					console.log(body.error);
               	}
