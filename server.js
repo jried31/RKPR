@@ -73,8 +73,9 @@ function updateVehicleStatus(req,res,next){
               function(err, res, body, success) {
               	if (success) {
               		sendTiltNotification(tmpObj.id, parseInt(tmpObj.alertLevel));
+              		sendStolenNotification(tmpObj.id);
               	} else {
-					console.log(body.error);
+					console.log(err);
               	}
               }
    );
@@ -99,7 +100,7 @@ server.listen(8080, function() {
  */
  function sendTiltNotification(id, alert_level) {
 	// first, fetch vehicle info
-	kaiseki.getObject('Vehicle', id, { }, function(err, body, success) {
+	kaiseki.getObject('Vehicle', id, { }, function(err, res, body, success) {
 		// then, send the owner notification if the vehicle is tilted
 		if (body.status == "TLT") {
 			var notification_data = {
@@ -112,13 +113,60 @@ server.listen(8080, function() {
 					if (success) {
 						kaiseki.updateObject('Vehicle', id, { status: 'OK' }, function(err, res, body, success) {
 							if (!success)
-								console.log(body.error);
+								console.log(err);
 						});
 					}
 					else {
-						console.log(body.error);
+						console.log(err);
 					}
 				});
-			});
 		}
+	});
  }
+
+/**
+ * sendStolenNotification
+ *
+ * If necessary, notifies the owner of a vehicle that their vehicle has
+ * been stolen. This will also create the chatroom for the vehicle.
+ *
+ * @param 	string		id 		Vehicle ID
+ */
+function sendStolenNotification(id) {
+	// first, fetch vehicle info
+	kaiseki.getObject('Vehicle', id, { }, function(err, res, body, success) {
+		// then, send the owner notification if the vehicle is tilted
+		if (body.status == "STL") {
+			var notification_data = {
+					where: { ownerId: body.ownerId },
+					data: {
+						alert: "Your " + body.make + " " + body.model + " has been stolen."
+					}
+				};
+				kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
+					if (success) {
+						createChatroom(id);
+					}
+					else {
+						console.log(err);
+					}
+				});
+		}
+	});
+}
+
+/**
+ * createChatroom
+ *
+ * Creates a chatroom for the stolen vehicle.
+ *
+ * @param 	string		id 		Vehicle ID
+ */
+function createChatroom(id) {
+	kaiseki.createObject('Chatroom', { vehicleId: id }, function(err, res, body, success) {
+		if (success)
+			console.log("Created chatroom for " + id);
+		else
+			console.log(err);
+	});
+}
