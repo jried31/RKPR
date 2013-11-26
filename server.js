@@ -58,29 +58,29 @@ function timestamp()
  * @param GeoPoint 	location		Vehicle location
  */
 function updateVehicleStatus(req,resp,next){
-  console.log('Got Data %s \n',req.body.id);
-  var tmpObj = req.body;
-  var position = {location: {
-    __type: 'GeoPoint',
-    latitude: parseFloat(tmpObj.lat),
-    longitude: parseFloat(tmpObj.lng)
-    }
-  };
+	console.log('Got Data %s \n',req.body.id);
+	var tmpObj = req.body;
+	var position = {location: {
+			__type: 'GeoPoint',
+			latitude: parseFloat(tmpObj.lat),
+			longitude: parseFloat(tmpObj.lng)
+		}
+	};
   
-  kaiseki.updateObject('Vehicle', tmpObj.id,
-                       {'status': tmpObj.status.toUpperCase(), 
-                        'pos': position.location},
-              function(err, res, body, success) {
-              	if (success) {
-              		console.log("Marked " + tmpObj.id + " as " + tmpObj.status);
-              		sendTiltNotification(tmpObj.id);
-              		sendStolenNotification(tmpObj.id);
-              		resp.send('ok');
-              	} else {
+	kaiseki.updateObject('Vehicle', tmpObj.id,
+	                   {'status': tmpObj.status.toUpperCase(), 
+	                    'pos': position.location},
+	          function(err, res, body, success) {
+	          	if (success) {
+	          		console.log("Marked " + tmpObj.id + " as " + tmpObj.status);
+	          		sendTiltNotification(tmpObj.id);
+	          		sendStolenNotification(tmpObj.id);
+	          	} else {
 					console.log(body.error);
-              	}
-              }
-   );
+	          	}
+	          }
+	);
+	resp.send('ok');
 }
 var server = restify.createServer();
 server.use(restify.bodyParser({ mapParams: false }));
