@@ -134,7 +134,7 @@ Parse.Cloud.job( "addNearbyUsersToChat", function( request, status ) {
                     success: function( results ) {
                         var vehicle = results[0];
 
-                        if ( false == vehicle.get( "stolen ") ) {
+                        if ( false == vehicle.get( "stolen") ) {
                             return; // Onto the next vehicle
                         }
                         else {
