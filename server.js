@@ -21,7 +21,7 @@ var kaiseki = new kaiseki_inc(APP_ID, REST_API_KEY);
  * A "cronjob" to run the notify task. Yeah,
  * it leaks memory.
  */
- var minutes = .1, interval = minutes * 1000 * 60;
+ var minutes = 1, interval = minutes * 1000 * 60;
  setInterval(notifyNearbyUsers, interval);
 
 
