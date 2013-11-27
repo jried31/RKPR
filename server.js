@@ -224,7 +224,7 @@ function notifyNearbyUsers() {
 										room['members'] = new Array();
 
 									var new_users = arr_diff(nearby_owners, room['members']);
-									var new_members = arrayUnique(room['members'].concat(nearby_owners));
+									var new_members = array_unique(room['members'].concat(nearby_owners));
 									// Update chatroom
 									kaiseki.updateObject('Chatroom', room['objectId'], { members: new_members }, function(err, res, body, success) {
 										if (success) {
@@ -267,7 +267,7 @@ function notifyNearbyUsers() {
 	});
 }
 
-function arrayUnique(array) {
+function array_unique(array) {
     var a = array.concat();
     for(var i=0; i<a.length; ++i) {
         for(var j=i+1; j<a.length; ++j) {
