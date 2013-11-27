@@ -120,7 +120,7 @@ server.listen(8080, function() {
 	// first, fetch vehicle info
 	kaiseki.getObject('Vehicle', id, { }, function(err, res, body, success) {
 		// then, send the owner notification if the vehicle is tilted
-		if (body.alertLevel == AlertLevel.TLT) {
+		if (body.alertLevel == "TLT") {
 			console.log(id + ' tilted. Notifying owner.');
 			var notification_data = {
 					where: { objectId: body.ownerId },
@@ -157,7 +157,7 @@ function sendStolenNotification(id) {
 	// first, fetch vehicle info
 	kaiseki.getObject('Vehicle', id, { }, function(err, res, body, success) {
 		// then, send the owner notification if the vehicle is tilted
-		if (body.alertLevel == AlertLevel.MVT) {
+		if (body.alertLevel == "MVT") {
 			console.log(id + ' stolen! Notifying owner.');
 			var notification_data = {
 					where: { objectId: body.ownerId },
@@ -204,7 +204,7 @@ function createChatroom(id) {
  */
 function notifyNearbyUsers() {
 	console.log('Notifying users near stolen vehicles.');
-	kaiseki.getObjects('Vehicle', {  where: { alertLevel: alertLevel: MVT } }, function(err, res, body, success) {
+	kaiseki.getObjects('Vehicle', {  where: { alertLevel: "MVT" } }, function(err, res, body, success) {
 		if (success) {
 			for (var i = 0; i < body.length; ++i) {
 				var veh = body[i];
