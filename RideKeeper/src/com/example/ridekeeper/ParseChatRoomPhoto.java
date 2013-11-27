@@ -18,55 +18,25 @@ import com.parse.ParseFile;
 import com.parse.ParseImageView;
 import com.parse.ParseObject;
 
-@ParseClassName(DBGlobals.PARSE_VEHICLE_TBL)
-public class ParseVehicle extends ParseObject {
-	public static final String	MAKE = "make",
-			 					MODEL = "model",
-			 					YEAR = "year",
-			 					LICENSE = "license",
-			 					PHOTO = "photo",
-			 					OWNERID = "ownerId";
+@ParseClassName(DBGlobals.PARSE_CHATROOMPHOTO_TBL)
+public class ParseChatRoomPhoto extends ParseObject {
+	public static final String	VEHICLEID = "vehicleId",
+			 					PHOTO = "photo";
 	
-	private static final String PHOTOFILE_PREFIX = "vehicle_photo_",
+	private static final String PHOTOFILE_PREFIX = "chatroom_photo_",
 								PHOTOFILE_SUBFIX = ".png";
+	
 	private Context myContext;
 	private byte[] photoData;
 	
-	public ParseVehicle() {
+	public ParseChatRoomPhoto() {
 	}
 
-	public String getMake(){
-		return getString(MAKE);
+	public String getVehicleId(){
+		return getString(VEHICLEID);
 	}
-	void setMake(String make){
-		put(MAKE, make);
-	}
-	
-	public String getModel(){
-		return getString(MODEL);
-	}
-	void setModel(String model){
-		put(MODEL, model);
-	}
-	
-	public Number getYear(){
-		Number res = getNumber(YEAR);
-		if (res==null)
-			return 0;
-		return res;
-	}
-	void setYear(Number year){
-		put(YEAR, year);
-	}
-	void setYear(String strYear){
-		put(YEAR, Integer.parseInt(strYear));
-	}
-	
-	public String getLicense(){
-		return getString(LICENSE);
-	}
-	void setLicense(String license){
-		put(LICENSE, license);
+	public void setVehicleId(String id){
+		put(VEHICLEID, id);
 	}
 
 	public ParseFile getPhoto(){
@@ -81,6 +51,15 @@ public class ParseVehicle extends ParseObject {
 	public void prepareSavingPhoto(Context contexct, ParseImageView mImageView){
 		mImageView.buildDrawingCache();
 		Bitmap bmap = mImageView.getDrawingCache();
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		bmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+		photoData = bos.toByteArray();
+		
+		setPhoto( new ParseFile("photo.png", photoData) );
+	}
+	
+	//Preparing the photo data to be saved to Parse
+	public void prepareSavingPhoto(Context contexct, Bitmap bmap){
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		bmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
 		photoData = bos.toByteArray();

@@ -43,7 +43,7 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
     statusView.setText(""); // TODO set status
     
     
-    vehicle.loadPhoto(getContext(), imageView);
+    vehicle.loadPhotoIntoParseImageView(getContext(), imageView);
 	// Load profile photo from internal storage
     /*
 	try {

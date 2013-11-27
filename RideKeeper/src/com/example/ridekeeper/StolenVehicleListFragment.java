@@ -50,6 +50,13 @@ public class StolenVehicleListFragment extends ListFragment{
 		setListAdapter(vbsArrayAdapter);
 		
 		registerForContextMenu(getListView());
+		
+		/* FOR DEBUG
+		Bundle bundle = new Bundle();
+    	bundle.putString("UID", "123123");
+    	bundle.putString("roomname", "5111_room01"); //FIX THIS
+    	DialogFragmentMgr.showDialogFragment(getActivity(), new ChatFragment(), "Chat Dialog", true, bundle);
+    	*/
 	}
 	
 	@Override
@@ -88,6 +95,7 @@ public class StolenVehicleListFragment extends ListFragment{
 	    	return true;
 	    	
 	    case R.id.menuItem_chat_room:
+	    	bundle.putString("UID", uid);
 	    	bundle.putString("roomname", "5111_room01"); //FIX THIS
 	    	DialogFragmentMgr.showDialogFragment(getActivity(), new ChatFragment(), "Chat Dialog", true, bundle);
 	        return true;
@@ -102,7 +110,7 @@ public class StolenVehicleListFragment extends ListFragment{
 		}
 	
 		if (LocationMgr.myLocation != null){
-			ParseFunctions.queryParseForStolenVehicle_InBackground(	LocationMgr.myLocation.getLatitude(),
+			ParseFunctions.queryForStolenVehicle_InBackground(	LocationMgr.myLocation.getLatitude(),
 					LocationMgr.myLocation.getLongitude(),
 					DBGlobals.searchRadius,
 					queryVBSCallback);

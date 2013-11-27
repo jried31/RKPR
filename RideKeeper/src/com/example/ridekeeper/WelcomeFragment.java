@@ -85,7 +85,7 @@ public class WelcomeFragment extends DialogFragment {
 							ParseFunctions.updateOwnerIdInInstallation();
 							
 							//sign into QB
-							MyQBUser.signin(etUsername.getText().toString(), MyQBUser.DUMMPY_PASSWORD);
+							MyQBUser.signin(etUsername.getText().toString(), MyQBUser.DUMMY_PASSWORD);
 							
 							//update phone's location to parse
 							ParseFunctions.updateLocToParse(getActivity());
@@ -149,7 +149,7 @@ public class WelcomeFragment extends DialogFragment {
 							ParseFunctions.updateOwnerIdInInstallation();
 
 							//Signup QB user
-							MyQBUser.signUpSignin(etUsername.getText().toString(), MyQBUser.DUMMPY_PASSWORD);
+							MyQBUser.signUpSignin(etUsername.getText().toString(), MyQBUser.DUMMY_PASSWORD);
 							
 							//Update phone location to Parse
 							ParseFunctions.updateLocToParse(getActivity());

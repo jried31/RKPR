@@ -98,10 +98,10 @@ public class MultiUserChatController {
 		}
 	}
 	
-	public void sendMessage(String string){
+	public void sendMessage(String msgString){
 		if ( (muc!=null) && (muc.isJoined())){
 			try {
-				muc.sendMessage(string);
+				muc.sendMessage(msgString);
 				Toast.makeText(myContext, "Message sent", Toast.LENGTH_SHORT).show();
 			} catch (XMPPException e) {
 				Toast.makeText(myContext, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -109,11 +109,28 @@ public class MultiUserChatController {
 		}
 	}
 	
-	public void sendPic(){
-		//FIX THIS
+	
+	/*
+	public void sendMessage(String msgString, Message.Type type){
+		if ( (muc!=null) && (muc.isJoined())){
+			try {
+				Message msg = muc.createMessage();
+				msg.setType(type);
+				msg.setBody(msgString);
+				muc.sendMessage(msg);
+				Toast.makeText(myContext, "Message sent", Toast.LENGTH_SHORT).show();
+			} catch (XMPPException e) {
+				Toast.makeText(myContext, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+			}
+		}
 	}
+	*/
 
 	public void addMsgListener(PacketListener pl){
-		muc.addMessageListener( pl );
+		muc.addMessageListener(pl);
+	}
+	
+	public void removeMsgListener(PacketListener pl){
+		muc.removeMessageListener(pl);
 	}
 }
