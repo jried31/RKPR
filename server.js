@@ -17,7 +17,9 @@ var AlertLevel = {
 	OK: 	0, // do nothing
 	TLT: 	1, // notify owner.
 	MVT: 	2, // new "stolen" value. notify everyone
-	LOC: 	3  // vehicle is in motion.
+	LOC: 	3, // vehicle is in motion.,
+	NRD:    "NRD", // not recovered
+	RVD: 	"RVD", // recovered
 }
 
 // instantiate
