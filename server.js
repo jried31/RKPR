@@ -94,7 +94,7 @@ server.use(restify.bodyParser({ mapParams: false }));
 
 server.post('/update', updateVehicleStatus);
 
-server.listen(8081, function() {
+server.listen(8080, function() {
 	console.log('%s listening at %s', server.name, server.url);
 });
 
