@@ -12,20 +12,18 @@ var jabber_creds = {
 	post: 5222
 }
 
+// Avoid some of the magic number BS that surrounds AlertLevel
+var AlertLevel = {
+	OK: 	0, // do nothing
+	TLT: 	1, // notify owner.
+	MVT: 	2, // new "stolen" value. notify everyone
+	LOC: 	3  // vehicle is in motion.
+}
+
 // instantiate
 var APP_ID = 'OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f';
 var REST_API_KEY = 'bPlqPguhK51mbRXaYcfnf73uTri07sk6uB64ZdPb';
 var kaiseki = new kaiseki_inc(APP_ID, REST_API_KEY);
-
-/**
- * The magic status codes, which you will see here and there:
- OK : status ok
- LFT: lifted
- TLT: titled
- STL: stolen
- RVD: recovered
- NRD: not recoved
- */
 
 /**
  * A 'cronjob' to run the notify task. Yeah,
@@ -85,11 +83,11 @@ function updateVehicleStatus(req,resp,next){
 	};
   
 	kaiseki.updateObject('Vehicle', tmpObj.id,
-	                   {'status': tmpObj.status.toUpperCase(), 
+	                   {'AlertLevel': tmpObj.alertLevel, 
 	                    'pos': position.location},
 	          function(err, res, body, success) {
 	          	if (success) {
-	          		console.log('Marked ' + tmpObj.id + ' as ' + tmpObj.status);
+	          		console.log('Marked ' + tmpObj.id + ' as ' + tmpObj.alertLevel);
 	          		sendTiltNotification(tmpObj.id);
 	          		sendStolenNotification(tmpObj.id);
 	          	} else {
@@ -120,7 +118,7 @@ server.listen(8080, function() {
 	// first, fetch vehicle info
 	kaiseki.getObject('Vehicle', id, { }, function(err, res, body, success) {
 		// then, send the owner notification if the vehicle is tilted
-		if (body.status == 'TLT') {
+		if (body.alertLevel == AlertLevel.TLT) {
 			console.log(id + ' tilted. Notifying owner.');
 			var notification_data = {
 					where: { objectId: body.ownerId },
@@ -157,7 +155,7 @@ function sendStolenNotification(id) {
 	// first, fetch vehicle info
 	kaiseki.getObject('Vehicle', id, { }, function(err, res, body, success) {
 		// then, send the owner notification if the vehicle is tilted
-		if (body.status == 'STL') {
+		if (body.alertLevel == AlertLevel.MVT) {
 			console.log(id + ' stolen! Notifying owner.');
 			var notification_data = {
 					where: { objectId: body.ownerId },
@@ -204,7 +202,7 @@ function createChatroom(id) {
  */
 function notifyNearbyUsers() {
 	console.log('Notifying users near stolen vehicles.');
-	kaiseki.getObjects('Vehicle', {  where: { status: 'STL' } }, function(err, res, body, success) {
+	kaiseki.getObjects('Vehicle', {  where: { alertLevel: alertLevel: MVT } }, function(err, res, body, success) {
 		if (success) {
 			for (var i = 0; i < body.length; ++i) {
 				var veh = body[i];
