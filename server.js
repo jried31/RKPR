@@ -1,6 +1,7 @@
 var restify 		= require('restify');
 var request 		= require('request');
 var kaiseki_inc 	= require('kaiseki');
+var xmpp			= require('node-xmpp');
 
 // instantiate
 var APP_ID = 'OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f';
@@ -94,7 +95,7 @@ server.use(restify.bodyParser({ mapParams: false }));
 
 server.post('/update', updateVehicleStatus);
 
-server.listen(8080, function() {
+server.listen(8081, function() {
 	console.log('%s listening at %s', server.name, server.url);
 });
 
