@@ -17,6 +17,13 @@ var kaiseki = new kaiseki_inc(APP_ID, REST_API_KEY);
  NRD: not recoved
  */
 
+/**
+ * A "cronjob" to run the notify task. Yeah,
+ * it leaks memory.
+ */
+ var minutes = .1, interval = minutes * 1000 * 60;
+ setInterval(notifyNearbyUsers, interval);
+
 
 /**
 * Return a timestamp with the format "m/d/yy h:MM:ss TT"
@@ -104,6 +111,7 @@ server.listen(8081, function() {
 	kaiseki.getObject('Vehicle', id, { }, function(err, res, body, success) {
 		// then, send the owner notification if the vehicle is tilted
 		if (body.status == "TLT") {
+			console.log(id + ' tilted. Notifying owner.');
 			var notification_data = {
 					where: { objectId: body.ownerId },
 					data: {
@@ -113,7 +121,9 @@ server.listen(8081, function() {
 				kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
 					if (success) {
 						kaiseki.updateObject('Vehicle', id, { status: 'OK' }, function(err, res, body, success) {
-							if (!success)
+							if (success)
+								console.log('Owner notified.');
+							else
 								console.log(body.error);
 						});
 					}
@@ -138,6 +148,7 @@ function sendStolenNotification(id) {
 	kaiseki.getObject('Vehicle', id, { }, function(err, res, body, success) {
 		// then, send the owner notification if the vehicle is tilted
 		if (body.status == "STL") {
+			console.log(id + " stolen! Notifying owner.");
 			var notification_data = {
 					where: { objectId: body.ownerId },
 					data: {
@@ -146,6 +157,7 @@ function sendStolenNotification(id) {
 				};
 				kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
 					if (success) {
+						console.log("Owner notified.");
 						createChatroom(id);
 					}
 					else {
@@ -179,59 +191,66 @@ function createChatroom(id) {
  * .5 miles that the vehicle is stolen.
  */
 function notifyNearbyUsers() {
+	console.log('Notifying users near stolen vehicles.');
 	kaiseki.getObjects('Vehicle', {  where: { status: "STL" } }, function(err, res, body, success) {
 		if (success) {
-			for (veh in body.results) {
-				console.log("Notifying users near " + veh.id);
+			for (var i = 0; i < body.length; ++i) {
+				var veh = body[i];
+				console.log("Notifying users near " + veh['objectId']);
 
 				var geopoint_where = {
 					GeoPoint: {
 						"$nearSphere": {
 							__type: "GeoPoint",
-							"latitude": veh.pos.latitude,
-							"longitude": veh.pos.longitude
+							"latitude": veh['pos']['latitude'],
+							"longitude": veh['pos']['longitude']
 						},
 						"$maxDistanceInMiles": 0.5
 					}
 				};
 
-				kaiseki.getObjects('Installation', geopoint_where, function(err, res, body, success) {
+				kaiseki.getUsers(geopoint_where, function(err, res, body, success) {
 					if (success) {
 						var nearby_owners = new Array();
-						for (user in body.results) {
-							nearby_owners.push(body.results.objectId);
+						for (var j = 0; j < body.length; ++j) {
+							nearby_owners.push(body[j]['objectId']);
 						}
-
-						kaiseki.getObject('Chatroom', { where: { vehicleId: veh.objectId } }, function(err, res, body, success) {
+						kaiseki.getObjects('Chatroom', { where: { vehicleId: veh['objectId'] } }, function(err, res, body, success) {
 							if (success) {
-								var new_users = arrayExclude(nearby_owners, body.members);
-								var new_members = arrayUnique(body.members.concat(nearby_owners));
+								for (var k = 0; k < body.length; ++k) {
+									var room = body[k];
 
-								// Update chatroom
-								kaiseki.updateObject('Chatroom', body.objectId, function(err, res, body, success) {
-									if (success) {
-										// Notify users
-										for (var i = 0; i < new_users.length; ++i) {
-											var notification_data = {
-												where: { objectId: new_users[i] },
-												data: {
-													alert: "A nearby vehicle has been stolen!"
-												}
-											};
-											kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
-												if (success) {
-													console.log("Notified " + new_users[i] + " of theft.");
-												}
-												else {
-													console.log(body.error);
-												}
-											});
+									if (room['members'] === undefined)
+										room['members'] = new Array();
+
+									var new_users = arr_diff(nearby_owners, room['members']);
+									var new_members = arrayUnique(room['members'].concat(nearby_owners));
+									// Update chatroom
+									kaiseki.updateObject('Chatroom', room['objectId'], { members: new_members }, function(err, res, body, success) {
+										if (success) {
+											// Notify users
+											for (var j = 0; j < new_users.length; ++j) {
+												var notification_data = {
+													where: { objectId: new_users[j] },
+													data: {
+														alert: "A nearby vehicle has been stolen!"
+													}
+												};
+												kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
+													if (success) {
+														// don't want to flood the console...
+													}
+													else {
+														console.log(body.error);
+													}
+												});
+											}
 										}
-									}
-									else {
-										console.log(body.error);
-									}
-								});
+										else {
+											console.log(body.error);
+										}
+									});
+								}
 							} else {
 								console.log(body.error);
 							}
@@ -261,18 +280,17 @@ function arrayUnique(array) {
 };
 
 /**
- * Removes all items in a that are also in b
+ * Removes all items in a1 that are also in a2
  */
-function arrayExclude(a, b) {
-	res = new Array();
-
-	for (x in a) {
-		for (y in b) {
-			if (x == y) 
-				continue;
-		}
-		res.push(a);
-	}
-
-	return res;
+function arr_diff(a1, a2)
+{
+  var a=[], diff=[];
+  for(var i=0;i<a1.length;i++)
+    a[a1[i]]=true;
+  for(var i=0;i<a2.length;i++)
+    if(a[a2[i]]) delete a[a2[i]];
+    else a[a2[i]]=true;
+  for(var k in a)
+    diff.push(k);
+  return diff;
 }
