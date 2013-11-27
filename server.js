@@ -85,11 +85,11 @@ function updateVehicleStatus(req,resp,next){
 	};
   
 	kaiseki.updateObject('Vehicle', tmpObj.id,
-	                   {'AlertLevel': tmpObj.alertLevel, 
+	                   {'AlertLevel': AlertLevel.getKeyByValue(tmpObj.alertLevel), 
 	                    'pos': position.location},
 	          function(err, res, body, success) {
 	          	if (success) {
-	          		console.log('Marked ' + tmpObj.id + ' as ' + tmpObj.alertLevel);
+	          		console.log('Marked ' + tmpObj.id + ' as ' + AlertLevel.getKeyByValue(tmpObj.alertLevel));
 	          		sendTiltNotification(tmpObj.id);
 	          		sendStolenNotification(tmpObj.id);
 	          	} else {
@@ -329,4 +329,16 @@ function arr_diff(a1, a2)
   for(var k in a)
     diff.push(k);
   return diff;
+}
+
+/**
+ * Finds the key in an object by its value.
+ */
+Object.prototype.getKeyByValue = function( value ) {
+    for( var prop in this ) {
+        if( this.hasOwnProperty( prop ) ) {
+             if( this[ prop ] === value )
+                 return prop;
+        }
+    }
 }
