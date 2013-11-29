@@ -50,6 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
 			android:layout_alignParentRight="true"
+			android:background="@drawable/custom_button_brown"
             android:text="@string/button_change">
         </Button>
         </RelativeLayout>
@@ -119,6 +120,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.2"
+				android:background="@drawable/custom_button_red"
                 android:text="@string/button_signout" />
             
         <Button
@@ -126,6 +128,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.8"
+			android:background="@drawable/custom_button_lblue"
             android:text="@string/button_save">
         </Button>
         </LinearLayout>

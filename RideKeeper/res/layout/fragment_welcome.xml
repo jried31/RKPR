@@ -40,11 +40,14 @@
         android:layout_height="wrap_content" >
     	
 		<Button
-	        android:id="@+id/button_signin"
-	        android:layout_width="0dp"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-	        android:text="@string/button_signin" />
+		    android:id="@+id/button_signin"
+		    android:layout_width="0dp"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="1"
+		    android:background="@drawable/custom_button_green"
+		    android:text="@string/button_signin"
+		    android:textSize="20dp" />
+
     </LinearLayout>
     
     <LinearLayout
@@ -52,11 +55,14 @@
         android:layout_height="wrap_content" >
 
 		<Button
-	        android:id="@+id/button_signup"
-	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-	        android:text="@string/button_signup" />
+		    android:id="@+id/button_signup"
+		    android:layout_width="0dip"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="1"
+		    android:background="@drawable/custom_button_lblue"
+		    android:text="@string/button_signup"
+		    android:textSize="20dp" />
+
     </LinearLayout>
     
     <LinearLayout
@@ -68,14 +74,19 @@
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:layout_weight="0.3"
-		    android:text="@string/button_exit" />
+		    android:background="@drawable/custom_button_red"
+		    android:text="@string/button_exit"
+		    android:textSize="20dp" />
 		
 		<Button
-	        android:id="@+id/button_resetpwd"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="0.7"
-	        android:text="@string/button_resetpwd" />
+		    android:id="@+id/button_resetpwd"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="0.7"
+		    android:background="@drawable/custom_button_brown"
+		    android:text="@string/button_resetpwd"
+		    android:textSize="20dp" />
+
     </LinearLayout>
 
     <TextView
@@ -84,6 +95,6 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:singleLine="false"
-        android:text="User is required to have an account in order to use this app, thanks!" />
+        android:text="@string/account_required" />
 
 </LinearLayout>

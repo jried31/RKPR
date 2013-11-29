@@ -27,7 +27,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
@@ -48,20 +47,21 @@ import com.parse.SaveCallback;
 
 public class ChatFragment extends DialogFragment {
 	// For UI
-	private ImageView ivSendPic;
-	private EditText etMessage;
-	private Button btSendMsg;
+	private ImageView uploadPhotoBtn;
+	private EditText messageField;
+	private Button sendMessageBtn;
 	private ScrollView scrollContainer;
 	private LinearLayout msgContainer;
 	
-	private static final LayoutParams FULL_LAYOUT = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-	private static final LayoutParams SMALL_LAYOUT = new LayoutParams(150, 150); //set gravity to center in OnCreateView
+	private static final LayoutParams IMAGE_LARGE_VIEW_LAYOUT = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+	private static final LayoutParams IMAGE_SMALL_VIEW_LAYOUT = new LayoutParams(170, 170); //set gravity to center in OnCreateView
 	
 	// For chat room 
 	private String roomname;
-	private String vehicleId; //vehiew onCreateView(Layocle's objectId in Parse
+	private String vehicleId; //vehicle onCreateView(Layocle's objectId in Parse
 	private MultiUserChatController mucController;
-	private static final String SPECIAL_STRING_PREFIX = "&&$*(";
+	
+	private static final String SPECIAL_STRING_PREFIX = "&&$*(";//Prefix denotes that an image is part of message
 	
 	// For taking picture:
 	public static final int ID_PHOTO_PICKER_FROM_CAMERA = 0;
@@ -92,32 +92,34 @@ public class ChatFragment extends DialogFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_chat, container, false);
 		
-		ivSendPic = (ImageView) view.findViewById(R.id.imageView_sendPic);
-		etMessage = (EditText) view.findViewById(R.id.editText_msg);
-		btSendMsg = (Button) view.findViewById(R.id.buttton_sendMsg);
+		messageField = (EditText) view.findViewById(R.id.editText_msg);
 		scrollContainer = (ScrollView) view.findViewById(R.id.scrollContainer);
 		msgContainer = (LinearLayout) view.findViewById(R.id.messageContainer);
 
-		SMALL_LAYOUT.gravity = Gravity.CENTER;
+		uploadPhotoBtn = (ImageView) view.findViewById(R.id.imageView_sendPic);
+		sendMessageBtn = (Button) view.findViewById(R.id.buttton_sendMsg);
 		
-		ivSendPic.setOnClickListener( new View.OnClickListener() {
+		uploadPhotoBtn.setOnClickListener( new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				showPhotoSelection();
 			}
 		});
 		
-		btSendMsg.setOnClickListener(new View.OnClickListener() {
+		sendMessageBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				sendText();
 			}
 		});
 		
-		//Start to connect and join chat server
+		//JERRID: What is this to?
+		IMAGE_SMALL_VIEW_LAYOUT.gravity = Gravity.CENTER;
+		
+		//disable buttons while server is connecting
 		disableSendPic();
-		btSendMsg.setEnabled(false);
-		btSendMsg.setText("Connecting...");
+		sendMessageBtn.setEnabled(false);
+		sendMessageBtn.setText("Connecting...");
 
 		mucController = new MultiUserChatController(getActivity(),
 													roomname,
@@ -132,23 +134,22 @@ public class ChatFragment extends DialogFragment {
 					try {
 						mucController.join();
 					} catch (XMPPException e) {
-						btSendMsg.setText("Error Joining");
+						sendMessageBtn.setText("No Connection");
 						Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-						e.printStackTrace();
+						//e.printStackTrace();
 						return;
 					}
 
 					mucController.addMsgListener(myPacketListener);
 					
 					enableSendPic();
-					btSendMsg.setEnabled(true);
-					btSendMsg.setText("Send");
+					sendMessageBtn.setEnabled(true);
+					sendMessageBtn.setText("Send");
 					Toast.makeText(getActivity(), "Joined chat room", Toast.LENGTH_SHORT).show();
 				}else{
 					Toast.makeText(getActivity(), "Error: " + errorMsg, Toast.LENGTH_SHORT).show();
-					btSendMsg.setText("Send");
+					sendMessageBtn.setText("Send");
 				}
-				
 			}
 		});
 		
@@ -210,7 +211,8 @@ public class ChatFragment extends DialogFragment {
 			String body = msg.getBody();
 			Log.d("DEBUG", "RECEIVED MESSAGE: " + from + ": " + msg.getBody());
 			
-			if ( !isSpecialString(body) ){ //typical text message
+			//Check if message is a text message
+			if ( !isSpecialString(body) ){
 				pushTextToContainer( from + ": " + msg.getBody());
 			
 			}else if (isSpecialString(body)){ //special string received -> a photo message
@@ -220,7 +222,17 @@ public class ChatFragment extends DialogFragment {
 				pivPhoto.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 				pivPhoto.setDrawingCacheEnabled(true);
 				pivPhoto.setAdjustViewBounds(true);
-				pivPhoto.setLayoutParams(SMALL_LAYOUT);
+				pivPhoto.setLayoutParams(ChatFragment.IMAGE_SMALL_VIEW_LAYOUT);
+				
+				/*JERRID: Left Here for Background Bubbles
+				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+	                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);				
+				params.gravity = Gravity.LEFT;
+				
+	        	int bgRes = R.drawable.left_message_bg;
+				pivPhoto.setLayoutParams(params);
+				pivPhoto.setBackgroundResource(bgRes);
+				*/
 				
 				pivPhoto.setOnClickListener(toggleImageSize);
 				pivPhoto.setOnLongClickListener(saveImageToGallery);
@@ -244,11 +256,11 @@ public class ChatFragment extends DialogFragment {
 	};
 	
 	private void sendText(){
-		String tmp = etMessage.getText().toString();
+		String tmp = messageField.getText().toString();
 
 		if (!tmp.isEmpty()){
 			mucController.sendMessage(tmp);
-			etMessage.setText("");
+			messageField.setText("");
 		}
 		
 	}
@@ -412,13 +424,13 @@ public class ChatFragment extends DialogFragment {
 	}
 	
 	private void disableSendPic(){
-		ivSendPic.setImageResource(R.drawable.camera_grey);
-		ivSendPic.setEnabled(false);
+		uploadPhotoBtn.setImageResource(R.drawable.camera_grey);
+		uploadPhotoBtn.setEnabled(false);
 	}
 	
 	private void enableSendPic(){
-		ivSendPic.setImageResource(R.drawable.camera);
-		ivSendPic.setEnabled(true);
+		uploadPhotoBtn.setImageResource(R.drawable.camera);
+		uploadPhotoBtn.setEnabled(true);
 	}
 	
 
@@ -428,10 +440,10 @@ public class ChatFragment extends DialogFragment {
 		public void onClick(View v) {
 			ImageView iv = (ImageView) v;
 			
-			if (iv.getLayoutParams() == SMALL_LAYOUT){
-				iv.setLayoutParams(FULL_LAYOUT);
+			if (iv.getLayoutParams() == IMAGE_SMALL_VIEW_LAYOUT){
+				iv.setLayoutParams(IMAGE_LARGE_VIEW_LAYOUT);
 			}else{
-				iv.setLayoutParams(SMALL_LAYOUT);
+				iv.setLayoutParams(IMAGE_SMALL_VIEW_LAYOUT);
 			}
 			
 		}
