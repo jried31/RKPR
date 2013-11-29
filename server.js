@@ -123,24 +123,26 @@ server.listen(8080, function() {
 		if (body.alertLevel == "TLT") {
 			console.log(id + ' tilted. Notifying owner.');
 			var notification_data = {
-					where: { objectId: body.ownerId },
-					data: {
-						alert: 'Your ' + body.make + ' ' + body.model + ' has been tilted.'
-					}
-				};
-				kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
-					if (success) {
-						kaiseki.updateObject('Vehicle', id, { status: 'OK' }, function(err, res, body, success) {
-							if (success)
-								console.log('Owner notified.');
-							else
-								console.log(body.error);
-						});
-					}
-					else {
-						console.log(body.error);
-					}
-				});
+				where: { objectId: body.ownerId },
+				data: {
+					action: 'CUSTOMIZED',
+					alertLevel: 'TLT',
+					vehicleName: body.make + ' ' + body.model
+				}
+			};
+			kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
+				if (success) {
+					kaiseki.updateObject('Vehicle', id, { status: 'OK' }, function(err, res, body, success) {
+						if (success)
+							console.log('Owner notified.');
+						else
+							console.log(body.error);
+					});
+				}
+				else {
+					console.log(body.error);
+				}
+			});
 		}
 	});
  }
@@ -160,20 +162,22 @@ function sendStolenNotification(id) {
 		if (body.alertLevel == "MVT") {
 			console.log(id + ' stolen! Notifying owner.');
 			var notification_data = {
-					where: { objectId: body.ownerId },
-					data: {
-						alert: 'Your ' + body.make + ' ' + body.model + ' has been stolen.'
-					}
-				};
-				kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
-					if (success) {
-						console.log('Owner notified.');
-						createChatroom(id);
-					}
-					else {
-						console.log(body.error);
-					}
-				});
+				where: { objectId: body.ownerId },
+				data: {
+					action: 'CUSTOMIZED',
+					alertLevel: 'MVT',
+					vehicleName: body.make + ' ' + body.model
+				}
+			};
+			kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
+				if (success) {
+					console.log('Owner notified.');
+					createChatroom(id);
+				}
+				else {
+					console.log(body.error);
+				}
+			});
 		}
 	});
 }
@@ -245,7 +249,9 @@ function notifyNearbyUsers() {
 												var notification_data = {
 													where: { objectId: new_users[j] },
 													data: {
-														alert: 'A nearby vehicle has been stolen!'
+														action: 'CUSTOMIZED',
+														alertLevel: 'nearby',
+														vehicleName: body.make + ' ' + body.model
 													}
 												};
 												kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
