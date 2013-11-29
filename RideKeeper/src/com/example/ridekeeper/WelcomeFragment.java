@@ -46,8 +46,7 @@ public class WelcomeFragment extends DialogFragment {
 		btSignup.setOnClickListener( new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (etUsername.getText().toString().isEmpty() ||
-						etPwd.getText().toString().isEmpty()){
+				if (etUsername.getText().toString().isEmpty() || etPwd.getText().toString().isEmpty()){
 					Toast.makeText(getActivity(), "Error: Username or password can't be empty", Toast.LENGTH_LONG).show();
 					return;
 				}else if ( etUsername.getText().toString().contains(" ")){

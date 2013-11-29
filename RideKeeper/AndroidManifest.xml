@@ -19,7 +19,7 @@
     android:versionCode="1"
     android:versionName="1.0">
 
-    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="18" />
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="17" />
 
     <permission
         android:name="com.example.ridekeeper.permission.MAPS_RECEIVE"

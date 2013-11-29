@@ -21,6 +21,7 @@
             android:id="@+id/button_change_vehicle_photo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+			android:background="@drawable/custom_button_brown"
             android:text="Change" />
 
     </LinearLayout>
@@ -120,6 +121,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.23"
+            android:background="@drawable/custom_button_lblue"
             android:text="Add" />
     </LinearLayout>
 
