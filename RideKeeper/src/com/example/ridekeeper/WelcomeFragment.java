@@ -2,6 +2,7 @@ package com.example.ridekeeper;
 
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -13,19 +14,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.ridekeeper.account.MyQBUser;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.RequestPasswordResetCallback;
 import com.parse.SignUpCallback;
-import com.quickblox.core.QBCallback;
-import com.quickblox.core.result.Result;
 
 public class WelcomeFragment extends DialogFragment {
 	private Button btSignup, btSignin, btResetpwd, btExit;
 	private EditText etUsername, etPwd, etEmail = null;
 	private ParseUser parseSigningUpUser;
-	public static final String LAST_SIGNIN_USERNAME="lastusername";
+	public static final String LAST_SIGNIN_USERNAME="last_username";
+
+	private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" 
+		+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+	private static final String ALPHANUMERIC_PATTERN = "^.*[^a-zA-Z0-9 ].*$";
 	
 	
 	@Override
@@ -46,21 +50,35 @@ public class WelcomeFragment extends DialogFragment {
 		btSignup.setOnClickListener( new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (etUsername.getText().toString().isEmpty() || etPwd.getText().toString().isEmpty()){
-					Toast.makeText(getActivity(), "Error: Username or password can't be empty", Toast.LENGTH_LONG).show();
+				String username = etUsername.getText().toString().trim(),
+						password = etPwd.getText().toString().trim();
+				
+				//remove white spaces (if any)
+				username=username.replaceAll("\\s+", "");
+				password=password.replaceAll("\\s+", "");
+				
+				if (username.isEmpty() || password.isEmpty()){
+					Toast.makeText(getActivity(), "Username or password cannot be empty", Toast.LENGTH_LONG).show();
 					return;
-				}else if ( etUsername.getText().toString().contains(" ")){
-					Toast.makeText(getActivity(), "Error: Username can't have space", Toast.LENGTH_LONG).show();
+				}
+				
+				//Check for characters other than Alphanumeric
+				boolean special_chars = username.matches(ALPHANUMERIC_PATTERN);
+				if(special_chars){
+					Toast.makeText(getActivity(), "Special characters or spaces are not allowed", Toast.LENGTH_LONG).show();
 					return;
-				}else if ( etUsername.getText().toString().length() > 10 ){
-					Toast.makeText(getActivity(), "Error: Username is at most 10 characters", Toast.LENGTH_LONG).show();
+				}
+				
+				if ( username.length() > 20 || password.length() > 20){
+					Toast.makeText(getActivity(), "Username and password should be 20 characters max", Toast.LENGTH_LONG).show();
 					return;
 				}
 				
 				SharedPreferences prefs =  PreferenceManager.getDefaultSharedPreferences( v.getContext() );
 				prefs.edit().putString(LAST_SIGNIN_USERNAME, etUsername.getText().toString()).commit();
 				
-				showSignUpEmailInput();
+				//Next obtain user's email
+				showSignUpEmailInputDialog();
 			}
 
 		});
@@ -70,9 +88,35 @@ public class WelcomeFragment extends DialogFragment {
 			@Override
 			public void onClick(View v) {
 				btSignin.setEnabled(false);
-
+				String username = etUsername.getText().toString().trim(),
+						password = etPwd.getText().toString().trim();
+				
+				//remove white spaces (if any)
+				username=username.replaceAll("\\s+", "");
+				password=password.replaceAll("\\s+", "");
+				
+				if (username.isEmpty() || password.isEmpty()){
+					Toast.makeText(getActivity(), "Username or password cannot be empty", Toast.LENGTH_LONG).show();
+					btSignin.setEnabled(true);
+					return;
+				}
+				
+				//Check for characters other than Alphanumeric
+				boolean special_chars = username.matches(ALPHANUMERIC_PATTERN);
+				if(special_chars){
+					Toast.makeText(getActivity(), "Special characters or spaces are not allowed", Toast.LENGTH_LONG).show();
+					btSignin.setEnabled(true);
+					return;
+				}
+				
+				if ( username.length() > 20 || password.length() > 20){
+					Toast.makeText(getActivity(), "Username and password should be 20 characters max", Toast.LENGTH_LONG).show();
+					btSignin.setEnabled(true);
+					return;
+				}
+				
 				SharedPreferences prefs =  PreferenceManager.getDefaultSharedPreferences(v.getContext());
-				prefs.edit().putString(LAST_SIGNIN_USERNAME, etUsername.getText().toString()).commit();
+				prefs.edit().putString(LAST_SIGNIN_USERNAME, username).commit();
 
 				ParseUser.logInInBackground(etUsername.getText().toString(),
 						etPwd.getText().toString(),
@@ -97,7 +141,6 @@ public class WelcomeFragment extends DialogFragment {
 						btSignin.setEnabled(true);
 					}
 				});
-
 			}
 		});
 
@@ -118,28 +161,66 @@ public class WelcomeFragment extends DialogFragment {
 		return view;
 	}
 
-	private void showSignUpEmailInput(){
+
+	private void showSignUpEmailInputDialog(){
 		etEmail = new EditText(getActivity());
 
 		AlertDialog.Builder alertDialogEmailInput = new AlertDialog.Builder(getActivity());
-		alertDialogEmailInput.setTitle("Sign Up");
-		alertDialogEmailInput.setMessage("Your E-mail:");
+		alertDialogEmailInput.setTitle(R.string.button_signup);
+		alertDialogEmailInput.setMessage(R.string.user_profile_email);
 		alertDialogEmailInput.setView(etEmail);
 		alertDialogEmailInput.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 			//Start signing up process
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				if (etEmail.getText().toString().isEmpty()){
-					Toast.makeText(getActivity(), "Error: Email can't be empty", Toast.LENGTH_LONG).show();
+				String email = etEmail.getText().toString().trim(),
+					username = etUsername.getText().toString().trim(),
+					password = etPwd.getText().toString().trim();
+					email=email.replaceAll("\\s+", "");
+				username=username.replaceAll("\\s+", "");
+				password=password.replaceAll("\\s+", "");
+				
+				if (username.isEmpty() || password.isEmpty()){
+					Toast.makeText(getActivity(), "Username or password cannot be empty", Toast.LENGTH_LONG).show();
+					btSignin.setEnabled(true);
 					return;
 				}
 				
+				//Check for characters other than Alphanumeric
+				boolean special_chars = username.matches(ALPHANUMERIC_PATTERN);
+				if(special_chars){
+					Toast.makeText(getActivity(), "Special characters or spaces are not allowed", Toast.LENGTH_LONG).show();
+					btSignin.setEnabled(true);
+					return;
+				}
+				
+				if ( username.length() > 20 || password.length() > 20){
+					Toast.makeText(getActivity(), "Username and password should be 20 characters max", Toast.LENGTH_LONG).show();
+					btSignin.setEnabled(true);
+					return;
+				}
+				
+				//Check for characters other than Alphanumeric
+				if (email.isEmpty()){
+					Toast.makeText(getActivity(), "Email must not be empty", Toast.LENGTH_LONG).show();
+					return;
+				}
+				
+				if(email.matches(EMAIL_PATTERN) == false){
+					Toast.makeText(getActivity(), "Invalid email", Toast.LENGTH_LONG).show();
+					return;
+				}
 				btSignup.setEnabled(false);
 
+				//display progress dialogue for user account signup
+				ProgressDialog progressDialog = new ProgressDialog(getActivity());
+				progressDialog.setCancelable(false);
+				progressDialog.setMessage(getString(R.string.signup_status));
+				
 				parseSigningUpUser = new ParseUser();
-				parseSigningUpUser.setUsername( etUsername.getText().toString() );
-				parseSigningUpUser.setPassword( etPwd.getText().toString() );
-				parseSigningUpUser.setEmail( etEmail.getText().toString() );
+				parseSigningUpUser.setUsername( username);
+				parseSigningUpUser.setPassword( password );
+				parseSigningUpUser.setEmail( email );
 				parseSigningUpUser.signUpInBackground( new SignUpCallback() {
 					@Override
 					public void done(ParseException e) {

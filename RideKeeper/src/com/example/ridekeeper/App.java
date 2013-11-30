@@ -1,15 +1,13 @@
 package com.example.ridekeeper;
 
 import android.app.Application;
-import android.widget.Toast;
 
+import com.example.ridekeeper.account.MyQBUser;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.PushService;
-import com.quickblox.core.QBCallback;
 import com.quickblox.core.QBSettings;
-import com.quickblox.core.result.Result;
 import com.quickblox.module.auth.QBAuth;
 
 public class App extends Application{

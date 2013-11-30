@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.account;
 
 import android.content.Context;
 import android.content.SharedPreferences;

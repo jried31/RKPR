@@ -34,7 +34,7 @@
     <string name="vehicle_liscense_hint">License</string>
     <string name="vehicle_year_hint">Year</string>
     
-    <string name="button_signup">Sign Up!</string>
+    <string name="button_signup">Sign Up</string>
     <string name="button_signin">Sign In</string>
     <string name="button_signout">Sign Out</string>
     <string name="button_resetpwd">Reset password</string>
@@ -76,6 +76,7 @@
     <string name="action_addvehicle">Add vehicle</string>
     <string name="action_refreshvbslist">Refresh</string>
     
+    <string name="signup_status">Creating your account</string>
     <string name="app_not_available">Sorry, there\'s no web browser available</string>
 
 </resources>

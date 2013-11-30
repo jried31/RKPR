@@ -85,7 +85,7 @@ function updateVehicleStatus(req,resp,next){
 	};
   
 	kaiseki.updateObject('Vehicle', tmpObj.id,
-	                   {'AlertLevel': AlertLevel.getKeyByValue(tmpObj.alertLevel), 
+	                   {'alertLevel': AlertLevel.getKeyByValue(tmpObj.alertLevel), 
 	                    'pos': position.location},
 	          function(err, res, body, success) {
 	          	if (success) {
@@ -107,6 +107,7 @@ server.post('/update', updateVehicleStatus);
 server.listen(8080, function() {
 	console.log('%s listening at %s', server.name, server.url);
 });
+
 
 /**
  * sendTiltNotification
@@ -221,7 +222,7 @@ function notifyNearbyUsers() {
 							'latitude': veh['pos']['latitude'],
 							'longitude': veh['pos']['longitude']
 						},
-						'$maxDistanceInMiles': 0.5
+						'$maxDistanceInMiles': 0.3
 					}
 				};
 

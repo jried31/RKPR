@@ -37,6 +37,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ridekeeper.account.MyQBUser;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseImageView;
@@ -113,7 +114,6 @@ public class ChatFragment extends DialogFragment {
 			}
 		});
 		
-		//JERRID: What is this to?
 		IMAGE_SMALL_VIEW_LAYOUT.gravity = Gravity.CENTER;
 		
 		//disable buttons while server is connecting
