@@ -48,7 +48,7 @@ public class MainActivity extends Activity implements LocationListener {
 	private String[] mDrawerMenuTitles;
 
 	private enum SelectedFrag{
-		VBS, MYPROFILE, MYVEHICLES, SETTINGS
+		STOLENVEHICLE, MYPROFILE, MYVEHICLES, SETTINGS
 	}
 	private SelectedFrag selectedFrag;
 	
@@ -125,7 +125,7 @@ public class MainActivity extends Activity implements LocationListener {
 		if (selectedFrag == SelectedFrag.MYVEHICLES){
 			//menu.findItem(R.id.action_websearch).setVisible(false);
 			menu.findItem(R.id.action_addvehicle).setVisible(true & !drawerOpen);
-		}else if (selectedFrag == SelectedFrag.VBS) {
+		}else if (selectedFrag == SelectedFrag.STOLENVEHICLE) {
 			menu.findItem(R.id.action_refreshvbslist).setVisible(true & !drawerOpen);
 		}
 		
@@ -182,7 +182,7 @@ public class MainActivity extends Activity implements LocationListener {
 		switch(position){
 		case DBGlobals.VBS_LIST:
 			fragment = new StolenVehicleListFragment();
-			selectedFrag = SelectedFrag.VBS;
+			selectedFrag = SelectedFrag.STOLENVEHICLE;
 			break;
 		case DBGlobals.MY_PROFILE:
 			fragment = new MyProfileFragment();

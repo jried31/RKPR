@@ -57,6 +57,7 @@ public class ChatFragment extends DialogFragment {
 	private static final LayoutParams FULL_LAYOUT = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 	private static final LayoutParams SMALL_LAYOUT = new LayoutParams(150, 150); //set gravity to center in OnCreateView
 	
+	private String title;
 	// For chat room 
 	private String roomname;
 	private String vehicleId; //vehiew onCreateView(Layocle's objectId in Parse
@@ -85,6 +86,8 @@ public class ChatFragment extends DialogFragment {
 		roomname = getArguments().getString("roomname");
 		vehicleId = getArguments().getString("UID");
 		
+		title = getArguments().getString("title");
+		
 		setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_DeviceDefault_Light);
 	}
 	
@@ -92,6 +95,8 @@ public class ChatFragment extends DialogFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_chat, container, false);
 		
+		getDialog().setTitle(title); //set the title of the Chat dialog fragment
+
 		ivSendPic = (ImageView) view.findViewById(R.id.imageView_sendPic);
 		etMessage = (EditText) view.findViewById(R.id.editText_msg);
 		btSendMsg = (Button) view.findViewById(R.id.buttton_sendMsg);

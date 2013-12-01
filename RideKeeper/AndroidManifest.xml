@@ -71,7 +71,7 @@
         <service android:name="com.parse.PushService" />
         <receiver android:name="com.example.ridekeeper.ParseCustomReceiver" android:exported="false">
 			<intent-filter>
-				<action android:name="ALERT" />
+				<action android:name="CUSTOMIZED" />
 			</intent-filter>
 		</receiver>
         <receiver android:name="com.parse.ParseBroadcastReceiver" >

@@ -21,17 +21,17 @@ import com.parse.ParseUser;
 
 
 public class StolenVehicleListFragment extends ListFragment{
-	private static ParseVehicleArrayAdapter vbsArrayAdapter;
+	private static ParseVehicleArrayAdapter stolenVehicleArrayAdapter;
 	private static Context myContext;
 	
 	private static FindCallback<ParseObject> queryVBSCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
 			if (e== null){ // no error
-				vbsArrayAdapter.clear();
+				stolenVehicleArrayAdapter.clear();
 
 				for (int i = 0; i < objects.size(); i++){
-					vbsArrayAdapter.add( (ParseVehicle) objects.get(i));
+					stolenVehicleArrayAdapter.add( (ParseVehicle) objects.get(i));
 				}
 			}else{ //error occurred when query to Parse
 				Toast.makeText(myContext, "Error: " + e.getMessage() , Toast.LENGTH_SHORT).show();
@@ -46,8 +46,8 @@ public class StolenVehicleListFragment extends ListFragment{
 
 		myContext = getActivity();
 		
-	    vbsArrayAdapter = new ParseVehicleArrayAdapter(getActivity(), new ArrayList<ParseVehicle>());		
-		setListAdapter(vbsArrayAdapter);
+	    stolenVehicleArrayAdapter = new ParseVehicleArrayAdapter(getActivity(), new ArrayList<ParseVehicle>());		
+		setListAdapter(stolenVehicleArrayAdapter);
 		
 		registerForContextMenu(getListView());
 		
@@ -79,7 +79,7 @@ public class StolenVehicleListFragment extends ListFragment{
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-	    String uid = vbsArrayAdapter.getItem( info.position ).getObjectId();
+	    String uid = stolenVehicleArrayAdapter.getItem( info.position ).getObjectId();
 	    Bundle bundle = new Bundle();
 	    switch (item.getItemId()) {
 	    case R.id.menuItem_owner_info:
@@ -95,6 +95,11 @@ public class StolenVehicleListFragment extends ListFragment{
 	    	return true;
 	    	
 	    case R.id.menuItem_chat_room:
+	    	String title = 	"Room: " +
+	    					stolenVehicleArrayAdapter.getItem( info.position ).getMake() + " " + 
+	    					stolenVehicleArrayAdapter.getItem( info.position ).getModel() + " " +
+	    					stolenVehicleArrayAdapter.getItem( info.position ).getYear().toString();
+	    	bundle.putString("title", title);
 	    	bundle.putString("UID", uid);
 	    	bundle.putString("roomname", "5111_room01"); //FIX THIS
 	    	DialogFragmentMgr.showDialogFragment(getActivity(), new ChatFragment(), "Chat Dialog", true, bundle);
@@ -118,6 +123,6 @@ public class StolenVehicleListFragment extends ListFragment{
 	}
 	
 	public static void clearList(){
-		vbsArrayAdapter.clear();
+		stolenVehicleArrayAdapter.clear();
 	}
 }

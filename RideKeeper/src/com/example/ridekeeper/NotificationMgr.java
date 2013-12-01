@@ -84,8 +84,8 @@ public class NotificationMgr {
 		mediaPlayer.start();
 	}
 	
-	public static void nearbyVBSAlert(Context context, boolean isAppRunning){
-		createAndroidNotification(context, "There are vehicle(s) being stolen nearby", "Click for more info");
+	public static void nearbyVBSAlert(Context context, String vehicleName, boolean isAppRunning){
+		createAndroidNotification(context, "A " + vehicleName + " was stolen nearby.", "Click for more info");
 		
 		if (Preferences.other_beep)
 			playBeep();
@@ -97,8 +97,8 @@ public class NotificationMgr {
 			vibrationLong();
 	}
 	
-	public static void ownerVehicleLiftTiltAlert(Context context, boolean isAppRunning){
-		createAndroidNotification(context, "Your vehicle has been tilted/lifted!!", "");
+	public static void ownerVehicleLiftTiltAlert(Context context, String vehicleName, boolean isAppRunning){
+		createAndroidNotification(context, "Your " + vehicleName + " was tilted/lifted!!", "");
 		
 		if (Preferences.owner_lt_beep)
 			playBeep();
@@ -110,8 +110,8 @@ public class NotificationMgr {
 			vibrationLong();
 	}
 	
-	public static void ownerVehicleStolenAlert(Context context, boolean isAppRunning){
-		createAndroidNotification(context, "Your vehicle has been STOLEN!!", "");
+	public static void ownerVehicleStolenAlert(Context context, String vehicleName, boolean isAppRunning){
+		createAndroidNotification(context, "Your " + vehicleName +" was STOLEN!!", "");
 		
 		if (Preferences.owner_stolen_beep)
 			playBeep();
