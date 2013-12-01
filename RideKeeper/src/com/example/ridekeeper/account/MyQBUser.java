@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.account;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,6 +12,8 @@ import com.quickblox.module.users.model.QBUser;
 public class MyQBUser {
 	private static Context myContext;
 	private static QBUser user = null;
+	
+	//Password for all QBUser accounts
 	public static final String DUMMY_PASSWORD = "abcde123";
 	//public static boolean sessionCreated = false;
 	

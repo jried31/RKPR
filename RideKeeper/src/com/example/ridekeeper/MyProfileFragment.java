@@ -34,8 +34,6 @@ import com.parse.ParseImageView;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-import com.quickblox.core.QBCallback;
-import com.quickblox.core.result.Result;
 
 public class MyProfileFragment extends Fragment {
 	public static final int ID_PHOTO_PICKER_FROM_CAMERA = 0;
@@ -115,14 +113,15 @@ public class MyProfileFragment extends Fragment {
 		
 		View view;
 		
-		if (ParseUser.getCurrentUser() != null &&
-				ParseUser.getCurrentUser().isAuthenticated() ){ // User was authenticated
+		//User authenticated, show user profile
+		if (ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated() ){
 			
 			view =  inflater.inflate(R.layout.fragment_my_profile, container, false);
 			authenticatedMode(view);
 			
-		}else{ // Need sign in/up
-			DialogFragmentMgr.showDialogFragment(getActivity(), new WelcomeFragment(), "Map Dialog", false, null);
+		}else{ // User unauthenticated, show signup dialog
+			DialogFragmentMgr.showDialogFragment(getActivity(), new WelcomeFragment(), "User Authentication", false, null);
+			//Blank background for user login
 			view = inflater.inflate(R.layout.fragment_blank, container, false);
 		}
 		

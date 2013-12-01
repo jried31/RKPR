@@ -1,6 +1,26 @@
 var restify 		= require('restify');
 var request 		= require('request');
 var kaiseki_inc 	= require('kaiseki');
+var xmpp			= require('node-xmpp');
+
+var jabber_creds = {
+	username: 'admin',
+	password: 'ilikeorange',
+	jid: 'admin-5111@chat.quickblox.com',
+	room_jid: '5111_%s@muc.chat.quickblox.com',
+	host: 'chat.quickblox.com',
+	post: 5222
+}
+
+// Avoid some of the magic number BS that surrounds AlertLevel
+var AlertLevel = {
+	OK: 	0, // do nothing
+	TLT: 	1, // notify owner.
+	MVT: 	2, // new "stolen" value. notify everyone
+	LOC: 	3, // vehicle is in motion.,
+	NRD:    "NRD", // not recovered
+	RVD: 	"RVD", // recovered
+}
 
 // instantiate
 var APP_ID = 'OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f';
@@ -8,25 +28,15 @@ var REST_API_KEY = 'bPlqPguhK51mbRXaYcfnf73uTri07sk6uB64ZdPb';
 var kaiseki = new kaiseki_inc(APP_ID, REST_API_KEY);
 
 /**
- * The magic status codes, which you will see here and there:
- OK : status ok
- LFT: lifted
- TLT: titled
- STL: stolen
- RVD: recovered
- NRD: not recoved
- */
-
-/**
- * A "cronjob" to run the notify task. Yeah,
+ * A 'cronjob' to run the notify task. Yeah,
  * it leaks memory.
  */
- var minutes = .1, interval = minutes * 1000 * 60;
+ var minutes = 1, interval = minutes * 1000 * 60;
  setInterval(notifyNearbyUsers, interval);
 
 
 /**
-* Return a timestamp with the format "m/d/yy h:MM:ss TT"
+* Return a timestamp with the format 'm/d/yy h:MM:ss TT'
 * @type {Date}
 */
 
@@ -51,7 +61,7 @@ function timestamp()
 	if(sec < 10)
 		sec = '0' + sec;
 
-	return month + '-' + date + '-' + year + " " + hour + ":" + min + ":" + sec;
+	return month + '-' + date + '-' + year + ' ' + hour + ':' + min + ':' + sec;
 }
 
 /**
@@ -75,11 +85,11 @@ function updateVehicleStatus(req,resp,next){
 	};
   
 	kaiseki.updateObject('Vehicle', tmpObj.id,
-	                   {'status': tmpObj.status.toUpperCase(), 
+	                   {'alertLevel': AlertLevel.getKeyByValue(tmpObj.alertLevel), 
 	                    'pos': position.location},
 	          function(err, res, body, success) {
 	          	if (success) {
-	          		console.log("Marked " + tmpObj.id + " as " + tmpObj.status);
+	          		console.log('Marked ' + tmpObj.id + ' as ' + AlertLevel.getKeyByValue(tmpObj.alertLevel));
 	          		sendTiltNotification(tmpObj.id);
 	          		sendStolenNotification(tmpObj.id);
 	          	} else {
@@ -94,9 +104,10 @@ server.use(restify.bodyParser({ mapParams: false }));
 
 server.post('/update', updateVehicleStatus);
 
-server.listen(8081, function() {
+server.listen(8080, function() {
 	console.log('%s listening at %s', server.name, server.url);
 });
+
 
 /**
  * sendTiltNotification
@@ -110,27 +121,29 @@ server.listen(8081, function() {
 	// first, fetch vehicle info
 	kaiseki.getObject('Vehicle', id, { }, function(err, res, body, success) {
 		// then, send the owner notification if the vehicle is tilted
-		if (body.status == "TLT") {
+		if (body.alertLevel == "TLT") {
 			console.log(id + ' tilted. Notifying owner.');
 			var notification_data = {
-					where: { objectId: body.ownerId },
-					data: {
-						alert: "Your " + body.make + " " + body.model + " has been tilted."
-					}
-				};
-				kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
-					if (success) {
-						kaiseki.updateObject('Vehicle', id, { status: 'OK' }, function(err, res, body, success) {
-							if (success)
-								console.log('Owner notified.');
-							else
-								console.log(body.error);
-						});
-					}
-					else {
-						console.log(body.error);
-					}
-				});
+				where: { objectId: body.ownerId },
+				data: {
+					action: 'CUSTOMIZED',
+					alertLevel: 'TLT',
+					vehicleName: body.make + ' ' + body.model
+				}
+			};
+			kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
+				if (success) {
+					kaiseki.updateObject('Vehicle', id, { status: 'OK' }, function(err, res, body, success) {
+						if (success)
+							console.log('Owner notified.');
+						else
+							console.log(body.error);
+					});
+				}
+				else {
+					console.log(body.error);
+				}
+			});
 		}
 	});
  }
@@ -147,23 +160,25 @@ function sendStolenNotification(id) {
 	// first, fetch vehicle info
 	kaiseki.getObject('Vehicle', id, { }, function(err, res, body, success) {
 		// then, send the owner notification if the vehicle is tilted
-		if (body.status == "STL") {
-			console.log(id + " stolen! Notifying owner.");
+		if (body.alertLevel == "MVT") {
+			console.log(id + ' stolen! Notifying owner.');
 			var notification_data = {
-					where: { objectId: body.ownerId },
-					data: {
-						alert: "Your " + body.make + " " + body.model + " has been stolen."
-					}
-				};
-				kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
-					if (success) {
-						console.log("Owner notified.");
-						createChatroom(id);
-					}
-					else {
-						console.log(body.error);
-					}
-				});
+				where: { objectId: body.ownerId },
+				data: {
+					action: 'CUSTOMIZED',
+					alertLevel: 'MVT',
+					vehicleName: body.make + ' ' + body.model
+				}
+			};
+			kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
+				if (success) {
+					console.log('Owner notified.');
+					createChatroom(id);
+				}
+				else {
+					console.log(body.error);
+				}
+			});
 		}
 	});
 }
@@ -177,8 +192,10 @@ function sendStolenNotification(id) {
  */
 function createChatroom(id) {
 	kaiseki.createObject('Chatroom', { vehicleId: id }, function(err, res, body, success) {
-		if (success)
-			console.log("Created chatroom for " + id); // @todo also create physical xmpp room
+		if (success) {
+			create_chatroom(body.objectId);
+			console.log('Created chatroom for ' + id);
+		}
 		else
 			console.log(body.error);
 	});
@@ -192,20 +209,20 @@ function createChatroom(id) {
  */
 function notifyNearbyUsers() {
 	console.log('Notifying users near stolen vehicles.');
-	kaiseki.getObjects('Vehicle', {  where: { status: "STL" } }, function(err, res, body, success) {
+	kaiseki.getObjects('Vehicle', {  where: { alertLevel: "MVT" } }, function(err, res, body, success) {
 		if (success) {
 			for (var i = 0; i < body.length; ++i) {
 				var veh = body[i];
-				console.log("Notifying users near " + veh['objectId']);
+				console.log('Notifying users near ' + veh['objectId']);
 
 				var geopoint_where = {
 					GeoPoint: {
-						"$nearSphere": {
-							__type: "GeoPoint",
-							"latitude": veh['pos']['latitude'],
-							"longitude": veh['pos']['longitude']
+						'$nearSphere': {
+							__type: 'GeoPoint',
+							'latitude': veh['pos']['latitude'],
+							'longitude': veh['pos']['longitude']
 						},
-						"$maxDistanceInMiles": 0.5
+						'$maxDistanceInMiles': 0.3
 					}
 				};
 
@@ -224,7 +241,7 @@ function notifyNearbyUsers() {
 										room['members'] = new Array();
 
 									var new_users = arr_diff(nearby_owners, room['members']);
-									var new_members = arrayUnique(room['members'].concat(nearby_owners));
+									var new_members = array_unique(room['members'].concat(nearby_owners));
 									// Update chatroom
 									kaiseki.updateObject('Chatroom', room['objectId'], { members: new_members }, function(err, res, body, success) {
 										if (success) {
@@ -233,7 +250,9 @@ function notifyNearbyUsers() {
 												var notification_data = {
 													where: { objectId: new_users[j] },
 													data: {
-														alert: "A nearby vehicle has been stolen!"
+														action: 'CUSTOMIZED',
+														alertLevel: 'nearby',
+														vehicleName: body.make + ' ' + body.model
 													}
 												};
 												kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
@@ -267,7 +286,31 @@ function notifyNearbyUsers() {
 	});
 }
 
-function arrayUnique(array) {
+/**
+ * create_chatroom
+ *
+ * Creates an XMPP chatroom with the given chatroom name.
+ *
+ * @param 	string 	chatroom_id 	The unique chatroom identifier. Should match the Parse objectId.
+ */
+function create_chatroom(chatroom_id) {
+	var cl = new xmpp.Client({
+		jid: jabber_creds.jid,
+		password: jabber_creds.password,
+		host: jabber_creds.host,
+		port: jabber_creds.post
+	});
+
+	cl.on('online', function() {
+		cl.send(new xmpp.Element('iq', { to: jabber_creds.room_jid.replace("%s", chatroom_id), id: 'create', type: 'set' }));
+    	c('query', { xmlns: 'http://jabber.org/protocol/muc#owner' });
+    	c('x', { xmlns: 'jabber:x:data', type: 'submit' });
+
+    	console.log('Created new XMPP chatroom ' + chatroom_id);
+	});
+}
+
+function array_unique(array) {
     var a = array.concat();
     for(var i=0; i<a.length; ++i) {
         for(var j=i+1; j<a.length; ++j) {
@@ -293,4 +336,16 @@ function arr_diff(a1, a2)
   for(var k in a)
     diff.push(k);
   return diff;
+}
+
+/**
+ * Finds the key in an object by its value.
+ */
+Object.prototype.getKeyByValue = function( value ) {
+    for( var prop in this ) {
+        if( this.hasOwnProperty( prop ) ) {
+             if( this[ prop ] === value )
+                 return prop;
+        }
+    }
 }

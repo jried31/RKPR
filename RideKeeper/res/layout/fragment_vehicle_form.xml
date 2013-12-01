@@ -40,6 +40,7 @@
             android:layout_width="wrap_content"
 			android:layout_alignParentRight="true"
             android:text="@string/button_change"
+			android:background="@drawable/custom_button_brown"
             android:onClick="onChangeClicked">
         </Button>
         </RelativeLayout>
@@ -123,6 +124,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/button_save"
+			android:background="@drawable/custom_button_lblue"
             android:onClick="onSaveClicked">
         </Button>
         
@@ -132,6 +134,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/button_cancel"
+			android:background="@drawable/custom_button_red"
             android:onClick="onCancelClicked">
         </Button>
         </LinearLayout>
