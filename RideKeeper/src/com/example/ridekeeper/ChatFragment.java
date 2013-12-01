@@ -97,11 +97,15 @@ public class ChatFragment extends DialogFragment {
 		View view = inflater.inflate(R.layout.fragment_chat, container, false);
 		
 <<<<<<< HEAD
+<<<<<<< HEAD
 		getDialog().setTitle(title); //set the title of the Chat dialog fragment
 
 		uploadPhotoBtn = (ImageView) view.findViewById(R.id.imageView_sendPic);
 		messageField = (EditText) view.findViewById(R.id.editText_msg);
 		sendMessageBtn = (Button) view.findViewById(R.id.buttton_sendMsg);
+=======
+		messageField = (EditText) view.findViewById(R.id.editText_msg);
+>>>>>>> 636b1d53533b88a66ff4329c1078538ac669b188
 =======
 		messageField = (EditText) view.findViewById(R.id.editText_msg);
 >>>>>>> 636b1d53533b88a66ff4329c1078538ac669b188
