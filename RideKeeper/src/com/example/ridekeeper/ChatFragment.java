@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
@@ -54,7 +55,6 @@ public class ChatFragment extends DialogFragment {
 	private ScrollView scrollContainer;
 	private LinearLayout msgContainer;
 	
-	private static final LayoutParams IMAGE_LARGE_VIEW_LAYOUT = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 	private static final LayoutParams IMAGE_SMALL_VIEW_LAYOUT = new LayoutParams(170, 170); //set gravity to center in OnCreateView
 	
 	private String title;
@@ -96,19 +96,12 @@ public class ChatFragment extends DialogFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_chat, container, false);
 		
-<<<<<<< HEAD
-<<<<<<< HEAD
 		getDialog().setTitle(title); //set the title of the Chat dialog fragment
 
 		uploadPhotoBtn = (ImageView) view.findViewById(R.id.imageView_sendPic);
 		messageField = (EditText) view.findViewById(R.id.editText_msg);
 		sendMessageBtn = (Button) view.findViewById(R.id.buttton_sendMsg);
-=======
-		messageField = (EditText) view.findViewById(R.id.editText_msg);
->>>>>>> 636b1d53533b88a66ff4329c1078538ac669b188
-=======
-		messageField = (EditText) view.findViewById(R.id.editText_msg);
->>>>>>> 636b1d53533b88a66ff4329c1078538ac669b188
+		
 		scrollContainer = (ScrollView) view.findViewById(R.id.scrollContainer);
 		msgContainer = (LinearLayout) view.findViewById(R.id.messageContainer);
 
@@ -130,6 +123,7 @@ public class ChatFragment extends DialogFragment {
 		});
 		
 		IMAGE_SMALL_VIEW_LAYOUT.gravity = Gravity.CENTER;
+		
 		
 		//disable buttons while server is connecting
 		disableSendPic();
@@ -456,7 +450,8 @@ public class ChatFragment extends DialogFragment {
 			ImageView iv = (ImageView) v;
 			
 			if (iv.getLayoutParams() == IMAGE_SMALL_VIEW_LAYOUT){
-				iv.setLayoutParams(IMAGE_LARGE_VIEW_LAYOUT);
+				int h = iv.getHeight() * (msgContainer.getWidth() / iv.getWidth());
+				iv.setLayoutParams(new LayoutParams(msgContainer.getWidth(), h ));
 			}else{
 				iv.setLayoutParams(IMAGE_SMALL_VIEW_LAYOUT);
 			}
