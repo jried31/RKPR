@@ -24,7 +24,7 @@ public class StolenVehicleListFragment extends ListFragment{
 	private static ParseVehicleArrayAdapter stolenVehicleArrayAdapter;
 	private static Context myContext;
 	
-	private static FindCallback<ParseObject> queryVBSCallback = new FindCallback<ParseObject>() {
+	private static FindCallback<ParseObject> queryVehicleInMyChatRoomCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
 			if (e== null){ // no error
@@ -115,10 +115,10 @@ public class StolenVehicleListFragment extends ListFragment{
 		}
 	
 		if (LocationMgr.myLocation != null){
-			ParseFunctions.queryForStolenVehicle_InBackground(	LocationMgr.myLocation.getLatitude(),
+			ParseFunctions.queryForVehicleInMyChatRoom_InBackground(LocationMgr.myLocation.getLatitude(),
 					LocationMgr.myLocation.getLongitude(),
 					DBGlobals.searchRadius,
-					queryVBSCallback);
+					queryVehicleInMyChatRoomCallback);
 		}
 	}
 	

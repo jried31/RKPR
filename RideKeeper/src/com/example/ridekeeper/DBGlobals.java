@@ -13,6 +13,7 @@ package com.example.ridekeeper;
 	public static final int repeatingAlarmRate = 1000 * 60 * 5; //wake up phone and run some tasks every X ms
 	
 	public static final String PARSE_VEHICLE_TBL = "Vehicle";
+	public static final String PARSE_CHATROOM_TBL = "Chatroom";
 	public static final String PARSE_CHATROOMPHOTO_TBL = "ChatRoomPhoto";
 	public static final String PARSE_INSTL_OWERID = "ownerId";
 }
