@@ -6,7 +6,7 @@ void command0()  //send coordinates
 	EEPROM_readAnything(GEODATAFORMAT2,geoDataFormat);
 	if(rssi)
 	{
-		goesWhere(smsData.smsNumber);
+                goesWhere(smsData.smsNumber);
 		if(!sim900.prepareSMS(smsData.smsNumber))
 		{	
 			if(!(geoDataFormat & 0x8000))
@@ -152,3 +152,4 @@ void printLatLon(goCoord *position)
 	GSM.print("+");
 	GSM.print(position->longitude + 3);
 }
+

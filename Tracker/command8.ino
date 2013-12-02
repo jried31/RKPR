@@ -7,3 +7,4 @@ void command8()  //send coordinates every so  to GPRS
 	EEPROM_writeAnything(UDPSENDINTERVALBAT,(unsigned long)udpInterval);
 	EEPROM_writeAnything(UDPSENDINTERVALPLUG,(unsigned long)udpInterval);
 }
+

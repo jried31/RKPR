@@ -24,3 +24,4 @@ void command1() //motion sensing mode
 			break;
 	}
 }
+

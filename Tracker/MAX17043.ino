@@ -96,3 +96,4 @@ uint8_t MAX17043wakeFuelGauge()
 	configRegister[1] &= 0x7F;
 	return(I2c.write(FUELGAUGE,0x0C,configRegister,2));
 }
+
