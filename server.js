@@ -85,11 +85,11 @@ function updateVehicleStatus(req,resp,next){
 	};
   
 	kaiseki.updateObject('Vehicle', tmpObj.id,
-	                   {'alertLevel': AlertLevel.getKeyByValue(tmpObj.alertLevel), 
+	                   {'alertLevel': AlertLevel.getKeyByValue(parseInt(tmpObj.alertLevel)), 
 	                    'pos': position.location},
 	          function(err, res, body, success) {
 	          	if (success) {
-	          		console.log('Marked ' + tmpObj.id + ' as ' + AlertLevel.getKeyByValue(tmpObj.alertLevel));
+	          		console.log('Marked ' + tmpObj.id + ' as ' + AlertLevel.getKeyByValue(parseInt(tmpObj.alertLevel)));
 	          		sendTiltNotification(tmpObj.id);
 	          		sendStolenNotification(tmpObj.id);
 	          	} else {
