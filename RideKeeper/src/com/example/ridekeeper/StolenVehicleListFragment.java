@@ -111,7 +111,7 @@ public class StolenVehicleListFragment extends ListFragment{
 	//Should be called only when ParseUser.getCurrentUser() is authenticated
 	public static void refreshList(){
 		if (LocationMgr.myLocation == null){
-			LocationMgr.getLastGoodLoc();
+			LocationMgr.getLastGoodLocation();
 		}
 	
 		if (LocationMgr.myLocation != null){

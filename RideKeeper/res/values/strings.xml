@@ -79,4 +79,7 @@
     <string name="signup_status">Creating your account</string>
     <string name="app_not_available">Sorry, there\'s no web browser available</string>
 
+    <string name="vehicle_not_found">Vehicle location not found</string>
+    <string name="confirm_vehicle_recovered">Has your vehicle been recovored?</string>
+    <string name="query_exception">Unable to retrieve data</string>
 </resources>

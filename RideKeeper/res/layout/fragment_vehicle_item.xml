@@ -1,6 +1,15 @@
+    <!--NOTES:
+    android:descendantFocusability="blocksDescendants" must be in top most layout and blocks the button from getting foucs
+    blocking the Long click menu
+
+    Must be placed in the button to disable focus so it blocks the long click option in list view
+        android:focusable="false"
+		android:focusableInTouchMode="false"
+    -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
+    android:descendantFocusability="blocksDescendants" 
     android:padding="6dip" >
 
     <com.parse.ParseImageView
@@ -44,6 +53,7 @@
         android:singleLine="true"
         android:text="Status"
         android:textSize="12sp" />
+
     </LinearLayout>
     
     <LinearLayout
@@ -74,5 +84,17 @@
         android:text="Model "
         android:textSize="16sp" />
     </LinearLayout>
+   <ImageButton
+        android:id="@+id/findVehicleBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+    	android:focusable="false"
+		android:focusableInTouchMode="false"
+        android:layout_alignParentRight="true"
+        android:adjustViewBounds="true"
+	    android:src="@drawable/locate"
+		android:background="@drawable/custom_button_green" 
+		android:text="Locate" />
+   
     
 </RelativeLayout> 

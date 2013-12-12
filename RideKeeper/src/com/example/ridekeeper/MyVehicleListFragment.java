@@ -37,15 +37,11 @@ public class MyVehicleListFragment extends ListFragment {
 	    this.setMenuVisibility(true);
 	    registerForContextMenu(getListView());
 	    
-		if (ParseUser.getCurrentUser() != null &&
-				ParseUser.getCurrentUser().isAuthenticated() ){ // User was authenticated
-			
+		if (ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated() ){ // User was authenticated		
 		    refreshList();
-
 		}else{ // Need sign in/up
 			Toast.makeText(getActivity(), "You need to sign in in My Profile first!!", Toast.LENGTH_LONG).show();
 		}
-		
 	}
 	
 	@Override
@@ -54,6 +50,7 @@ public class MyVehicleListFragment extends ListFragment {
 	    super.onCreateContextMenu(menu, v, menuInfo);
 	    MenuInflater inflater = getActivity().getMenuInflater();
 	    inflater.inflate(R.menu.menu_vehicle, menu);
+	    
 	}
 
 	@Override
@@ -64,10 +61,17 @@ public class MyVehicleListFragment extends ListFragment {
 	    case R.id.edit_item:
 	    	EditVehicleFragment.editVehicle(getFragmentManager(), info.position );
 	    	return true;
-	    	
+	    case R.id.find_item://Putting the UID of the select vehicle to the Google Map fragment argument
+		    String uid = myVehicleAdapter.getItem( info.position ).getObjectId();
+	    	Bundle bundle = new Bundle();
+	    	bundle.putString("UID", uid);
+	    	DialogFragmentMgr.showDialogFragment(getActivity(), new GoogleMapFindVehicleFragment(), "Map Dialog", true, bundle);
+	    	return true;
 	    case R.id.remove_item:
 	    	removeVehicle(info.position);
 	        return true;
+	    case R.id.recovered_item:
+	    	recoverVehicle(info.position);
 	    }
 	    return false;
 	}
@@ -93,6 +97,35 @@ public class MyVehicleListFragment extends ListFragment {
 				}
 			}
 		});
+	}
+	
+	private static void recoverVehicle(final int position){
+		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+		    @Override
+		    public void onClick(DialogInterface dialog, int which) {
+		        switch (which){
+		        case DialogInterface.BUTTON_POSITIVE:
+		        	try {
+		        		//remove from Parse
+		        		ParseVehicle vehicile = myVehicleAdapter.getItem(position);
+		        		vehicile.setStatus("RVD");
+		        		vehicile.save();
+			        	refreshList();
+		        	} catch (ParseException e) {
+						Toast.makeText(myContext, "Error removing: " + e.getMessage() , Toast.LENGTH_SHORT).show();
+					}
+		            break;
+
+		        case DialogInterface.BUTTON_NEGATIVE:
+		            //No button clicked
+		            break;
+		        }
+		    }
+		};
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(myContext);
+		builder.setMessage(R.string.confirm_vehicle_recovered).setPositiveButton("Yes", dialogClickListener)
+		    .setNegativeButton("No", dialogClickListener).show();
 	}
 	
 	private static void removeVehicle(final int position){
@@ -126,6 +159,5 @@ public class MyVehicleListFragment extends ListFragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(myContext);
 		builder.setMessage("Confirm removing selected vehicle?").setPositiveButton("Yes", dialogClickListener)
 		    .setNegativeButton("No", dialogClickListener).show();
-		
 	}
 }

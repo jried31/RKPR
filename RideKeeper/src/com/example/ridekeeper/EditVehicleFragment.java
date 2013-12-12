@@ -86,6 +86,14 @@ public class EditVehicleFragment extends DialogFragment {
 			vehicle.put("ownerId", ParseUser.getCurrentUser().getObjectId());
 			
 		}else if (mode.equals("edit")){
+	    	//Checking whether we're adding or editing a vehicle
+	    	if (getArguments()!=null && getArguments().containsKey("mode")){
+	    		mode = getArguments().getString("mode");
+	    		if (mode.equals("edit")){
+	    			pos = getArguments().getInt("pos");
+	    		}
+	    	}
+
 			vehicle = MyVehicleListFragment.myVehicleAdapter.getItem(pos);
 			
 			//Load data from Parse

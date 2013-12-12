@@ -5,30 +5,37 @@
     android:gravity="center"
     android:orientation="vertical" >
 
-    <LinearLayout
+     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical" >
+        android:layout_height="wrap_content" 
+        android:orientation="vertical">
+        
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:gravity="center_horizontal"
+	        android:orientation="horizontal" >
+	
+	        <com.parse.ParseImageView
+	            android:id="@+id/edit_vehicle_img"
+	            android:layout_width="125dp"
+	            android:layout_height="125dp"
+	       		android:layout_marginLeft="100dp"
+		    	android:layout_marginBottom="20dp"
+       			android:orientation="horizontal"
+	            android:src="@drawable/motorcycle" />
+	
+	        <Button
+	            android:id="@+id/button_change_vehicle_photo"
+	            android:layout_width="wrap_content"
+				android:layout_alignParentRight="true"
+	            android:layout_height="wrap_content"
+				android:background="@drawable/custom_button_brown"
+	            android:text="Change" />
+	
+	    </LinearLayout>
 
-        <com.parse.ParseImageView
-            android:id="@+id/edit_vehicle_img"
-            android:layout_width="125dp"
-            android:layout_height="125dp"
-            android:src="@drawable/motorcycle" />
-
-        <Button
-            android:id="@+id/button_change_vehicle_photo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-			android:background="@drawable/custom_button_brown"
-            android:text="Change" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+   
 
         <TextView
             android:id="@+id/textView1"
@@ -46,12 +53,7 @@
             android:singleLine="true" >
             <requestFocus android:layout_width="match_parent" />
         </EditText>
-    </LinearLayout>
-    
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
+        
         <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
@@ -67,11 +69,6 @@
             android:layout_height="wrap_content"
             android:imeOptions="actionNext"
             android:singleLine="true" />
-    </LinearLayout>
-    
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
 
         <TextView
             android:id="@+id/textView3"
@@ -88,13 +85,7 @@
             android:layout_height="wrap_content"
             android:imeOptions="actionNext"
             android:inputType="number"/>
-	</LinearLayout>
-
-    
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
+        
         <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
@@ -110,15 +101,9 @@
         android:layout_height="wrap_content"
         android:imeOptions="actionDone"
         android:singleLine="true" />
-	</LinearLayout>
-	
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
-
         <Button
             android:id="@+id/button_save_vehicle"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.23"
             android:background="@drawable/custom_button_lblue"

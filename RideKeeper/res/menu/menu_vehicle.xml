@@ -17,4 +17,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/edit_item" android:title="Edit" />
     <item android:id="@+id/remove_item" android:title="Remove" />
+    <item android:id="@+id/find_item" android:title="Find me" />
+    <item android:id="@+id/recovered_item" android:title="Mark as recovered" />
 </menu>

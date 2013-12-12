@@ -66,10 +66,10 @@ public class GoogleMapFragment extends DialogFragment implements LocationListene
   		
   		
   		//Move camera to current phone's location
-  		LocationMgr.getLastGoodLoc();
+  		Location myLocation = LocationMgr.getLastGoodLocation();
   		
-  		if (LocationMgr.myLocation!=null){
-  			LatLng myLatLng = new LatLng( LocationMgr.myLocation.getLatitude(), LocationMgr.myLocation.getLongitude() );
+  		if (myLocation != null){
+  			LatLng myLatLng = new LatLng( myLocation.getLatitude(), myLocation.getLongitude() );
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng , 15f));
   		}
   		
@@ -78,7 +78,7 @@ public class GoogleMapFragment extends DialogFragment implements LocationListene
   		markerOption.position(new LatLng(0, 0)).visible(false);
   		markerVehicle = mMap.addMarker(markerOption);
   		
-        mHandler.postDelayed(runQueryVBS, 1000);
+        mHandler.postDelayed(runQueryVBS, 2000);
         
         return view;
     }
@@ -106,12 +106,14 @@ public class GoogleMapFragment extends DialogFragment implements LocationListene
     public void onResume() {
     	super.onResume();
     	mMapView.onResume();
+        mHandler.postDelayed(runQueryVBS, 2000);
     }
     
     @Override
     public void onPause() {
     	super.onPause();
     	mMapView.onPause();
+    	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
     }
     
     @Override
@@ -147,27 +149,35 @@ public class GoogleMapFragment extends DialogFragment implements LocationListene
 		public void done(List<ParseObject> objects, ParseException e) {
 			
 			if (e== null){ // no error
-				if (objects.size()>0){
+				if (objects.size() > 0){
 					ParseGeoPoint p =  objects.get(0).getParseGeoPoint("pos");
-					markerVehicle.setPosition( new LatLng(p.getLatitude(), p.getLongitude()) );
-					markerVehicle.setTitle(	objects.get(0).getString("make") + " " +
+					if(p==null){
+						Toast.makeText(getActivity(), R.string.vehicle_not_found, Toast.LENGTH_SHORT).show();
+				    	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
+				    	
+						//If vehicle location is not found wait 15 secs and try again
+					}else{
+						markerVehicle.setPosition( new LatLng(p.getLatitude(), p.getLongitude()) );
+						markerVehicle.setTitle(	objects.get(0).getString("make") + " " +
 											objects.get(0).getString("model") + " " +
 											objects.get(0).getNumber("year").toString() + " "
 											);
-					markerVehicle.setVisible(true);
+						markerVehicle.setVisible(true);
+					}
 				}else{ //Can't find vehicle
-	
+					Toast.makeText(getActivity(), R.string.vehicle_not_found, Toast.LENGTH_SHORT).show();
 				}
 				
 				mHandler.postDelayed(runQueryVBS, DBGlobals.vehiclePosUpdateInGMapRate); //Refresh rate = 3 seconds if no error
 
 			}else{ //error occurred when query to Parse
-				Toast.makeText(getActivity(), "Error querying Parse server", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity(), R.string.query_exception, Toast.LENGTH_SHORT).show();
 				
 				mHandler.postDelayed(runQueryVBS, 15000);  //Refresh rate = 15 seconds if error occurs
 			}
 		}
 	};
+	
 	
 
 	//Dynamically update vehicle position on map

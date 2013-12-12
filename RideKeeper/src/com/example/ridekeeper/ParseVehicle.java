@@ -25,7 +25,8 @@ public class ParseVehicle extends ParseObject {
 			 					YEAR = "year",
 			 					LICENSE = "license",
 			 					PHOTO = "photo",
-			 					OWNERID = "ownerId";
+			 					OWNERID = "ownerId",
+			 					STATUS = "status";
 	
 	private static final String PHOTOFILE_PREFIX = "vehicle_photo_",
 								PHOTOFILE_SUBFIX = ".png";
@@ -35,6 +36,10 @@ public class ParseVehicle extends ParseObject {
 	public ParseVehicle() {
 	}
 
+	public String getStatus(){
+		return getString(STATUS);
+	}
+	
 	public String getMake(){
 		return getString(MAKE);
 	}
@@ -55,6 +60,11 @@ public class ParseVehicle extends ParseObject {
 			return 0;
 		return res;
 	}
+	
+	void setStatus(String status){
+		put(STATUS, status);
+	}
+	
 	void setYear(Number year){
 		put(YEAR, year);
 	}

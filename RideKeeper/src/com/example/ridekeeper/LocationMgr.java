@@ -2,10 +2,6 @@ package com.example.ridekeeper;
 
 import java.util.Calendar;
 
-import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -27,11 +23,12 @@ public class LocationMgr {
         myLocation = LocationMgr.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 	}
 	
-	public static void getLastGoodLoc(){
+	public static Location getLastGoodLocation(){
 		myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 		if (myLocation == null){
 			myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 		}
+		return myLocation;
 	}
 	
 	public static void updatetLocation_inBackground(Context context, final GetLocCallback callback){
@@ -89,9 +86,5 @@ public class LocationMgr {
 		
 		locationManager.removeUpdates(locationListener);
 	}
-	
-	
-
-	
 	
 }

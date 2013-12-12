@@ -100,7 +100,7 @@ public class MainActivity extends Activity implements LocationListener {
 		if (savedInstanceState == null) {
 			
 			if (ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated()){
-				selectItem(0); //Select VBS List Fragment as default if user is authenticated
+				selectItem(2); //Select VBS List Fragment as default if user is authenticated
 			}else{
 				selectItem(1); //Otherwise, Select My Profile Fragment so that user can login
 			}
