@@ -31,7 +31,7 @@ public class MyVehicleListFragment extends ListFragment {
 		super.onActivityCreated(savedInstanceState);
 		
 		myContext = getActivity();
-		myVehicleAdapter = new ParseVehicleArrayAdapter(getActivity(), new ArrayList<ParseVehicle>());		
+		myVehicleAdapter = new ParseVehicleArrayAdapter(getActivity(), new ArrayList<ParseVehicle>(),DBGlobals.LIST_MY_VEHICLES);		
 		setListAdapter(myVehicleAdapter);
 		
 	    this.setMenuVisibility(true);

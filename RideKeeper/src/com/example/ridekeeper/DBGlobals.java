@@ -11,9 +11,9 @@ package com.example.ridekeeper;
 	 //Database Constants
 	public static final String DB_SCHEMA_NAME = "RIDEKEEPER";
 	public static final int 
-			VBS_LIST=0,
+			LIST_STOLEN_VEHICLES=0,
 			MY_PROFILE=1,
-			MY_VEHICLE=2,
+			LIST_MY_VEHICLES=2,
 			SETTINGS=3;
 	
 	//Map Constants
@@ -26,6 +26,7 @@ package com.example.ridekeeper;
     public static final int MILLISECONDS_PER_SECOND = 1000; // Milliseconds per second
     public static final int UPDATE_INTERVAL_IN_SECONDS = 3;// Update frequency in seconds
     public static final long UPDATE_INTERVAL =  MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;  // Update frequency in milliseconds
+    public static final long UPDATE_INTERVAL_STOLEN_VEHICLE = MILLISECONDS_PER_SECOND * 8;
     public static final int FASTEST_INTERVAL_IN_SECONDS = 2;  // The fastest update frequency, in seconds
     // A fast frequency ceiling in milliseconds
     public static final long FASTEST_INTERVAL = MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;

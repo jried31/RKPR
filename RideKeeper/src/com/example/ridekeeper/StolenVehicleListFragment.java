@@ -46,7 +46,7 @@ public class StolenVehicleListFragment extends ListFragment{
 
 		myContext = getActivity();
 		
-	    stolenVehicleArrayAdapter = new ParseVehicleArrayAdapter(getActivity(), new ArrayList<ParseVehicle>());		
+	    stolenVehicleArrayAdapter = new ParseVehicleArrayAdapter(getActivity(), new ArrayList<ParseVehicle>(),DBGlobals.LIST_STOLEN_VEHICLES);		
 		setListAdapter(stolenVehicleArrayAdapter);
 		
 		registerForContextMenu(getListView());
@@ -115,8 +115,7 @@ public class StolenVehicleListFragment extends ListFragment{
 		}
 	
 		if (LocationMgr.myLocation != null){
-			ParseFunctions.queryForVehicleInMyChatRoom_InBackground(LocationMgr.myLocation.getLatitude(),
-					LocationMgr.myLocation.getLongitude(),
+			ParseFunctions.queryForVehicleInMyChatRoom_InBackground(LocationMgr.myLocation.getLatitude(),LocationMgr.myLocation.getLongitude(),
 					DBGlobals.searchRadius,
 					queryVehicleInMyChatRoomCallback);
 		}

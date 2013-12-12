@@ -19,11 +19,13 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
   private final Context context;
   ParseVehicle vehicle;
   private List<ParseVehicle> parseVehicleLst;
+  private static int displayType;
 
-  public ParseVehicleArrayAdapter(Context context, List<ParseVehicle> values) {
+  public ParseVehicleArrayAdapter(Context context, List<ParseVehicle> values,int type) {
     super(context, R.layout.fragment_vehicle_item, values);
     this.context = context;
     this.parseVehicleLst = values;
+    ParseVehicleArrayAdapter.displayType = type;
   }
 
   @Override
@@ -55,7 +57,10 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
             int position = (Integer) v.getTag();
 	    	Bundle bundle = new Bundle();
 	    	bundle.putString("UID", vehicle.getObjectId());
-	    	DialogFragmentMgr.showDialogFragment((Activity)getContext(), new GoogleMapFindVehicleFragment(), "Map Dialog", true, bundle);
+	    	if(displayType==DBGlobals.LIST_MY_VEHICLES)
+	    		DialogFragmentMgr.showDialogFragment((Activity)getContext(), new GoogleMapFindVehicleFragment(), "Map Dialog", true, bundle);
+	    	else if(displayType == DBGlobals.LIST_STOLEN_VEHICLES)
+	    		DialogFragmentMgr.showDialogFragment((Activity)getContext(), new GoogleMapFragment(), "Map Dialog", true, bundle);
 		}
 	});
 	

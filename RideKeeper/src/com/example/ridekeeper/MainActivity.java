@@ -181,7 +181,7 @@ public class MainActivity extends Activity implements LocationListener {
 		Fragment fragment=null;
 
 		switch(position){
-		case DBGlobals.VBS_LIST:
+		case DBGlobals.LIST_STOLEN_VEHICLES:
 			fragment = new StolenVehicleListFragment();
 			selectedFrag = SelectedFrag.STOLENVEHICLE;
 			break;
@@ -189,7 +189,7 @@ public class MainActivity extends Activity implements LocationListener {
 			fragment = new MyProfileFragment();
 			selectedFrag = SelectedFrag.MYPROFILE;
 			break;
-		case DBGlobals.MY_VEHICLE:
+		case DBGlobals.LIST_MY_VEHICLES:
 			fragment = new MyVehicleListFragment();
 			selectedFrag = SelectedFrag.MYVEHICLES;
 			break;

@@ -131,9 +131,6 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
 		mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
 		mGoogleMap.getUiSettings().setAllGesturesEnabled(true);
 		mGoogleMap.setTrafficEnabled(true);
-        //mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(12));
-  		
-		//By default show Cars Location and My location
 		
         return view;
     }
@@ -240,6 +237,7 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
 			query.findInBackground(queryVehicleCallback);
 		}
 	};
+	
 	//Callback when query gets result from Parse
 	private FindCallback<ParseObject> queryVehicleCallback = new FindCallback<ParseObject>() {
 		@Override
