@@ -112,7 +112,29 @@
             android:inputType="textCapWords"
             android:hint="@string/vehicle_liscense_hint">
         </EditText>
-        
+      	
+      	<TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/vehicle_tracker_id" />
+       	       
+       <RelativeLayout 
+           android:layout_width="match_parent"
+        	android:id="@+id/relativeLayout1"
+        	 android:layout_height="wrap_content">
+        <Button android:id="@+id/toggleTracker" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Modify"
+            android:layout_alignParentTop="true" android:layout_alignParentRight="true" 
+            android:onClick="toggleTrackerField"/>
+        <EditText android:id="@+id/trackerId" android:layout_height="wrap_content"
+            android:layout_alignParentTop="true" android:layout_width="match_parent"
+            android:enabled="false"
+            android:layout_toLeftOf="@+id/toggleTracker" android:hint="@string/vehicle_tracker_id_hint">
+        </EditText>
+    </RelativeLayout>
+    
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

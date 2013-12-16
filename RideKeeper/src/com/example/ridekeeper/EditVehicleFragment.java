@@ -44,8 +44,8 @@ public class EditVehicleFragment extends DialogFragment {
 	
 	
     private ParseImageView pivPhoto;
-    private EditText etMake, etModel, etYear, etLicense;
-    private Button btSave, btChangePhoto;
+    private EditText etMake, etModel, etYear, etLicense,etTrackerId;
+    private Button btSave, btChangePhoto,btToggleTrackerId;
     
 	private String mode = "add"; //Default is add mode
     private int pos = 0;
@@ -76,13 +76,16 @@ public class EditVehicleFragment extends DialogFragment {
 	    etModel = (EditText) view.findViewById(R.id.editText_model);
 	    etYear = (EditText) view.findViewById(R.id.editText_year);
 	    etLicense = (EditText) view.findViewById(R.id.editText_license);
+	    etTrackerId = (EditText) view.findViewById(R.id.editText_trackerId);
 		btSave = (Button) view.findViewById(R.id.button_save_vehicle);
+		btToggleTrackerId = (Button)view.findViewById(R.id.toggleTracker);
 	    btChangePhoto = (Button) view.findViewById(R.id.button_change_vehicle_photo);
-		
 		if (mode.equals("add")){
 			btSave.setText("Add");
-			vehicle = new ParseVehicle();
 
+			etTrackerId.setEnabled(true);
+			vehicle = new ParseVehicle();
+			btToggleTrackerId.setVisibility(Button.INVISIBLE);
 			vehicle.put("ownerId", ParseUser.getCurrentUser().getObjectId());
 			
 		}else if (mode.equals("edit")){
@@ -101,8 +104,11 @@ public class EditVehicleFragment extends DialogFragment {
 			etModel.setText(vehicle.getModel());
 			etYear.setText(vehicle.getYear().toString());
 			etLicense.setText(vehicle.getLicense());
+			etTrackerId.setText(vehicle.getTrackerId());
 			vehicle.loadPhotoIntoParseImageView(getActivity(), pivPhoto);
-			
+
+			//set not editable first
+			etTrackerId.setEnabled(false);
 			btSave.setText("Save");
 		}
 
@@ -110,10 +116,6 @@ public class EditVehicleFragment extends DialogFragment {
 		btChangePhoto.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//Intent intent = new Intent(getActivity() , GetPhoto.class);
-				//startActivityForResult(intent, 0);
-				//will get the result in onActivityResult
-				
 				final Activity parent = getActivity();
 				AlertDialog.Builder builder = new AlertDialog.Builder(parent);
 				DialogInterface.OnClickListener dlistener;
@@ -126,7 +128,6 @@ public class EditVehicleFragment extends DialogFragment {
 
 				builder.setItems(R.array.photo_picker_items, dlistener);
 				builder.create().show();
-
 				
 			}
 		});
@@ -141,6 +142,7 @@ public class EditVehicleFragment extends DialogFragment {
 				vehicle.setModel(etModel.getText().toString());
 				vehicle.setYear( etYear.getText().toString());
 				vehicle.setLicense(etLicense.getText().toString());
+				vehicle.setTrackerId(etTrackerId.getText().toString());
 				vehicle.prepareSavingPhoto(getActivity(), pivPhoto);
 				
 				if (mode.equals("add")){
@@ -155,7 +157,6 @@ public class EditVehicleFragment extends DialogFragment {
 						if (e==null){
 							//Now the 'objectId' of the vehicle is available.
 							vehicle.savePhotoLocally(getActivity());
-							
 							Toast.makeText(getActivity(), "Saved!", Toast.LENGTH_SHORT).show();
 							
 						}else{
@@ -170,29 +171,22 @@ public class EditVehicleFragment extends DialogFragment {
 						getFragmentManager().popBackStack(); //Remove the Edit fragment
 					}
 				});
-				
-				
-
 			}
 		});
-		
+
+	    btToggleTrackerId = (Button) view.findViewById(R.id.toggleTracker);
+		btToggleTrackerId.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(etTrackerId.isEnabled())
+					etTrackerId.setEnabled(false);
+				else 
+					etTrackerId.setEnabled(true);
+			}
+		});
 		return view;
     }
     
-    /*
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	super.onActivityResult(requestCode, resultCode, data);
-    	
-    	if (resultCode==Activity.RESULT_OK){
-    		
-    		Bundle extras = data.getExtras();
-    		if (extras != null) {
-    			pivPhoto.setImageBitmap((Bitmap) extras.getParcelable("data"));
-			}
-    		
-    	}
-    }*/
     
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 

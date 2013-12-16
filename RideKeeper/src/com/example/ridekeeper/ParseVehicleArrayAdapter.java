@@ -66,26 +66,12 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
 	
     
     vehicle.loadPhotoIntoParseImageView(getContext(), imageView);
-	// Load profile photo from internal storage
-    /*
-	try {
-		String photo = vehicle.getPhotoURI();
-		FileInputStream fis = getContext().openFileInput(photo == null ? getContext().getString(R.drawable.avatar):photo);
-		Bitmap bmap = BitmapFactory.decodeStream(fis);
-		imageView.setImageBitmap(bmap);
-		fis.close();
-	} catch (IOException e) {
-		// Default profile photo if no photo saved before.
-		imageView.setImageResource(R.drawable.avatar);
-	}
-	*/
 	
     return rowView;
   }
   
   @Override
 	public void add(ParseVehicle object) {
-		// TODO Auto-generated method stub()
 		super.add(object);
 	}
 } 

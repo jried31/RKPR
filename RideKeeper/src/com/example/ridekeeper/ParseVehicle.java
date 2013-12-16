@@ -24,6 +24,7 @@ public class ParseVehicle extends ParseObject {
 			 					MODEL = "model",
 			 					YEAR = "year",
 			 					LICENSE = "license",
+			 					TRACKERID = "trackerId",
 			 					PHOTO = "photo",
 			 					OWNERID = "ownerId",
 			 					STATUS = "status";
@@ -72,8 +73,16 @@ public class ParseVehicle extends ParseObject {
 		put(YEAR, Integer.parseInt(strYear));
 	}
 	
+	public String getTrackerId(){
+		return getString(TRACKERID);
+	}
+	
 	public String getLicense(){
 		return getString(LICENSE);
+	}
+	
+	void setTrackerId(String trackerId){
+		put(TRACKERID, trackerId);
 	}
 	void setLicense(String license){
 		put(LICENSE, license);

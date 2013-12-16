@@ -23,8 +23,8 @@ public class App extends Application{
         ParseObject.registerSubclass(ParseChatRoomPhoto.class);
         //Register with Parse server
         Parse.initialize(this,
-				"OZzFan5hpI4LoIqfd8nAJZDFZ3ZLJ70ZvkYCNJ6f", 	//Application ID
-				"BJy2YJJA26jnRBalYHQ0VXVtHuZpERFcYqJh1n6S"); 	//Client Key
+				"TfBH3NJxzbOaxpksu5YymD4lP9bPlytcfZMG8i5a", 	//Application ID
+				"obFmxyzaxx6JWMVMtXpaggDFu2TcARRMqyFQdYpP"); 	//Client Key
         PushService.setDefaultPushCallback(this, MainActivity.class);
     	ParseInstallation.getCurrentInstallation().saveInBackground();
     	
@@ -32,7 +32,7 @@ public class App extends Application{
     	
     	//Register with QuickBlox server
     	MyQBUser.initContext(getApplicationContext());
-    	QBSettings.getInstance().fastConfigInit("5111", "GKtDOrCEdMpjFtQ", "VQcw5PmGbdExTyQ");
+    	QBSettings.getInstance().fastConfigInit("5815", "8htqAuedCPgyW2z", "6whwzbRPrYSSbmg");
     	QBAuth.createSession(null);
     	
     	/*

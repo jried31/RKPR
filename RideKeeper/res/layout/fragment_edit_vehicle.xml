@@ -99,8 +99,29 @@
         android:id="@+id/editText_license"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:imeOptions="actionDone"
+        android:imeOptions="actionNext"
         android:singleLine="true" />
+    
+      	<TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/vehicle_tracker_id" />
+       	       
+       <RelativeLayout 
+           android:layout_width="match_parent"
+        	android:id="@+id/trackerIdLayout"
+        	 android:layout_height="wrap_content">
+        <Button android:id="@+id/toggleTracker" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Modify"
+            android:layout_alignParentTop="true" android:layout_alignParentRight="true"  />
+        <EditText android:id="@+id/editText_trackerId" android:layout_height="wrap_content"
+            android:layout_alignParentTop="true" android:layout_width="match_parent"
+            android:layout_toLeftOf="@+id/toggleTracker" android:hint="@string/vehicle_tracker_id_hint">
+        </EditText>
+    </RelativeLayout>
+    
         <Button
             android:id="@+id/button_save_vehicle"
             android:layout_width="fill_parent"

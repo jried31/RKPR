@@ -43,10 +43,10 @@ public class MyVehicleFormFragment extends Fragment {
 	private EditText make,
 		model,
 		year,
+		trackerId,
 		license;
 	
-	private Button save,
-		change;
+	private Button change, btToggleTrackerId;
 	public static final String USER_NAME="user_name";
 	public static final String MY_USER_NAME_HACKFORNOW="jried";
 	public static final String EMAIL="email";
@@ -54,11 +54,11 @@ public class MyVehicleFormFragment extends Fragment {
 	public static final String MAKE="make";
 	public static final String MODEL="model";
 	public static final String YEAR="year";
+	public static final String TRACKERID="trackerId";
 	public static final String LICENSE="license";
 	
 	public static final String PHOTO="photo";
 	
-	private SharedPreferences sharedPreferences;
 	
 	   @Override
 	    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -69,6 +69,7 @@ public class MyVehicleFormFragment extends Fragment {
 	        model = (EditText) view.findViewById(R.id.vehicle_item_model);
 	        year = (EditText) view.findViewById(R.id.vehicle_item_year);
 	        license = (EditText) view.findViewById(R.id.vehicle_liscense);
+	        trackerId = (EditText) view.findViewById(R.id.trackerId);
 
 			mImageView = (ImageView) view.findViewById(R.id.vehicle_item_photo);
 			
@@ -77,7 +78,8 @@ public class MyVehicleFormFragment extends Fragment {
 	        	String makeVal = parameters.getString(MAKE),
 	        			modelVal = parameters.getString(MODEL),
 	        			yearVal = parameters.getString(YEAR),
-	        			licenseVal = parameters.getString(LICENSE);
+	        			licenseVal = parameters.getString(LICENSE),
+	        			trackerIdVal= parameters.getString(TRACKERID);
 	        	
 	        	byte []photoVal = parameters.getByteArray(PHOTO);
 	        	
@@ -85,63 +87,17 @@ public class MyVehicleFormFragment extends Fragment {
 	        	model.setText(makeVal == null ? "Enter value":modelVal);
 	        	year.setText(makeVal == null ? "Enter value":yearVal);
 	        	license.setText(makeVal == null ? "Enter value":licenseVal);
+	        	trackerId.setText(makeVal == null ? "Enter value":trackerIdVal);
 	        	
 	            Bitmap bitmap = BitmapFactory.decodeByteArray(photoVal, 0, photoVal.length);
 	            mImageView.setImageBitmap(bitmap);
 	        }
 			
-	        save = (Button) view.findViewById(R.id.button_save);
-		    save.setOnClickListener(new View.OnClickListener() {
-		    	public void onClick(View v) {
-		    		//Save the Content to the Shared Preferences & Upload to Firebase
-		    		Toast.makeText(v.getContext(), "I've been clicked" ,4000).show();
-		    		/*
-		    		Editor editor = sharedPreferences.edit();
-		    		String nameVal = name.getText().toString(),
-		    				emailVal = email.getText().toString(),
-		    				phoneVal = phone.getText().toString();
-		            		
-		    		// Save profile image into internal storage.
-		    		mImageView.buildDrawingCache();
-		    		Bitmap bmap = mImageView.getDrawingCache();
-		    		try {
-		    			//NOTE MODE_PRIVATE saves teh image file as a private file with the name designated under photo_filename
-		    			FileOutputStream fos = getActivity().openFileOutput(
-		    					getString(R.string.photo_filename), Activity.MODE_PRIVATE);
-		    			bmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-		    			fos.flush();
-		    			fos.close();
-		    		} catch (IOException ioe) {
-		    			ioe.printStackTrace();
-		    		}
-			
-		    		//Grab the Preference Object
-		    		editor.putString(NAME, nameVal);
-		    		editor.putString(EMAIL, emailVal);
-		    		editor.putString(PHONE, phoneVal);
-		    		editor.commit();
-		            	
-		    		//Update Firebase 
-		    		// Create a reference to a Firebase location
-		    		String url = "https://ridekeepr.firebaseio.com/users/"+MY_USER_NAME_HACKFORNOW;
-		    		Firebase fireBase = new Firebase(url);
-		    		fireBase.child(NAME).setValue(nameVal);
-		    		fireBase.child(EMAIL).setValue(emailVal);
-		    		fireBase.child(PHONE).setValue(phoneVal);
-		    		//TODO: DECIDE WHETHER TO SAVE IMAGE IN FIREBASE
-		    		 * 
-		    		 * 
-		    		 */
-		    	}
-		    });
 
 	       	//Setup for Changing Profile Picture
 	        change = (Button) view.findViewById(R.id.button_change);
 	        change.setOnClickListener(new View.OnClickListener() {
 	        	public void onClick(View v) {
-	        		//Save the Content to the Shared Preferences & Upload to Firebase
-	        		Toast.makeText(v.getContext(), "Change I've been clicked" ,4000).show();
-	        		
 	        		final Activity parent = getActivity();
 	        		AlertDialog.Builder builder = new AlertDialog.Builder(parent);
 	        		DialogInterface.OnClickListener dlistener;
@@ -153,10 +109,21 @@ public class MyVehicleFormFragment extends Fragment {
 	        		};
 	    				
 	        		builder.setItems(R.array.photo_picker_items, dlistener);
-	        		builder.create().show();//.show(getFragmentManager(),getString(R.string.photo_picker_tag));
-		    				
+	        		builder.create().show();		
 	        	}
 	        });
+	        
+
+		    btToggleTrackerId = (Button) view.findViewById(R.id.toggleTracker);
+			btToggleTrackerId.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if(trackerId.isEnabled())
+						trackerId.setEnabled(false);
+					else 
+						trackerId.setEnabled(true);
+				}
+			});
 	        return view;
 	   }
 	   
@@ -238,37 +205,6 @@ public class MyVehicleFormFragment extends Fragment {
 				}
 
 				break;
-			}
-		}
-
-		private void loadSnap() {
-			// Load profile photo from internal storage
-			try {
-				FileInputStream fis = getActivity().openFileInput("avatar.png");
-				Bitmap bmap = BitmapFactory.decodeStream(fis);
-				mImageView.setImageBitmap(bmap);
-				fis.close();
-			} catch (IOException e) {
-				// Default profile photo if no photo saved before.
-				mImageView.setImageResource(R.drawable.avatar);
-			}
-		}
-		
-		private void saveSnap() {
-
-		// Commit all the changes into preference file
-			// Save profile image into internal storage.
-			mImageView.buildDrawingCache();
-			Bitmap bmap = mImageView.getDrawingCache();
-			try {
-				//NOTE MODE_PRIVATE saves teh image file as a private file with the name designated under photo_filename
-				FileOutputStream fos = getActivity().openFileOutput(
-						"avatar.png", Activity.MODE_PRIVATE);
-				bmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-				fos.flush();
-				fos.close();
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
 			}
 		}
 
