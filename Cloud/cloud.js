@@ -3,7 +3,7 @@ var xmpp			= require('node-xmpp');
 
 var jabber_creds = {
 	username: 'ridekeeper',
-	password: 'jayanddav',
+	password: 'cs117ridekeeper',
 	jid: '718168-5815@chat.quickblox.com',
 	room_jid: '5815_%s@muc.chat.quickblox.com',
 	host: 'chat.quickblox.com',
