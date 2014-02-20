@@ -22,7 +22,7 @@ package com.example.ridekeeper;
 	//public static final int repeatingAlarmRate = 1000 * 60 * 5; //wake up phone and run some tasks every X ms
     public static final int MILLISECONDS_PER_SECOND = 1000; // Milliseconds per second
     public static final int SECONDS_PER_MIN = 60;
-	public static final int repeatingAlarmRate = MILLISECONDS_PER_SECOND * SECONDS_PER_MIN * 1; //wake up phone and run some tasks every X ms
+	public static final int LOCATION_UPDATE_RATE = MILLISECONDS_PER_SECOND * SECONDS_PER_MIN * 1; //wake up phone and run some tasks every X ms
 	//public static final int repeatingAlarmRate = MILLISECONDS_PER_SECOND * 60 * 5; //wake up phone and run some tasks every X ms
 	public static final double RADIOUS_OF_EARTH = 6378137.0;   //  WGS-84 ellipsoid parameters
 	public static final double MILE_TO_METER = 1609.34; // 1Mile = 1609.34meters

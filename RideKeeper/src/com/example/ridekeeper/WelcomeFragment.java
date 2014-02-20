@@ -154,7 +154,8 @@ public class WelcomeFragment extends DialogFragment {
 		btExit.setOnClickListener( new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				App.bReceiver.cancelAlarm(getActivity());
+				//App.bReceiver.cancelAlarm(getActivity());
+				App.locationTimerHandler.removeCallbacks(App.locationTimerRunnable);
 				System.exit(0);
 			}
 		});

@@ -24,6 +24,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -58,7 +59,8 @@ public class MainActivity extends Activity implements LocationListener {
 		setContentView(R.layout.activity_main);
 
 		App.isMainActivityRunning = true;
-		App.bReceiver.setRepeatingAlarm(this);
+		//App.bReceiver.setRepeatingAlarm(this);
+		App.initLocationUpdateTimer(this);
 
 		mTitle = mDrawerTitle = getTitle();
 		mDrawerMenuTitles = getResources().getStringArray(R.array.drawer_menu_title_array);

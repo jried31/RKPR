@@ -1,6 +1,8 @@
 package com.example.ridekeeper;
 
 import android.app.Application;
+import android.content.Context;
+import android.os.Handler;
 
 import com.example.ridekeeper.account.MyQBUser;
 import com.parse.Parse;
@@ -12,8 +14,21 @@ import com.quickblox.module.auth.QBAuth;
 
 public class App extends Application{
 	public static boolean isMainActivityRunning = false;
-	public static MyBroadcastReceiver bReceiver;
+	//public static MyBroadcastReceiver bReceiver;
+	public static Handler locationTimerHandler = new Handler();
+	public static Runnable locationTimerRunnable;
 
+	public static void initLocationUpdateTimer(final Context context) {
+		locationTimerRunnable = new Runnable() {
+            @Override
+            public void run() {
+                ParseFunctions.updateLocToParse(context); //Periodically update phone's location to Parse server
+                locationTimerHandler.postDelayed(this, DBGlobals.LOCATION_UPDATE_RATE);
+            }
+        };
+
+		locationTimerHandler.postDelayed(locationTimerRunnable, DBGlobals.LOCATION_UPDATE_RATE);
+	}
 
 	@Override public void onCreate() { 
         super.onCreate();
@@ -28,7 +43,7 @@ public class App extends Application{
         PushService.setDefaultPushCallback(this, MainActivity.class);
     	ParseInstallation.getCurrentInstallation().saveInBackground();
     	
-    	bReceiver = new MyBroadcastReceiver(); //For receiving wake lock and do routine check
+    	//bReceiver = new MyBroadcastReceiver(); //For receiving wake lock and do routine check
     	
     	//Register with QuickBlox server
     	MyQBUser.initContext(getApplicationContext());

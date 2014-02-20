@@ -26,7 +26,8 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 		AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		Intent intent = new Intent(context, MyBroadcastReceiver.class);
 		PendingIntent pi = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
-		am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 10000, DBGlobals.repeatingAlarmRate, pi); //do every 1 minutes
+		//am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 10000, DBGlobals.repeatingAlarmRate, pi); //do every 1 minutes
+		am.setRepeating(AlarmManager.RTC, System.currentTimeMillis() + 10000, DBGlobals.LOCATION_UPDATE_RATE, pi); //do every 1 minutes
 		//Toast.makeText(context, "Alarm started", Toast.LENGTH_SHORT).show();
 	}
 
