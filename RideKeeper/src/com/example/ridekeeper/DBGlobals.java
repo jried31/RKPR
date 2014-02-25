@@ -20,11 +20,14 @@ package com.example.ridekeeper;
 	//Map Constants
 	public static final double searchRadius = 10; //radius to scan for VBS (in miles)
 	public static final int vehiclePosUpdateInGMapRate = 2000; //update rate for VBS position on the map (in ms);
-	public static final int repeatingAlarmRate = 1000 * 60 * 5; //wake up phone and run some tasks every X ms
+	//public static final int repeatingAlarmRate = 1000 * 60 * 5; //wake up phone and run some tasks every X ms
+    public static final int MILLISECONDS_PER_SECOND = 1000; // Milliseconds per second
+    public static final int SECONDS_PER_MIN = 60;
+	public static final int LOCATION_UPDATE_RATE = MILLISECONDS_PER_SECOND * SECONDS_PER_MIN * 1; //wake up phone and run some tasks every X ms
+	//public static final int repeatingAlarmRate = MILLISECONDS_PER_SECOND * 60 * 5; //wake up phone and run some tasks every X ms
 	public static final double RADIOUS_OF_EARTH = 6378137.0;   //  WGS-84 ellipsoid parameters
 	public static final double MILE_TO_METER = 1609.34; // 1Mile = 1609.34meters
 	public final static int  CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-    public static final int MILLISECONDS_PER_SECOND = 1000; // Milliseconds per second
     public static final int UPDATE_INTERVAL_IN_SECONDS = 3;// Update frequency in seconds
     public static final long UPDATE_INTERVAL =  MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;  // Update frequency in milliseconds
     public static final long UPDATE_INTERVAL_STOLEN_VEHICLE = MILLISECONDS_PER_SECOND * 8;
