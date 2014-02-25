@@ -137,7 +137,7 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
 	
 	private int screenWidth;
 	private int screenHeight;
-	private void getSreenDimensions()
+	private void getScreenDimensions()
 	{
 		Display display = getActivity().getWindowManager().getDefaultDisplay();
 		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -314,7 +314,7 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
  			LatLng defaultDerivedLocationPosition = calculateDerivedPosition(myLocLatLng,DBGlobals.MILE_TO_METER*20 ,0);
  			LatLngBounds bounds = createLatLngBoundsObject(myLocLatLng,defaultDerivedLocationPosition);
  			//Compute the screen width/height
- 			getSreenDimensions();
+ 			getScreenDimensions();
  			mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, screenWidth, screenHeight, 150));
 			mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocLatLng , 15f));
 			
@@ -370,7 +370,7 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
   		
 		LatLng myLocLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude() );
 		LatLngBounds bounds = createLatLngBoundsObject(myLocLatLng,markerVehicle.getPosition());
-		getSreenDimensions();
+		getScreenDimensions();
 		mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, screenWidth, screenHeight, 150));
 		
 	}

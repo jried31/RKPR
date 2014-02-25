@@ -23,6 +23,7 @@
         <item>My Profile</item>
         <item>My Vehicles</item>
         <item>Settings</item>
+        <item>My Rides</item>
     </string-array>
     <string name="account_required">An account is required to use this application.</string>
     <string name="vehicle_make">Make</string>

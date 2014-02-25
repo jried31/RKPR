@@ -36,6 +36,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.MapFragment;
 import com.parse.ParseUser;
 
 public class MainActivity extends Activity implements LocationListener {
@@ -48,7 +49,7 @@ public class MainActivity extends Activity implements LocationListener {
 	private String[] mDrawerMenuTitles;
 
 	private enum SelectedFrag{
-		STOLENVEHICLE, MYPROFILE, MYVEHICLES, SETTINGS
+		STOLENVEHICLE, MYPROFILE, MYVEHICLES, SETTINGS, MYRIDE
 	}
 	private SelectedFrag selectedFrag;
 	
@@ -185,6 +186,10 @@ public class MainActivity extends Activity implements LocationListener {
 			fragment = new SettingsFragment();
 			selectedFrag = SelectedFrag.SETTINGS;
 			break;
+        case DBGlobals.MY_RIDES:
+            fragment = new MyRideFragment();
+            selectedFrag = SelectedFrag.MYRIDE;
+            break;
 		default:
 			fragment = new MyProfileFragment();
 		}

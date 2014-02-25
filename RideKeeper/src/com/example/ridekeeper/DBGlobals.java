@@ -14,7 +14,8 @@ package com.example.ridekeeper;
 			LIST_STOLEN_VEHICLES=0,
 			MY_PROFILE=1,
 			LIST_MY_VEHICLES=2,
-			SETTINGS=3;
+			SETTINGS=3,
+            MY_RIDES=4;
 	
 	//Map Constants
 	public static final double searchRadius = 10; //radius to scan for VBS (in miles)
