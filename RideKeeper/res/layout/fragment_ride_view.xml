@@ -8,22 +8,27 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#BBBBBB"
         android:padding="10dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Distance"/>
+            android:text="Distance Traveled"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="0 meters"
+            android:text="0 m"
             android:id="@+id/odometer"
             android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"/>
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -38,8 +43,17 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Track ME!"
-            android:id="@+id/add_point_button"
+            android:text="Begin Ride"
+            android:id="@+id/begin_ride_button"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End Ride"
+            android:id="@+id/end_ride_button"
+            android:visibility="gone"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"/>
 
