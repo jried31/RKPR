@@ -3,9 +3,12 @@ package com.example.ridekeeper;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.IntentSender;
+import android.graphics.Point;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,32 +22,25 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.quickblox.module.ratings.QBRatings;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by AlphaO on 2/17/14.
- */
 public class MyRideFragment extends Fragment implements GooglePlayServicesClient.ConnectionCallbacks,GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
     private GoogleMap mRideMap;
     private MapView mRideMapView;
@@ -54,12 +50,22 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
     private Button beginRideButton;
     private Button endRideButton;
     private SimpleDateFormat rideDateFormat = new SimpleDateFormat("MM-dd-yyyy");
+    private Ride ride;
+    private boolean savedRide = false;
 
     private Bundle mBundle;
 
     private Location myLocation;
     private LocationClient mLocationClient;
     private LocationRequest mLocationRequest;
+
+    public MyRideFragment(Ride ride) {
+        super();
+        this.ride = ride;
+        if (ride != null) {
+            savedRide = true;
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,23 +75,9 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setSmallestDisplacement(20);
+        //mLocationRequest.setSmallestDisplacement(20);
         mLocationClient = new LocationClient(getActivity(), this, this);
         mLocationClient.connect();
-        try {
-            BufferedReader inputReader = new BufferedReader(new InputStreamReader(getActivity().openFileInput("rides.dat")));
-            StringBuffer data = new StringBuffer();
-            data.append("[");
-            String line;
-            while ((line = inputReader.readLine()) != null) {
-                data.append(line + ",");
-            }
-            data.deleteCharAt(data.length() - 1);
-            data.append("]");
-            Log.v("data", data.toString());
-        } catch (Exception e) {
-            Log.v("ff", "dd");
-        }
     }
 
     @Override
@@ -124,6 +116,7 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
             @Override
             public void onClick(View v) {
                 mLocationClient.removeLocationUpdates(MyRideFragment.this);
+                endRideButton.setVisibility(View.GONE);
 
                 // Save the ride
                 List<LatLng> points = mRidePolyline.getPoints();
@@ -151,6 +144,20 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
                 }
             }
         });
+
+        if (savedRide) {
+            beginRideButton.setVisibility(View.GONE);
+            List<LatLng> points = mRidePolyline.getPoints();
+            points.addAll(ride.getPoints());
+            mRidePolyline.setPoints(points);
+            LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+            for(LatLng point : points) {
+                boundsBuilder.include(point);
+            }
+            LatLngBounds rideBounds = boundsBuilder.build();
+            getScreenDimensions();
+            mRideMap.moveCamera(CameraUpdateFactory.newLatLngBounds(rideBounds, screenWidth, screenHeight, 150));
+        }
         return view;
     }
 
@@ -189,6 +196,11 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
 
     @Override
     public void onConnected(Bundle bundle) {
+        if (!savedRide) {
+            myLocation = mLocationClient.getLastLocation();
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
+            mRideMap.animateCamera(cameraUpdate);
+        }
     }
 
     @Override
@@ -237,11 +249,32 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
         points.add(newPoint);
         float[] distance = new float[3];
         if (points.size() > 1) {
-            LatLng lastPoint = points.get(points.size() - 1);
+            LatLng lastPoint = points.get(points.size() - 2);
             Location.distanceBetween(lastPoint.latitude, lastPoint.longitude, newPoint.latitude, newPoint.longitude, distance);
         }
         mRideOdometer += distance[0];
-        mRideOdometerView.setText(new DecimalFormat("#.##").format(mRideOdometer/1000) + " km");
+        mRideOdometerView.setText(new DecimalFormat("#.##").format(mRideOdometer/1000.0) + " km");
         mRidePolyline.setPoints(points);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(newPoint, 16);
+        mRideMap.animateCamera(cameraUpdate);
+    }
+
+    private int screenWidth;
+    private int screenHeight;
+    private void getScreenDimensions()
+    {
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
+        {
+            Point outSize = new Point();
+            display.getSize(outSize);
+            screenWidth = outSize.x;
+            screenHeight = outSize.y;
+        }
+        else
+        {
+            screenWidth = display.getWidth();
+            screenHeight = display.getHeight();
+        }
     }
 }
