@@ -293,7 +293,7 @@ public class MainActivity extends Activity implements LocationListener {
 			selectedFrag = SelectedFrag.SETTINGS;
 			break;
         case DBGlobals.MY_RIDES:
-            fragment = new MyRideFragment();
+            fragment = new MyRideListFragment();
             selectedFrag = SelectedFrag.MYRIDE;
             break;
 		default:
