@@ -132,6 +132,7 @@ public class WelcomeFragment extends DialogFragment {
 							
 							//update phone's location to parse
 							ParseFunctions.updateLocToParse(getActivity());
+
 							Toast.makeText(getActivity(), "You are now signed in!", Toast.LENGTH_LONG).show();
 							MyProfileFragment.reloadFragment(getActivity());
 							dismiss();

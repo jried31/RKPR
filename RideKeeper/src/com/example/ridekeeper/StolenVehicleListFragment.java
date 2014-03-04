@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.app.ListFragment;
 import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -110,12 +111,15 @@ public class StolenVehicleListFragment extends ListFragment{
 	
 	//Should be called only when ParseUser.getCurrentUser() is authenticated
 	public static void refreshList(){
-		if (LocationMgr.myLocation == null){
-			LocationMgr.getLastGoodLocation();
+		LocationMgr locationMgr = MainActivity.mLocationMgr;
+
+		Location location = null;
+		if (locationMgr.location == null){
+			location = locationMgr.getLastGoodLocation();
 		}
 	
-		if (LocationMgr.myLocation != null){
-			ParseFunctions.queryForVehicleInMyChatRoom_InBackground(LocationMgr.myLocation.getLatitude(),LocationMgr.myLocation.getLongitude(),
+		if (location != null){
+			ParseFunctions.queryForVehicleInMyChatRoom_InBackground(location.getLatitude(),location.getLongitude(),
 					DBGlobals.searchRadius,
 					queryVehicleInMyChatRoomCallback);
 		}

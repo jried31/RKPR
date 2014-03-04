@@ -1,13 +1,11 @@
 package com.example.ridekeeper;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.R.array;
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -40,6 +38,10 @@ public class ParseFunctions {
 			
 			return null;
 		}*/
+	private static LocationMgr mLocationMgr;
+	public static void init(LocationMgr locationMgr) {
+		mLocationMgr = locationMgr;
+	}
 		
 		public static void queryForStolenVehicle_InBackground(double lat, double lng, double withInMiles, FindCallback<ParseObject> callback){
 			ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL); //Query the VBS table
@@ -88,17 +90,25 @@ public class ParseFunctions {
 			//Toast.makeText(context, "Update loc to Parse", Toast.LENGTH_SHORT).show();
 			//HelperFuncs.updatetLocation_Blocked(context);
 			
-			LocationMgr.updatetLocation_inBackground(context, new LocationMgr.GetLocCallback() {
-				@Override
-				public void done() {
-					if (LocationMgr.myLocation != null){
-						ParseGeoPoint myGeo = new ParseGeoPoint( LocationMgr.myLocation.getLatitude(),
-								LocationMgr.myLocation.getLongitude() );
-						ParseInstallation.getCurrentInstallation().put("GeoPoint", myGeo);
-						ParseInstallation.getCurrentInstallation().saveInBackground();
-					}
-				}
-			});
+			//LocationMgr.updateLocationInBackground(context, new LocationMgr.GetLocCallback() {
+			//	@Override
+			//	public void done() {
+			//		if (LocationMgr.sLocation != null){
+			//			ParseGeoPoint myGeo = new ParseGeoPoint( LocationMgr.sLocation.getLatitude(),
+			//					LocationMgr.sLocation.getLongitude() );
+			//			ParseInstallation.getCurrentInstallation().put("GeoPoint", myGeo);
+			//			ParseInstallation.getCurrentInstallation().saveInBackground();
+			//		}
+			//	}
+			//});
+			Location location = mLocationMgr.getLastGoodLocation();
+			if (location != null){
+				ParseGeoPoint myGeo = new ParseGeoPoint( location.getLatitude(),
+						location.getLongitude() );
+				ParseInstallation.getCurrentInstallation().put("GeoPoint", myGeo);
+				ParseInstallation.getCurrentInstallation().saveInBackground();
+			}
+
 		}
 		
 		//Update the ownerId field in Installation table in Parse

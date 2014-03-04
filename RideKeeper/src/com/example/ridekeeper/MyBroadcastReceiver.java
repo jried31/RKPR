@@ -18,7 +18,9 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 		PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RideKeeper");
 		
 		wl.acquire();
-		ParseFunctions.updateLocToParse(context); //Periodically update phone's location to Parse server
+		LocationMgr locationMgr = (LocationMgr) intent.getExtras().get(LocationMgr.EXTRA_LOCATION_MGR);
+
+        ParseFunctions.updateLocToParse(context); //Periodically update phone's location to Parse server
 		wl.release();
 	}
 	

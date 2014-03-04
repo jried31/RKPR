@@ -17,17 +17,22 @@
 package com.example.ridekeeper;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,7 +42,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.MapFragment;
 import com.parse.ParseUser;
 
 public class MainActivity extends Activity implements LocationListener {
@@ -54,6 +58,8 @@ public class MainActivity extends Activity implements LocationListener {
 	}
 	private SelectedFrag selectedFrag;
 	
+	public static LocationMgr mLocationMgr;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -61,7 +67,9 @@ public class MainActivity extends Activity implements LocationListener {
 
 		App.isMainActivityRunning = true;
 		//App.bReceiver.setRepeatingAlarm(this);
-		App.initLocationUpdateTimer(this);
+		mLocationMgr = new LocationMgr(this);
+		App.initLocationUpdateTimer(this, mLocationMgr);
+		ParseFunctions.init(mLocationMgr);
 
 		mTitle = mDrawerTitle = getTitle();
 		mDrawerMenuTitles = getResources().getStringArray(R.array.drawer_menu_title_array);
@@ -108,7 +116,103 @@ public class MainActivity extends Activity implements LocationListener {
 				selectItem(1); //Otherwise, Select My Profile Fragment so that user can login
 			}
 		}
+
+	    enableGpsIfPossible();
 	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+
+		mLocationMgr.stopPeriodicUpdates();
+		mLocationMgr.disconnect();
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+	    // The activity is either being restarted or started for the first time
+	    // so this is where we should make sure that GPS is enabled
+		mLocationMgr.connect();
+	}
+
+    /** source: http://developmentality.wordpress.com/2009/10/31/android-dialog-box-tutorial/
+     * https://stackoverflow.com/questions/12044552/android-activate-gps-with-alertdialog-how-to-wait-for-the-user-to-take-action
+     */
+    //returns true if the GpsProviderIsDisabled
+	//false otherwise
+	private boolean enableGpsIfPossible()
+	{   
+	    final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+        if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+	    	Toast.makeText(this, "GPS not enabled.", Toast.LENGTH_LONG).show();
+            buildAlertMessageNoGps();
+            return true;
+        }
+
+        Toast.makeText(this, "GPS enabled.", Toast.LENGTH_LONG).show();
+        return false;
+	}
+
+
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage("Yout GPS seems to be disabled, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new CommandWrapper(new EnableGpsCommand(this))
+                )
+                .setNegativeButton("No", new CommandWrapper(new CancelCommand(this))); 
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+    
+    public interface Command {
+        public void execute();
+     
+        public static final Command NO_OP = new Command() { public void execute() {} };
+    }
+
+    public static class CommandWrapper implements DialogInterface.OnClickListener {
+    	  private Command command;
+    	  public CommandWrapper(Command command) {
+    	    this.command = command;
+    	  }
+    	 
+    	  @Override
+    	  public void onClick(DialogInterface dialog, int which) {
+    	    dialog.dismiss();
+    	    command.execute();
+    	  }
+    }
+    public static class CancelCommand implements Command {
+        protected Activity mActivity;
+
+        public CancelCommand(Activity activity) {
+            mActivity = activity;
+        }
+
+        public void execute() {
+            //start asyncronous operation here
+        }
+    }
+
+    public class EnableGpsCommand extends CancelCommand {
+        public EnableGpsCommand(Activity activity) {
+            super(activity);
+        }
+
+        public void execute() {
+                        //take the user to the phone gps settings and then start the asyncronous logic.
+	    	Intent gpsOptionsIntent = new Intent(  
+	    		    android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);  
+                mActivity.startActivity(gpsOptionsIntent);
+                super.execute();
+        }
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -239,14 +343,14 @@ public class MainActivity extends Activity implements LocationListener {
 		NotificationMgr.stopVibration();
 		
 		//Start updating phone's location
-		LocationMgr.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+		mLocationMgr.startPeriodicUpdates();
 	}
 
 
 	@Override
 	protected void onPause() {
 		//stop updating phone's location
-		LocationMgr.locationManager.removeUpdates(this);
+		mLocationMgr.stopPeriodicUpdates();
 
 		App.isMainActivityRunning = false;
 
@@ -256,7 +360,7 @@ public class MainActivity extends Activity implements LocationListener {
 	@Override
 	public void onLocationChanged(Location location) {
 		//Toast.makeText(this, "Location updated!", Toast.LENGTH_SHORT).show();
-		LocationMgr.myLocation = location;
+		mLocationMgr.location = location;
 	}
 
 	@Override
@@ -271,15 +375,60 @@ public class MainActivity extends Activity implements LocationListener {
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 	}
 
+    /*
+     * Handle results returned to this Activity by other Activities started with
+     * startActivityForResult(). In particular, the method onConnectionFailed() in
+     * LocationUpdateRemover and LocationUpdateRequester may call startResolutionForResult() to
+     * start an Activity that handles Google Play services problems. The result of this
+     * call returns here, to onActivityResult.
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
+        // Choose what to do based on the request code
+        switch (requestCode) {
+
+            // If the request code matches the code sent in onConnectionFailed
+            case LocationUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST :
+
+                switch (resultCode) {
+                    // If Google Play services resolved the problem
+                    case Activity.RESULT_OK:
+
+                        // Log the result
+                        Log.d(LocationUtils.APPTAG, getString(R.string.resolved));
+                    break;
+
+                    // If any other result was returned by Google Play services
+                    default:
+                        // Log the result
+                        Log.d(LocationUtils.APPTAG, getString(R.string.no_resolution));
+                    break;
+                }
+
+            // If any other request code was received
+            default:
+               // Report that this Activity received an unknown requestCode
+               Log.d(LocationUtils.APPTAG,
+                       getString(R.string.unknown_activity_request_code, requestCode));
+
+               break;
+        }
+    }
+
 	public void test(View v){
 		Toast.makeText(getApplicationContext(), "START", Toast.LENGTH_SHORT).show();
 		
-		LocationMgr.updatetLocation_inBackground(this, new LocationMgr.GetLocCallback() {
-			@Override
-			public void done() {
-				Toast.makeText(getApplicationContext(), "GOT LOC", Toast.LENGTH_SHORT).show();
-			}
-		});
+		//LocationMgr.updateLocationInBackground(this, new LocationMgr.GetLocCallback() {
+		//	@Override
+		//	public void done() {
+		//		Toast.makeText(getApplicationContext(), "GOT LOC", Toast.LENGTH_SHORT).show();
+		//	}
+		//});
+		Location location = mLocationMgr.getLastGoodLocation();
+		Toast.makeText(getApplicationContext(), 
+				"GOT LOC lat/long: " + location.getLatitude() + "/" + location.getLongitude(), 
+				Toast.LENGTH_SHORT).show();
 		
 	}
 }

@@ -86,4 +86,15 @@
     <string name="vehicle_not_found">Vehicle location not found</string>
     <string name="confirm_vehicle_recovered">Has your vehicle been recovored?</string>
     <string name="query_exception">Unable to retrieve data</string>
+    
+    <!-- Latitude, longitude format -->
+    <string name="latitude_longitude">%1$.8f, %2$.8f</string>
+
+    <string name="resolved">Error resolved. Please re-try operation.</string>
+    <string name="no_resolution">Google Play services: unable to resolve connection error.</string>
+    <string name="unknown_activity_request_code">
+        Received an unknown activity request code %1$d in onActivityResult.
+    </string>
+    <string name="play_services_available">Google Play services is available</string>
+
 </resources>

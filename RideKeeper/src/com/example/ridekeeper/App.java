@@ -18,16 +18,16 @@ public class App extends Application{
 	public static Handler locationTimerHandler = new Handler();
 	public static Runnable locationTimerRunnable;
 
-	public static void initLocationUpdateTimer(final Context context) {
+	public static void initLocationUpdateTimer(final Context context, final LocationMgr locationMgr) {
 		locationTimerRunnable = new Runnable() {
             @Override
             public void run() {
                 ParseFunctions.updateLocToParse(context); //Periodically update phone's location to Parse server
-                locationTimerHandler.postDelayed(this, DBGlobals.LOCATION_UPDATE_RATE);
+                locationTimerHandler.postDelayed(this, LocationUtils.LOCATION_UPDATE_RATE);
             }
         };
 
-		locationTimerHandler.postDelayed(locationTimerRunnable, DBGlobals.LOCATION_UPDATE_RATE);
+		locationTimerHandler.postDelayed(locationTimerRunnable, LocationUtils.LOCATION_UPDATE_RATE);
 	}
 
 	@Override public void onCreate() { 
@@ -69,7 +69,6 @@ public class App extends Application{
     	NotificationMgr.initialize(this);
     	Preferences.loadSettingsFromSharedPref(this);
     	
-    	LocationMgr.initialize(this);
     	ParseFunctions.updateOwnerIdInInstallation();
     }
 	
