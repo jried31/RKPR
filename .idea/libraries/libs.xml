@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="libs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/RideKeeper/libs/asmack-android-7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RideKeeper/libs/quickblox-android-0.8.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RideKeeper/libs/Parse-1.3.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RideKeeper/libs/android-support-v4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
