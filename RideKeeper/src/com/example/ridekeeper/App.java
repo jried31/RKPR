@@ -18,7 +18,7 @@ public class App extends Application{
 	public static Handler locationTimerHandler = new Handler();
 	public static Runnable locationTimerRunnable;
 
-	public static void initLocationUpdateTimer(final Context context, final LocationMgr locationMgr) {
+	public static void initLocationUpdateTimer(final Context context) {
 		locationTimerRunnable = new Runnable() {
             @Override
             public void run() {

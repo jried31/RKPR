@@ -68,8 +68,9 @@ public class MainActivity extends Activity implements LocationListener {
 		App.isMainActivityRunning = true;
 		//App.bReceiver.setRepeatingAlarm(this);
 		mLocationMgr = new LocationMgr(this);
-		App.initLocationUpdateTimer(this, mLocationMgr);
 		ParseFunctions.init(mLocationMgr);
+
+		App.initLocationUpdateTimer(this);
 
 		mTitle = mDrawerTitle = getTitle();
 		mDrawerMenuTitles = getResources().getStringArray(R.array.drawer_menu_title_array);
