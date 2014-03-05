@@ -22,12 +22,12 @@
           android:showAsAction="ifRoom|withText" />
     -->
     <item android:id="@+id/action_refreshvbslist"
-          android:icon="@drawable/refresh"
+          android:icon="@drawable/ic_action_refresh"
           android:title="@string/action_refreshvbslist"
           android:showAsAction="ifRoom|withText" />
 
     <item android:id="@+id/action_addvehicle"
-          android:icon="@drawable/add"
+          android:icon="@drawable/ic_action_new"
           android:title="@string/action_addvehicle"
           android:showAsAction="ifRoom|withText" />
 </menu>
