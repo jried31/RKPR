@@ -58,7 +58,9 @@ public class LocationMgr  implements
 	}
 
 	public void connect() {
-		locationClient.connect();
+		if (servicesConnected()) {
+            locationClient.connect();
+		}
 	}
 	
 	public void disconnect() {
@@ -67,9 +69,12 @@ public class LocationMgr  implements
 
     public Location getLastGoodLocation() {
         // If Google Play Services is available
-        if (servicesConnected()) {
+        if (locationClient.isConnected()) {
             // Get the current location
+        	Log.d(LocationUtils.LOCATION_UPDATE, sMainActivity.getString(R.string.get_last_location));
             location = locationClient.getLastLocation();
+        } else {
+        	Log.d(LocationUtils.LOCATION_UPDATE, sMainActivity.getString(R.string.location_client_disconnected));
         }
         
         return location;
@@ -147,6 +152,7 @@ public class LocationMgr  implements
      */
     public void startPeriodicUpdates() {
     	if (locationClient.isConnected()) {
+    		Log.d(LocationUtils.LOCATION_UPDATE, sMainActivity.getString(R.string.start_periodic_updates));
             locationClient.requestLocationUpdates(sLocationRequest, this);
     	}
     }
@@ -157,6 +163,7 @@ public class LocationMgr  implements
      */
     public void stopPeriodicUpdates() {
     	if (locationClient.isConnected()) {
+    		Log.d(LocationUtils.LOCATION_UPDATE, sMainActivity.getString(R.string.stop_periodic_updates));
             locationClient.removeLocationUpdates(this);
     	}
     }
@@ -231,7 +238,7 @@ public class LocationMgr  implements
         // If Google Play services is available
         if (ConnectionResult.SUCCESS == resultCode) {
             // In debug mode, log the status
-            Log.d(LocationUtils.APPTAG, sMainActivity.getString(R.string.play_services_available));
+            Log.d(LocationUtils.GOOGLE_SERVICE, sMainActivity.getString(R.string.play_services_available));
 
             // Continue
             return true;
@@ -242,7 +249,7 @@ public class LocationMgr  implements
             if (dialog != null) {
                 ErrorDialogFragment errorFragment = new ErrorDialogFragment();
                 errorFragment.setDialog(dialog);
-                errorFragment.show(sMainActivity.getFragmentManager(), LocationUtils.APPTAG);
+                errorFragment.show(sMainActivity.getFragmentManager(), LocationUtils.GOOGLE_SERVICE);
             }
             return false;
         }
@@ -271,7 +278,7 @@ public class LocationMgr  implements
             errorFragment.setDialog(errorDialog);
 
             // Show the error dialog in the DialogFragment
-            errorFragment.show(sMainActivity.getFragmentManager(), LocationUtils.APPTAG);
+            errorFragment.show(sMainActivity.getFragmentManager(), LocationUtils.GOOGLE_SERVICE);
         }
     }
 

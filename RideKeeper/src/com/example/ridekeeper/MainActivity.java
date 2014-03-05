@@ -123,6 +123,11 @@ public class MainActivity extends Activity implements LocationListener {
 	@Override
 	protected void onStop() {
 		super.onStop();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 
 		mLocationMgr.stopPeriodicUpdates();
 		mLocationMgr.disconnect();
@@ -349,11 +354,7 @@ public class MainActivity extends Activity implements LocationListener {
 
 	@Override
 	protected void onPause() {
-		//stop updating phone's location
-		mLocationMgr.stopPeriodicUpdates();
-
 		App.isMainActivityRunning = false;
-
 		super.onPause();
 	}
 
@@ -396,20 +397,20 @@ public class MainActivity extends Activity implements LocationListener {
                     case Activity.RESULT_OK:
 
                         // Log the result
-                        Log.d(LocationUtils.APPTAG, getString(R.string.resolved));
+                        Log.d(LocationUtils.GOOGLE_SERVICE, getString(R.string.resolved));
                     break;
 
                     // If any other result was returned by Google Play services
                     default:
                         // Log the result
-                        Log.d(LocationUtils.APPTAG, getString(R.string.no_resolution));
+                        Log.d(LocationUtils.GOOGLE_SERVICE, getString(R.string.no_resolution));
                     break;
                 }
 
             // If any other request code was received
             default:
                // Report that this Activity received an unknown requestCode
-               Log.d(LocationUtils.APPTAG,
+               Log.d(LocationUtils.GOOGLE_SERVICE,
                        getString(R.string.unknown_activity_request_code, requestCode));
 
                break;

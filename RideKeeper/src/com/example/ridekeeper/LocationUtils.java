@@ -25,7 +25,8 @@ import android.location.Location;
 public final class LocationUtils {
 
     // Debugging tag for the application
-    public static final String APPTAG = "LocationSample";
+    public static final String GOOGLE_SERVICE = "GooglePlayServices";
+    public static final String LOCATION_UPDATE = "LocationUpdate";
 
     // Name of shared preferences repository that stores persistent state
     public static final String SHARED_PREFERENCES =
@@ -63,7 +64,7 @@ public final class LocationUtils {
     public static final long FAST_INTERVAL_CEILING_IN_MILLISECONDS =
             MILLISECONDS_PER_SECOND * FAST_CEILING_IN_SECONDS;
 
-	public static final int LOCATION_UPDATE_RATE = MILLISECONDS_PER_SECOND * SECONDS_PER_MIN * 1; //wake up phone and run some tasks every X ms
+	public static final int LOCATION_UPDATE_RATE = MILLISECONDS_PER_SECOND * SECONDS_PER_MIN / 2; //wake up phone and run some tasks every X ms
 
     // Create an empty string for initializing strings
     public static final String EMPTY_STRING = new String();
