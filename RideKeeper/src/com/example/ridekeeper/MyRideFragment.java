@@ -202,9 +202,10 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
             myLocation = mLocationClient.getLastLocation();
             if (myLocation == null) {
             	Log.d("MyRideFragment.onConnected()", "LocationClient.getLastLocation() == null");
+            } else {
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
+                mRideMap.animateCamera(cameraUpdate);
             }
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
-            mRideMap.animateCamera(cameraUpdate);
         }
     }
 
