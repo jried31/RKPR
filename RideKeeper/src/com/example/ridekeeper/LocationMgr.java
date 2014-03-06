@@ -71,8 +71,10 @@ public class LocationMgr  implements
         // If Google Play Services is available
         if (locationClient.isConnected()) {
             // Get the current location
-        	Log.d(LocationUtils.LOCATION_UPDATE, sMainActivity.getString(R.string.get_last_location));
             location = locationClient.getLastLocation();
+            String debugStr = sMainActivity.getString(R.string.get_last_location) + 
+            		" - lat/lng: " + location.getLatitude() + "/" + location.getLongitude();
+        	Log.d(LocationUtils.LOCATION_UPDATE, debugStr);
         } else {
         	Log.d(LocationUtils.LOCATION_UPDATE, sMainActivity.getString(R.string.location_client_disconnected));
         }
@@ -145,6 +147,7 @@ public class LocationMgr  implements
      */
     @Override
     public void onLocationChanged(Location location) {
+    	this.location = location;
     }
 
     /**
@@ -175,6 +178,7 @@ public class LocationMgr  implements
      */
     @Override
     public void onConnected(Bundle bundle) {
+    	Log.d("LocationMgr.onConnected()", "LocationClient connected");
         startPeriodicUpdates();
     }
 
@@ -184,6 +188,7 @@ public class LocationMgr  implements
      */
     @Override
     public void onDisconnected() {
+    	Log.d("LocationMgr.onDisconnected()", "LocationClient disconnected");
     }
 
     /*

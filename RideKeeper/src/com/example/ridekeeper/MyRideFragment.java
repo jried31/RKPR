@@ -1,5 +1,6 @@
 package com.example.ridekeeper;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.IntentSender;
@@ -41,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+@SuppressLint("ValidFragment")
 public class MyRideFragment extends Fragment implements GooglePlayServicesClient.ConnectionCallbacks,GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
     private GoogleMap mRideMap;
     private MapView mRideMapView;
@@ -59,7 +61,7 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
     private LocationClient mLocationClient;
     private LocationRequest mLocationRequest;
 
-    public MyRideFragment(Ride ride) {
+	public MyRideFragment(Ride ride) {
         super();
         this.ride = ride;
         if (ride != null) {
@@ -198,6 +200,9 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
     public void onConnected(Bundle bundle) {
         if (!savedRide) {
             myLocation = mLocationClient.getLastLocation();
+            if (myLocation == null) {
+            	Log.d("MyRideFragment.onConnected()", "LocationClient.getLastLocation() == null");
+            }
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
             mRideMap.animateCamera(cameraUpdate);
         }

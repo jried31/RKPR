@@ -5,7 +5,8 @@ import android.content.SharedPreferences;
 
 import com.quickblox.core.QBCallback;
 import com.quickblox.core.result.Result;
-import com.quickblox.module.chat.QBChat;
+import com.quickblox.module.chat.utils.QBChatUtils;
+//import com.quickblox.module.chat.QBChat;
 import com.quickblox.module.users.QBUsers;
 import com.quickblox.module.users.model.QBUser;
 
@@ -15,7 +16,7 @@ public class MyQBUser {
 	
 	//Password for all QBUser accounts
 	public static final String DUMMY_PASSWORD = "abcde123";
-	//public static boolean sessionCreated = false;
+	public static boolean sessionCreated = false;
 	
 	public static void signUpSignin(String username, String password){
 		user = new QBUser(username, password);
@@ -64,7 +65,8 @@ public class MyQBUser {
 	//Get the JabberId of the user for login to chat room
 	public static String getUserJabberID(){
 		if (user != null){
-			return QBChat.getChatLoginShort(user);	
+			//return QBChat.getChatLoginShort(user);	
+			return QBChatUtils.getChatLoginShort(user);	
 		}else{
 			return null;
 		}

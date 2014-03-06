@@ -12,7 +12,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.quickblox.module.chat.QBChat;
+import com.quickblox.module.chat.utils.QBChatUtils;
+//import com.quickblox.module.chat.QBChat;
 
 //Used as a callback after making connection to chat server
 interface AfterConnectCallback{
@@ -45,7 +46,8 @@ public class MultiUserChatController {
 		@Override
 		protected Object doInBackground(AfterConnectCallback... params) {
 			callback = params[0];
-			ConnectionConfiguration config = new ConnectionConfiguration(QBChat.getChatServerDomain()); //***Must run in a thread***
+			//ConnectionConfiguration config = new ConnectionConfiguration(QBChat.getChatServerDomain()); //***Must run in a thread***
+			ConnectionConfiguration config = new ConnectionConfiguration(QBChatUtils.getChatServerDomain()); //***Must run in a thread***
 			connection = new XMPPConnection(config);
 			Connection.DEBUG_ENABLED = true;
 			
