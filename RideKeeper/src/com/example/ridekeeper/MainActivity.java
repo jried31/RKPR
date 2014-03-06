@@ -18,7 +18,7 @@ package com.example.ridekeeper;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
+import android.app.AlertDialog.Builder;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -29,6 +29,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -118,7 +119,7 @@ public class MainActivity extends Activity implements LocationListener {
 			}
 		}
 
-	    enableGpsIfPossible();
+		enableLocationProviders();
 	}
 
 	@Override
@@ -140,85 +141,94 @@ public class MainActivity extends Activity implements LocationListener {
 
 	    // The activity is either being restarted or started for the first time
 	    // so this is where we should make sure that GPS is enabled
-		mLocationMgr.connect();
+		if (!mLocationMgr.isConnected()) {
+            mLocationMgr.connect();
+		}
 	}
 
     /** source: http://developmentality.wordpress.com/2009/10/31/android-dialog-box-tutorial/
      * https://stackoverflow.com/questions/12044552/android-activate-gps-with-alertdialog-how-to-wait-for-the-user-to-take-action
-     */
-    //returns true if the GpsProviderIsDisabled
-	//false otherwise
-	private boolean enableGpsIfPossible()
-	{   
-	    final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-        if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
-	    	Toast.makeText(this, "GPS not enabled.", Toast.LENGTH_LONG).show();
-            buildAlertMessageNoGps();
-            return true;
+	 * source: https://stackoverflow.com/questions/10311834/android-dev-how-to-check-if-location-services-are-enabled
+	 * @return
+	 */
+	private void enableLocationProviders() {
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+
+        LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex){
         }
 
-        Toast.makeText(this, "GPS enabled.", Toast.LENGTH_LONG).show();
-        return false;
-	}
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception ex){
+	    	Toast.makeText(this, "NETWORK_PROVIDER exception", Toast.LENGTH_SHORT).show();
+        }
 
+        //if(!gps_enabled && !network_enabled){
+        if(!gps_enabled && !network_enabled) {
+        	buildAlertMessageNoLocationAccess();
+        } else if (!gps_enabled) {
+            buildAlertMessageNoGps();
+	    	Toast.makeText(this, "GPS not enabled.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "GPS enabled.", Toast.LENGTH_SHORT).show();
+        }
+	}
 
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
+        final Activity mainActivity = this;
         builder.setMessage("Yout GPS seems to be disabled, do you want to enable it?")
                 .setCancelable(false)
-                .setPositiveButton("Yes", new CommandWrapper(new EnableGpsCommand(this))
-                )
-                .setNegativeButton("No", new CommandWrapper(new CancelCommand(this))); 
-
-        final AlertDialog dialog = builder.create();
-        dialog.show();
-
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						
+                        Intent gpsOptionsIntent = new Intent(  
+                                android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);  
+                            mainActivity.startActivity(gpsOptionsIntent);
+                                }
+				});
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				
+			}
+		});
+        builder.show();
     }
     
-    public interface Command {
-        public void execute();
-     
-        public static final Command NO_OP = new Command() { public void execute() {} };
+    private void buildAlertMessageNoLocationAccess() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
+        dialog.setCancelable(false);
+
+        final Activity mainActivity = this;
+        dialog.setPositiveButton(this.getResources().getString(R.string.open_location_settings), new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS );
+                mainActivity.startActivity(myIntent);
+            }
+        });
+        dialog.setNegativeButton(this.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+
+            }
+        });
+        dialog.show();
     }
-
-    public static class CommandWrapper implements DialogInterface.OnClickListener {
-    	  private Command command;
-    	  public CommandWrapper(Command command) {
-    	    this.command = command;
-    	  }
-    	 
-    	  @Override
-    	  public void onClick(DialogInterface dialog, int which) {
-    	    dialog.dismiss();
-    	    command.execute();
-    	  }
-    }
-    public static class CancelCommand implements Command {
-        protected Activity mActivity;
-
-        public CancelCommand(Activity activity) {
-            mActivity = activity;
-        }
-
-        public void execute() {
-            //start asyncronous operation here
-        }
-    }
-
-    public class EnableGpsCommand extends CancelCommand {
-        public EnableGpsCommand(Activity activity) {
-            super(activity);
-        }
-
-        public void execute() {
-                        //take the user to the phone gps settings and then start the asyncronous logic.
-	    	Intent gpsOptionsIntent = new Intent(  
-	    		    android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);  
-                mActivity.startActivity(gpsOptionsIntent);
-                super.execute();
-        }
-    }
+    
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

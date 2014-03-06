@@ -100,5 +100,10 @@
     <string name="stop_periodic_updates">Stopping periodic location updates.</string>
     <string name="get_last_location">LocationClient connected, getLastLocation()</string>
     <string name="location_client_disconnected">LocationClient is disconnected, using old location.</string>
+    <string name="gps_network_not_enabled">Ridekeeper needs to access your location to work properly. Please allow access to your location.</string>
+    <string name="open_location_settings">Turn on location access</string>
+    <string name="cancel">Cancel</string>
+
+
 
 </resources>

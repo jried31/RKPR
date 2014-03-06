@@ -57,6 +57,10 @@ public class LocationMgr  implements
         
 	}
 
+	public boolean isConnected() {
+		return locationClient.isConnected();
+	}
+
 	public void connect() {
 		if (servicesConnected()) {
             locationClient.connect();
@@ -72,9 +76,13 @@ public class LocationMgr  implements
         if (locationClient.isConnected()) {
             // Get the current location
             location = locationClient.getLastLocation();
-            String debugStr = sMainActivity.getString(R.string.get_last_location) + 
-            		" - lat/lng: " + location.getLatitude() + "/" + location.getLongitude();
-        	Log.d(LocationUtils.LOCATION_UPDATE, debugStr);
+            if (location == null) {
+            	Log.d("LocationMgr.getLastGoodLocation()", "location from LocationClient is null");
+            } else {
+                String debugStr = sMainActivity.getString(R.string.get_last_location) + 
+                        " - lat/lng: " + location.getLatitude() + "/" + location.getLongitude();
+                Log.d(LocationUtils.LOCATION_UPDATE, debugStr);
+            }
         } else {
         	Log.d(LocationUtils.LOCATION_UPDATE, sMainActivity.getString(R.string.location_client_disconnected));
         }
