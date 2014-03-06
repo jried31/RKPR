@@ -1,20 +1,26 @@
-var restify 	= require('restify');
-var request 	= require('request');
-var cloud 		= require('./cloud.js');
+(function() {
 
-var server = restify.createServer();
-server.use(restify.bodyParser({ mapParams: false }));
+    "use strict";
 
-server.post('/update', cloud.processTrackerAlert);
+    var restify = require('restify'),
+        request = require('request'),
+        cloud = require('./cloud.js'),
+        server = restify.createServer();
 
-server.listen(8888, function() {
-	console.log('%s listening at %s', server.name, server.url);
-});
+    server.use(restify.bodyParser({ mapParams: false }));
 
-/**
- * A 'cronjob' to run the notify task. Yeah,
- * it leaks memory.
- */
+    server.post('/update', cloud.processTrackerAlert);
 
- var minutes = 1, interval = minutes * 1000 * 60;
- setInterval(cloud.notifyNearbyUsers, interval/4);
+    server.listen(8888, function() {
+        console.log('%s listening at %s', server.name, server.url);
+    });
+
+    /**
+    * A 'cronjob' to run the notify task. Yeah,
+    * it leaks memory.
+    */
+
+    var minutes = 1, interval = minutes * 1000 * 60;
+    setInterval(cloud.notifyNearbyUsers, interval/4);
+
+})();
