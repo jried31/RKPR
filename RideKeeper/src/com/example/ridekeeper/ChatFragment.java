@@ -48,23 +48,9 @@ import com.parse.SaveCallback;
 //Need this for enlarging photo
 
 public class ChatFragment extends DialogFragment {
-	// For UI
-	private ImageView uploadPhotoBtn;
-	private EditText messageField;
-	private Button sendMessageBtn;
-	private ScrollView scrollContainer;
-	private LinearLayout msgContainer;
-	
-	private static final LayoutParams IMAGE_SMALL_VIEW_LAYOUT = new LayoutParams(170, 170); //set gravity to center in OnCreateView
-	
-	private String title;
-	// For chat room 
-	private String roomname;
-	private String vehicleId; //vehicle onCreateView(Layocle's objectId in Parse
-	private MultiUserChatController mucController;
-	
-	private static final String SPECIAL_STRING_PREFIX = "&&$*(";//Prefix denotes that an image is part of message
-	
+    // set gravity to center in OnCreateView
+	private static final LayoutParams IMAGE_SMALL_VIEW_LAYOUT = new LayoutParams(170, 170);
+
 	// For taking picture:
 	public static final int ID_PHOTO_PICKER_FROM_CAMERA = 0;
 	public static final int ID_PHOTO_PICKER_FROM_GALLERY = 1;
@@ -72,7 +58,28 @@ public class ChatFragment extends DialogFragment {
 	public static final int REQUEST_CODE_CROP_PHOTO = 101;
 	public static final int REQUEST_CODE_SELECT_FROM_GALLERY = 102;
 
+	public static final String ARG_ROOM_NAME = "roomName";
+	public static final String ARG_VEHICLE_ID = "vehicleId";
+	public static final String ARG_TITLE = "title";
+
 	private static final String IMAGE_UNSPECIFIED = "image/*";
+	
+	// For UI
+	private ImageView uploadPhotoBtn;
+	private EditText messageField;
+	private Button sendMessageBtn;
+	private ScrollView scrollContainer;
+	private LinearLayout msgContainer;
+	
+	// For chat room 
+	private String title;
+	private String roomname;
+	private String vehicleId; //vehicle onCreateView(Vehicle's objectId in Parse)
+	private MultiUserChatController mucController;
+
+	//Prefix denotes that an image is part of message
+	private static final String SPECIAL_STRING_PREFIX = "&&$*(";
+	
 	private Uri mImageCaptureUri;
 	private boolean isTakenFromCamera;
 	// End for taking picture
@@ -84,10 +91,10 @@ public class ChatFragment extends DialogFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		roomname = getArguments().getString("roomname");
-		vehicleId = getArguments().getString("UID");
+		roomname = getArguments().getString(ARG_ROOM_NAME);
+		vehicleId = getArguments().getString(ARG_VEHICLE_ID);
 		
-		title = getArguments().getString("title");
+		title = getArguments().getString(ARG_TITLE);
 		
 		setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_DeviceDefault_Light);
 	}

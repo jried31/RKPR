@@ -41,5 +41,8 @@ package com.example.ridekeeper;
 	public static final String PARSE_CHATROOMPHOTO_TBL = "ChatRoomPhoto";
 	public static final String PARSE_INSTL_OWERID = "ownerId";
 	
+	public static final String PARSE_VEHICLE_TBL_KEY_OWNER_ID = "ownerId";
+	public static final String PARSE_VEHICLE_TBL_KEY_VEHICLE_ID = "objectId";
+	
 	
 }

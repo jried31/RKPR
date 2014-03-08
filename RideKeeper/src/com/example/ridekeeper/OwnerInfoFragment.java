@@ -1,18 +1,29 @@
 package com.example.ridekeeper;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 public class OwnerInfoFragment extends DialogFragment {
-	private String profileId = null;	//VBS UID to be tracked, null for all VBS
+	private static final String TAG = OwnerInfoFragment.class.getSimpleName();
+
+	// VBS VEHICLE ID to be tracked, null for all VBS
+	private static String mVehicleId = null;
+	private static String mOwnerId = null;
+
 	private static final String TITLE = "Owner Information";
 	private TextView name, email, phone;
 	public static final String EMAIL="email";
@@ -21,6 +32,21 @@ public class OwnerInfoFragment extends DialogFragment {
 	
 	//private SharedPreferences sharedPreferences;
 	
+	private static FindCallback<ParseObject> queryVehicleOwnerCallback = new FindCallback<ParseObject>() {
+		@Override
+		public void done(List<ParseObject> objects, ParseException e) {
+			if (e== null){ // no error
+
+				Log.d(TAG, "Found " + objects.size() + " matching ownerIds for vid: " + mVehicleId);
+
+				if (objects.size() > 0) {
+                    mOwnerId = objects.get(0).toString();
+				}
+			}else{ //error occurred when query to Parse
+				Log.d(TAG, "Error: " + e.getMessage());
+			}
+		}
+	};
 	public static void reloadFragment(Activity activity){
 		activity.getFragmentManager().beginTransaction().replace(R.id.content_frame, new OwnerInfoFragment()).commit();
 	}
@@ -29,36 +55,50 @@ public class OwnerInfoFragment extends DialogFragment {
 	public View onCreateView(LayoutInflater inflater, 
 			ViewGroup container, Bundle savedInstanceState) {
 		
+        View view =  inflater.inflate(R.layout.fragment_owner_info_public, container, false);
+
     	//Load  UID argument for tracking
-    	if (getArguments()!=null && getArguments().containsKey("UID")){
-        	profileId = getArguments().getString("UID");
+    	if (getArguments() != null && getArguments().containsKey(ChatFragment.ARG_VEHICLE_ID)){
+        	mVehicleId = getArguments().getString(ChatFragment.ARG_VEHICLE_ID);
+        	Log.d(TAG, "vehicleId: " + mVehicleId);
+
         	ParseUser puser;
+
 			try {
-				puser = ParseUser.getQuery().get(profileId);
+				mOwnerId = ParseFunctions.queryForVehicleOwner(mVehicleId);
+				puser = ParseUser.getQuery().get(mOwnerId);
+                Log.d(TAG, "ownerId: " + mOwnerId);
+
+                name = (TextView) view.findViewById(R.id.user_profile_name);
+                email = (TextView) view.findViewById(R.id.user_profile_email);
+                phone = (TextView) view.findViewById(R.id.user_profile_phone);
 
 	    		name.setText(puser.getString(USERNAME));
 	    		email.setText(puser.getEmail());
 	    		phone.setText(puser.getString(PHONE));
+
+                getDialog().setTitle(TITLE);
+
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
     	}
-    	
-		View view;
 		
-		if (ParseUser.getCurrentUser() != null &&
-				ParseUser.getCurrentUser().isAuthenticated() ){ // User was authenticated
-			
-			view =  inflater.inflate(R.layout.fragment_owner_info_public, container, false);
+    	// TODO: what is this code for?
+		//if (ParseUser.getCurrentUser() != null &&
+		//		ParseUser.getCurrentUser().isAuthenticated() ){ // User was authenticated
+		//	
+		//	getDialog().setTitle(TITLE);
+		//	
+		//	// Stanley: why is this being called here? It loads in the info about the
+		//	// current user rather than the owner of the vehicle
+		//	//loadProfile(view);
 
-			getDialog().setTitle(TITLE);
-			
-			loadProfile(view);
-		}else{ // Need sign in/up
-			DialogFragmentMgr.showDialogFragment(getActivity(), new WelcomeFragment(), "Map Dialog", false, null);
-			view = inflater.inflate(R.layout.fragment_blank, container, false);
-		}
+		//} else { // Need sign in/up
+		//	DialogFragmentMgr.showDialogFragment(getActivity(), new WelcomeFragment(), "Map Dialog", false, null);
+		//	view = inflater.inflate(R.layout.fragment_blank, container, false);
+		//}
 		
 		return view;
 	}	
