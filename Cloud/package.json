@@ -5,12 +5,17 @@
     "restify": "~2.6.1",
     "request": "~2.33.0",
     "kaiseki": "~0.5.3",
-    "node-xmpp": "~0.15.0"
+    "node-xmpp": "~0.15.0",
+    "underscore": "~1.6.0"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
     "load-grunt-tasks": "~0.4.0",
     "grunt-contrib-jshint": "~0.8.0",
-    "grunt-jsonlint": "~1.0.4"
+    "grunt-jsonlint": "~1.0.4",
+    "jsdoc": "~3.3.0-alpha4"
+  },
+  "scripts": {
+    "doc": "./node_modules/.bin/jsdoc cloud.js server.js -d ./jsdoc/"
   }
 }
