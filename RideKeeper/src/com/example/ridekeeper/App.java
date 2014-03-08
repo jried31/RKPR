@@ -17,25 +17,9 @@ import com.quickblox.module.auth.QBAuth;
 
 public class App extends Application{
 	public static boolean isMainActivityRunning = false;
-	//public static MyBroadcastReceiver bReceiver;
-	public static Handler locationTimerHandler = new Handler();
-	public static Runnable locationTimerRunnable;
-
     private static final String APP_ID = "5815";
     private static final String AUTH_KEY = "8htqAuedCPgyW2z";
     private static final String AUTH_SECRET = "6whwzbRPrYSSbmg";
-
-	public static void initLocationUpdateTimer(final Context context) {
-		locationTimerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                ParseFunctions.updateLocToParse(context); //Periodically update phone's location to Parse server
-                locationTimerHandler.postDelayed(this, LocationUtils.LOCATION_UPDATE_RATE);
-            }
-        };
-
-		locationTimerHandler.postDelayed(locationTimerRunnable, LocationUtils.LOCATION_UPDATE_RATE);
-	}
 
 	@Override public void onCreate() { 
         super.onCreate();
@@ -52,10 +36,9 @@ public class App extends Application{
     	
     	//bReceiver = new MyBroadcastReceiver(); //For receiving wake lock and do routine check
     	
-    	//Register with QuickBlox server
+    	// Register with QuickBlox server
     	MyQBUser.initContext(getApplicationContext());
         QBSettings.getInstance().fastConfigInit(APP_ID, AUTH_KEY, AUTH_SECRET);
-    	QBAuth.createSession(null);
     	
 		QBAuth.createSession(new QBCallback() {
 			@Override
@@ -67,7 +50,7 @@ public class App extends Application{
 		        }
 			}
 			@Override
-			public void onComplete(Result arg0, Object arg1) {
+			public void onComplete(Result result, Object object) {
 			}
 		});
     	

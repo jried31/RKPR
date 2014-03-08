@@ -18,7 +18,6 @@ package com.example.ridekeeper;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -26,9 +25,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
@@ -45,7 +44,10 @@ import android.widget.Toast;
 
 import com.parse.ParseUser;
 
-public class MainActivity extends Activity implements LocationListener {
+public class MainActivity extends Activity {
+	public static Handler locationTimerHandler = new Handler();
+	public static Runnable locationTimerRunnable;
+
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
@@ -71,7 +73,7 @@ public class MainActivity extends Activity implements LocationListener {
 		mLocationMgr = new LocationMgr(this);
 		ParseFunctions.init(mLocationMgr);
 
-		App.initLocationUpdateTimer(this);
+		initLocationUpdateTimer(this);
 
 		mTitle = mDrawerTitle = getTitle();
 		mDrawerMenuTitles = getResources().getStringArray(R.array.drawer_menu_title_array);
@@ -122,6 +124,20 @@ public class MainActivity extends Activity implements LocationListener {
 		enableLocationProviders();
 	}
 
+	public static void initLocationUpdateTimer(final Context context) {
+		locationTimerRunnable = new Runnable() {
+            @Override
+            public void run() {
+                //Periodically update phone's location to Parse server
+                ParseFunctions.updateLocToParse(context); 
+                locationTimerHandler.postDelayed(this, LocationUtils.LOCATION_UPDATE_RATE);
+            }
+        };
+
+		locationTimerHandler.postDelayed(locationTimerRunnable, LocationUtils.LOCATION_UPDATE_RATE);
+	}
+
+
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -133,6 +149,9 @@ public class MainActivity extends Activity implements LocationListener {
 
 		mLocationMgr.stopPeriodicUpdates();
 		mLocationMgr.disconnect();
+		
+		// Remove the runnable to stop updating location to Parse
+		locationTimerHandler.removeCallbacks(locationTimerRunnable);
 	}
 
 	@Override
@@ -367,24 +386,6 @@ public class MainActivity extends Activity implements LocationListener {
 	protected void onPause() {
 		App.isMainActivityRunning = false;
 		super.onPause();
-	}
-
-	@Override
-	public void onLocationChanged(Location location) {
-		//Toast.makeText(this, "Location updated!", Toast.LENGTH_SHORT).show();
-		mLocationMgr.location = location;
-	}
-
-	@Override
-	public void onProviderDisabled(String provider) {
-	}
-
-	@Override
-	public void onProviderEnabled(String provider) {
-	}
-
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
 	}
 
     /*

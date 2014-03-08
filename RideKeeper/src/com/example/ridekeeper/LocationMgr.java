@@ -1,14 +1,10 @@
 package com.example.ridekeeper;
 
-import java.util.Calendar;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.IntentSender;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -19,7 +15,7 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
-public class LocationMgr  implements 
+public class LocationMgr implements 
     LocationListener,
     GooglePlayServicesClient.ConnectionCallbacks,
     GooglePlayServicesClient.OnConnectionFailedListener {
@@ -28,8 +24,8 @@ public class LocationMgr  implements
 	public LocationClient locationClient;
 	public Location location;
 	
-	private LocationRequest sLocationRequest;
-	private Activity sMainActivity;
+	private LocationRequest mLocationRequest;
+	private Activity mMainActivity;
 	
 	//Used as a callback for updatetLocation_inBackground()
 	interface GetLocCallback{
@@ -38,22 +34,22 @@ public class LocationMgr  implements
 	
 	public LocationMgr(Activity mainActivity){
 
-		sMainActivity = mainActivity;
-        locationClient = new LocationClient(sMainActivity, this, this);
+		mMainActivity = mainActivity;
+        locationClient = new LocationClient(mMainActivity, this, this);
 
         // Create a new global location parameters object
-        sLocationRequest = LocationRequest.create();
+        mLocationRequest = LocationRequest.create();
 
         /*
          * Set the update interval
          */
-        sLocationRequest.setInterval(LocationUtils.UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setInterval(LocationUtils.UPDATE_INTERVAL_IN_MILLISECONDS);
 
         // Use high accuracy
-        sLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         // Set the interval ceiling to one minute
-        sLocationRequest.setFastestInterval(LocationUtils.FAST_INTERVAL_CEILING_IN_MILLISECONDS);
+        mLocationRequest.setFastestInterval(LocationUtils.FAST_INTERVAL_CEILING_IN_MILLISECONDS);
         
 	}
 
@@ -79,12 +75,12 @@ public class LocationMgr  implements
             if (location == null) {
             	Log.d("LocationMgr.getLastGoodLocation()", "location from LocationClient is null");
             } else {
-                String debugStr = sMainActivity.getString(R.string.get_last_location) + 
+                String debugStr = mMainActivity.getString(R.string.get_last_location) + 
                         " - lat/lng: " + location.getLatitude() + "/" + location.getLongitude();
                 Log.d(LocationUtils.LOCATION_UPDATE, debugStr);
             }
         } else {
-        	Log.d(LocationUtils.LOCATION_UPDATE, sMainActivity.getString(R.string.location_client_disconnected));
+        	Log.d(LocationUtils.LOCATION_UPDATE, mMainActivity.getString(R.string.location_client_disconnected));
         }
         
         return location;
@@ -163,8 +159,8 @@ public class LocationMgr  implements
      */
     public void startPeriodicUpdates() {
     	if (locationClient.isConnected()) {
-    		Log.d(LocationUtils.LOCATION_UPDATE, sMainActivity.getString(R.string.start_periodic_updates));
-            locationClient.requestLocationUpdates(sLocationRequest, this);
+    		Log.d(LocationUtils.LOCATION_UPDATE, mMainActivity.getString(R.string.start_periodic_updates));
+            locationClient.requestLocationUpdates(mLocationRequest, this);
     	}
     }
 
@@ -174,7 +170,7 @@ public class LocationMgr  implements
      */
     public void stopPeriodicUpdates() {
     	if (locationClient.isConnected()) {
-    		Log.d(LocationUtils.LOCATION_UPDATE, sMainActivity.getString(R.string.stop_periodic_updates));
+    		Log.d(LocationUtils.LOCATION_UPDATE, mMainActivity.getString(R.string.stop_periodic_updates));
             locationClient.removeLocationUpdates(this);
     	}
     }
@@ -217,7 +213,7 @@ public class LocationMgr  implements
 
                 // Start an Activity that tries to resolve the error
                 connectionResult.startResolutionForResult(
-                        sMainActivity,
+                        mMainActivity,
                         LocationUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST);
 
                 /*
@@ -246,23 +242,23 @@ public class LocationMgr  implements
 
         // Check that Google Play services is available
         int resultCode =
-                GooglePlayServicesUtil.isGooglePlayServicesAvailable(sMainActivity);
+                GooglePlayServicesUtil.isGooglePlayServicesAvailable(mMainActivity);
 
         // If Google Play services is available
         if (ConnectionResult.SUCCESS == resultCode) {
             // In debug mode, log the status
-            Log.d(LocationUtils.GOOGLE_SERVICE, sMainActivity.getString(R.string.play_services_available));
+            Log.d(LocationUtils.GOOGLE_SERVICE, mMainActivity.getString(R.string.play_services_available));
 
             // Continue
             return true;
         // Google Play services was not available for some reason
         } else {
             // Display an error dialog
-            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(resultCode, sMainActivity, 0);
+            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(resultCode, mMainActivity, 0);
             if (dialog != null) {
                 ErrorDialogFragment errorFragment = new ErrorDialogFragment();
                 errorFragment.setDialog(dialog);
-                errorFragment.show(sMainActivity.getFragmentManager(), LocationUtils.GOOGLE_SERVICE);
+                errorFragment.show(mMainActivity.getFragmentManager(), LocationUtils.GOOGLE_SERVICE);
             }
             return false;
         }
@@ -278,7 +274,7 @@ public class LocationMgr  implements
         // Get the error dialog from Google Play services
         Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
             errorCode,
-            sMainActivity,
+            mMainActivity,
             LocationUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST);
 
         // If Google Play services can provide an error dialog
@@ -291,7 +287,7 @@ public class LocationMgr  implements
             errorFragment.setDialog(errorDialog);
 
             // Show the error dialog in the DialogFragment
-            errorFragment.show(sMainActivity.getFragmentManager(), LocationUtils.GOOGLE_SERVICE);
+            errorFragment.show(mMainActivity.getFragmentManager(), LocationUtils.GOOGLE_SERVICE);
         }
     }
 
@@ -329,6 +325,4 @@ public class LocationMgr  implements
             return mDialog;
         }
     }
-
-	
 }
