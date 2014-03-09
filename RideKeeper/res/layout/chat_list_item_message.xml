@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:background="@drawable/incoming_message_bg"
+            android:background="@drawable/right_message_bg"
             android:paddingLeft="10dp"
             android:paddingBottom="10dp"
             android:orientation="vertical">

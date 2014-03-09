@@ -40,7 +40,7 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
     TextView statusView = (TextView) rowView.findViewById(R.id.vehicle_item_status);
     TextView yearView = (TextView) rowView.findViewById(R.id.vehicle_item_year);
     ParseImageView imageView = (ParseImageView) rowView.findViewById(R.id.vehicle_item_photo);
-    ImageView findBtn = (ImageView)rowView.findViewById(R.id.findVehicleBtn);
+    ImageView findVehicleBtn = (ImageView)rowView.findViewById(R.id.findVehicleBtn);
     
     //Assign values to widgets
     vehicle = parseVehicleLst.get(position);
@@ -50,17 +50,21 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
     statusView.setText(vehicle.getStatus()); 
 
 
-    findBtn.setTag(position);
-    findBtn.setOnClickListener(new View.OnClickListener() {
+    findVehicleBtn.setTag(position);
+    findVehicleBtn.setOnClickListener(new View.OnClickListener() {
 		@Override
 		public void onClick(View v) {
             int position = (Integer) v.getTag();
+
 	    	Bundle bundle = new Bundle();
-	    	bundle.putString("UID", vehicle.getObjectId());
-	    	if(displayType==DBGlobals.LIST_MY_VEHICLES)
+	    	bundle.putString(DBGlobals.ARG_VEHICLE_ID, vehicle.getObjectId());
+
+	    	if (displayType==DBGlobals.LIST_MY_VEHICLES) {
 	    		DialogFragmentMgr.showDialogFragment((Activity)getContext(), new GoogleMapFindVehicleFragment(), "Map Dialog", true, bundle);
-	    	else if(displayType == DBGlobals.LIST_STOLEN_VEHICLES)
+	    	}
+	    	else if (displayType == DBGlobals.LIST_STOLEN_VEHICLES) {
 	    		DialogFragmentMgr.showDialogFragment((Activity)getContext(), new GoogleMapFragment(), "Map Dialog", true, bundle);
+	    	}
 		}
 	});
 	

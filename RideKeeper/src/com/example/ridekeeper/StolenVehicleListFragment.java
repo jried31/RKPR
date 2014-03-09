@@ -4,9 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ListFragment;
+import android.app.ProgressDialog;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -30,11 +35,13 @@ import com.quickblox.module.chat.QBChatRoom;
 public class StolenVehicleListFragment extends ListFragment {
 	private static final String TAG = StolenVehicleListFragment.class.getSimpleName();
 
-	private static RoomsReceiver sRoomsReceiver = new RoomsReceiver();
+	private static RoomsReceiver sRoomsReceiver;
 
 	private static ParseVehicleArrayAdapter stolenVehicleArrayAdapter;
 	private static Activity sMainActivity;
 	
+	private ProgressDialog mProgressDialog;
+
 	private static FindCallback<ParseObject> queryVehicleInMyChatRoomCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
@@ -60,7 +67,6 @@ public class StolenVehicleListFragment extends ListFragment {
 		}
 	};
 
-	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -75,6 +81,9 @@ public class StolenVehicleListFragment extends ListFragment {
 		
 		registerForContextMenu(getListView());
 		
+		mProgressDialog = new ProgressDialog(sMainActivity);
+
+		sRoomsReceiver = new RoomsReceiver(sMainActivity);
 
 		/* FOR DEBUG
 		Bundle bundle = new Bundle();
@@ -90,6 +99,10 @@ public class StolenVehicleListFragment extends ListFragment {
 		if (ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated()){
 			refreshList();
 		}
+		
+		// Set the action bar title upon resume
+		// Use case: returning from chat room
+		((MainActivity)getActivity()).setDrawerTitle(MainActivity.SelectedFrag.STOLENVEHICLE);
 	}
 
 	
@@ -113,7 +126,7 @@ public class StolenVehicleListFragment extends ListFragment {
 	    switch (item.getItemId()) {
 	    case R.id.menuItem_owner_info:
 	    	// Displaying the owner's profile for the stolen vehicle
-            bundle.putString(ChatFragment.ARG_VEHICLE_ID, vehicleId);
+            bundle.putString(DBGlobals.ARG_VEHICLE_ID, vehicleId);
 
 	    	DialogFragmentMgr.showDialogFragment(
 	    			getActivity(), 
@@ -126,7 +139,7 @@ public class StolenVehicleListFragment extends ListFragment {
 
 	    case R.id.menuItem_show_on_map:
 	    	// Putting the UID of the select vehicle to the Google Map fragment argument
-            bundle.putString(ChatFragment.ARG_VEHICLE_ID, vehicleId);
+            bundle.putString(DBGlobals.ARG_VEHICLE_ID, vehicleId);
 
 	    	DialogFragmentMgr.showDialogFragment(
 	    			getActivity(), 
@@ -146,29 +159,59 @@ public class StolenVehicleListFragment extends ListFragment {
 	    					vehicle.getModel() + " " +
 	    					vehicle.getYear().toString();
 
-	    	String chatRoomName = vehicle.getChatRoomName();
-            bundle = createChatBundle(
+	    	final String chatRoomName = vehicle.getChatRoomName();
+            final Bundle chatBundle = createChatBundle(
             		vehicle.getObjectId(), 
             		roomTitle, 
             		chatRoomName,
             		false);
 
             Log.d(TAG, "Chat room name: " + chatRoomName);
-            QBChatRoom chatRoom = sRoomsReceiver.getChatRoom(chatRoomName);
 
-            MyQBUser.setCurrentRoom(chatRoom);
+            if (sRoomsReceiver.isRoomsRetrieved()) {
+            	startChatFragment(chatBundle, chatRoomName);
+            } else {
+            	sRoomsReceiver.showProgressDialog();
+            	final Handler chatHandler = new Handler();
 
+            	Runnable chatRunnable = new Runnable() {
+            		@Override
+            		public void run() {
+            			if (sRoomsReceiver.isRoomsRetrieved()) {
+                            startChatFragment(chatBundle, chatRoomName);
+            			} else {
+            				sRoomsReceiver.loadRooms(null);
+            				chatHandler.postDelayed(this, DBGlobals.LOAD_CHATROOM_DELAY);
+            			}
+            		}
+            	};
+            	
+            	chatHandler.postDelayed(chatRunnable, DBGlobals.LOAD_CHATROOM_DELAY);
+            }
 
-	    	DialogFragmentMgr.showDialogFragment(
-	    			sMainActivity, 
-	    			new ChatFragment(), 
-	    			"Chat Dialog", 
-	    			true, 
-	    			bundle);
+	    	//DialogFragmentMgr.showDialogFragment(
+	    	//		sMainActivity, 
+	    	//		new ChatFragment(), 
+	    	//		"Chat Dialog", 
+	    	//		true, 
+	    	//		bundle);
 
 	        return true;
 	    }
 	    return false;
+	}
+	
+	private void startChatFragment(Bundle bundle, String chatRoomName) {
+        QBChatRoom chatRoom = sRoomsReceiver.getChatRoom(chatRoomName);
+
+        MyQBUser.setCurrentRoom(chatRoom);
+
+        Fragment chatFragment = new ChatFragment();
+        chatFragment.setArguments(bundle);
+
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.addToBackStack(null);
+        ft.replace(R.id.content_frame, chatFragment).commit();
 	}
 
     private Bundle createChatBundle(
@@ -180,7 +223,7 @@ public class StolenVehicleListFragment extends ListFragment {
         Bundle bundle = new Bundle();
         bundle.putSerializable(ChatFragment.EXTRA_MODE, ChatFragment.Mode.GROUP);
 
-        bundle.putString(ChatFragment.ARG_VEHICLE_ID, vehicleId);
+        bundle.putString(DBGlobals.ARG_VEHICLE_ID, vehicleId);
         bundle.putString(ChatFragment.ARG_TITLE, title);
 
         bundle.putString(ChatFragment.ARG_ROOM_NAME, roomName);

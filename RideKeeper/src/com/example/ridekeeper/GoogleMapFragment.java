@@ -73,12 +73,12 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
     	mBundle = savedInstanceState;
     	
     	//Load  UID argument for tracking
-    	if (getArguments()!=null && getArguments().containsKey("UID")){
-        	UIDtoTrack = getArguments().getString("UID");
+    	if (getArguments() != null && getArguments().containsKey(DBGlobals.ARG_VEHICLE_ID)) {
+        	UIDtoTrack = getArguments().getString(DBGlobals.ARG_VEHICLE_ID);
 
             mLocationClient = new LocationClient(getActivity(), this, this);
             mLocationClient.connect();
-    	}else{
+    	} else {
     		Toast.makeText(getActivity(), "No vehicle UID provided to track.", Toast.LENGTH_SHORT).show();
     		UIDtoTrack = "";
     	}
@@ -227,19 +227,19 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
 			if (e== null){ // no error
 				if (objects.size() > 0){
 					ParseGeoPoint p =  objects.get(0).getParseGeoPoint("pos");
-					if(p==null){
+					if (p == null) {
 						info.setVisibility(View.VISIBLE);
 						info.setText(R.string.vehicle_not_found);
 				    	
 						//If vehicle location is not found wait 15 secs and try again
-					}else{
+					} else {
 						info.setVisibility(View.INVISIBLE);							
 						info.setText("");
 						//Get my location and the Vehicles from parse
 						myLocation = mLocationClient.getLastLocation();
-				 		if (myLocation != null){
+				 		if (myLocation != null) {
 				 			LatLng myLocLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude() );
-				 			 vehicleLocation = new LatLng(p.getLatitude(), p.getLongitude());
+				 			vehicleLocation = new LatLng(p.getLatitude(), p.getLongitude());
 				 			ParseVehicle vehicle = new ParseVehicle();
 				 			vehicle.setMake(objects.get(0).getString("make"));
 				 			vehicle.setModel(objects.get(0).getString("model"));

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +27,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,15 +41,16 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ridekeeper.MainActivity;
 import com.example.ridekeeper.ParseChatRoomPhoto;
 import com.example.ridekeeper.ParseFunctions;
 import com.example.ridekeeper.R;
+import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.account.MyQBUser;
 import com.example.ridekeeper.chat.ChatRoom.NullChatRoomException;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseImageView;
-import com.parse.ParseUser;
 import com.parse.SaveCallback;
 //import android.view.ViewGroup.LayoutParams;
 //Need this for enlarging photo
@@ -60,7 +59,6 @@ public class ChatFragment extends DialogFragment {
 	private static final String TAG = ChatFragment.class.getSimpleName();
 
 	public static final String ARG_ROOM_NAME = "roomName";
-	public static final String ARG_VEHICLE_ID = "vehicleId";
 	public static final String ARG_TITLE = "title";
 	public static final String ARG_ROOM_ACTION = "action";
 
@@ -112,10 +110,12 @@ public class ChatFragment extends DialogFragment {
 		
 		Bundle args = getArguments();
 		mRoomName = args.getString(ChatFragment.ARG_ROOM_NAME);
-		mVehicleId = args.getString(ChatFragment.ARG_VEHICLE_ID);
+		mVehicleId = args.getString(DBGlobals.ARG_VEHICLE_ID);
 		mTitle = args.getString(ChatFragment.ARG_TITLE);
         mMode = (Mode) args.getSerializable(EXTRA_MODE);
 		
+        ((MainActivity)getActivity()).setTitle(mTitle);
+
 		//setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_DeviceDefault_Light);
 	}
 	
@@ -124,7 +124,7 @@ public class ChatFragment extends DialogFragment {
 		//super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.chat_fragment, container, false);
 		
-		getDialog().setTitle(mTitle);
+		//getDialog().setTitle(mTitle);
 
         mMessagesContainer = (ListView) view.findViewById(R.id.messagesContainer);
         mMessageEditText = (EditText) view.findViewById(R.id.messageEdit);
@@ -224,7 +224,9 @@ public class ChatFragment extends DialogFragment {
 	@Override
 	public void onDestroy() {
         try {
-            mChat.release();
+        	if (mChat != null) {
+                mChat.release();
+        	}
         } catch (XMPPException e) {
             Log.e(TAG, "failed to release chat", e);
         }

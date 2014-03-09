@@ -71,7 +71,7 @@ public class MainActivity extends Activity {
 
 	private SmackAndroid mSmackAndroid;
 
-	private enum SelectedFrag{
+	public static enum SelectedFrag {
 		STOLENVEHICLE, MYPROFILE, MYVEHICLES, SETTINGS, MYRIDE
 	}
 	private SelectedFrag selectedFrag;
@@ -174,6 +174,10 @@ public class MainActivity extends Activity {
 			public void onComplete(Result result, Object object) {
 			}
 		});
+	}
+	
+	public void setDrawerTitle(SelectedFrag frag) {
+		 setTitle(mDrawerMenuTitles[frag.ordinal()]);
 	}
 
 	public static void initLocationUpdateTimer(final Context context) {
@@ -387,6 +391,8 @@ public class MainActivity extends Activity {
             break;
 		default:
 			fragment = new MyProfileFragment();
+			selectedFrag = SelectedFrag.MYPROFILE;
+			break;
 		}
 
 		FragmentManager fragmentManager = getFragmentManager();

@@ -59,8 +59,8 @@ public class OwnerInfoFragment extends DialogFragment {
         View view =  inflater.inflate(R.layout.fragment_owner_info_public, container, false);
 
     	//Load  UID argument for tracking
-    	if (getArguments() != null && getArguments().containsKey(ChatFragment.ARG_VEHICLE_ID)){
-        	mVehicleId = getArguments().getString(ChatFragment.ARG_VEHICLE_ID);
+    	if (getArguments() != null && getArguments().containsKey(DBGlobals.ARG_VEHICLE_ID)){
+        	mVehicleId = getArguments().getString(DBGlobals.ARG_VEHICLE_ID);
         	Log.d(TAG, "vehicleId: " + mVehicleId);
 
         	ParseUser puser;

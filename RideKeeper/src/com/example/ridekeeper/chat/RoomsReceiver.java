@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.os.Bundle;
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.util.Log;
 
 import com.example.ridekeeper.MainActivity;
@@ -26,12 +27,32 @@ public class RoomsReceiver implements RoomReceivingListener {
     private Map<String, QBChatRoom> mRooms;
     private Map<String, String> mVehiclesToRoomMap; 
 
-    public RoomsReceiver() {
+    private boolean mIsLoggedInChatService;
+    private ProgressDialog mProgressDialog;
+    private Activity mMainActivity;
+
+    public RoomsReceiver(Activity mainActivity) {
     	mRooms = new HashMap<String, QBChatRoom>();
+    	mIsLoggedInChatService = false;
+    	mMainActivity = mainActivity;
     }
+    
+    public boolean isRoomsRetrieved() {
+    	return mIsLoggedInChatService;
+    }
+
+	public void showProgressDialog() {
+		mProgressDialog = ProgressDialog.show(mMainActivity, null, "Loading chatrooms");
+	}
 
     @Override
     public void onReceiveRooms(List<QBChatRoom> chatRooms) {
+    	mIsLoggedInChatService = true;
+
+        if (mProgressDialog != null) {
+            mProgressDialog.dismiss();
+        }
+
     	for (QBChatRoom chatRoom : chatRooms) {
     		Log.d(TAG, "onReceiveRooms: " + chatRoom.getName());
 
@@ -49,8 +70,13 @@ public class RoomsReceiver implements RoomReceivingListener {
     }
 
     public void loadRooms(Map<String, String> vehiclesToRoomMap) {
-        QBChatService.getInstance().getRooms(this);
-        mVehiclesToRoomMap = vehiclesToRoomMap;
+    	if (QBChatService.getInstance().isLoggedIn()) {
+    		mIsLoggedInChatService = false;
+            QBChatService.getInstance().getRooms(this);
+    	}
+    	if (vehiclesToRoomMap != null) {
+            mVehiclesToRoomMap = vehiclesToRoomMap;
+    	}
     }
     
     public QBChatRoom getChatRoom(String roomName) {
