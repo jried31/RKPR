@@ -1,9 +1,13 @@
 /* jshint -W097 */
 "use strict";
 /**
+ * @overview Utility Methods
+ */
+
+/**
  * @function timestamp
- * @desc Return a timestamp with the format 'mm-dd-yyyy hh:MM:ss'
- * @return {String} - the generated timestamp
+ * @desc Returns a timestamp with the format 'mm-dd-yyyy hh:MM:ss'
+ * @return {String} the generated timestamp
  */
 function timestamp() {
 
@@ -35,6 +39,19 @@ function timestamp() {
     return month + '-' + date + '-' + year + ' ' + hour + ':' + min + ':' + sec;
 }
 
+/**
+ * @function diffTime
+ *
+ * @param {String} end - the ending timestamp
+ * @param {String} start - the starting timestamp
+ *
+ * @return {Number} the difference in milliseconds
+ */
+function diffTime(end, begin) {
+    return Date.parse(end) - Date.parse(begin);
+}
+
 module.exports = {
-    timestamp: timestamp
+    timestamp: timestamp,
+    diffTime: diffTime
 };
