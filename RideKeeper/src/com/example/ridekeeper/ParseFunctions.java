@@ -1,12 +1,14 @@
 package com.example.ridekeeper;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
+import com.example.ridekeeper.chat.RoomsReceiver;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -72,30 +74,40 @@ public class ParseFunctions {
         return null;
     }
     
-    public static void queryForVehicleInMyChatRoom_InBackground(double lat, double lng, double withInMiles, final FindCallback<ParseObject> callback){
+    public static void queryForVehicleInMyChatRoom_InBackground(
+    		double lat, 
+    		double lng, 
+    		double withInMiles, 
+    		final RoomsReceiver roomsReceiver,
+    		final FindCallback<ParseObject> callback) {
+
         ParseQuery<ParseObject> queryChatRoom = ParseQuery.getQuery(DBGlobals.PARSE_CHATROOM_TBL); //Query the Chatroom table
-        queryChatRoom.whereEqualTo("members", ParseUser.getCurrentUser().getObjectId());
+        queryChatRoom.whereEqualTo(DBGlobals.PARSE_CHAT_TBL_KEY_MEMBERS, ParseUser.getCurrentUser().getObjectId());
 
         queryChatRoom.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if (e==null && !objects.isEmpty()){
-                    ArrayList<String> VID = new ArrayList<String>();
+                    Map<String, String> vehicleToRoomMap = new HashMap<String, String>();
                     
-                    for (int i = 0; i < objects.size(); i++){
-                        VID.add(objects.get(i).getString("vehicleId"));
-                        Log.d("RIDEKEEPER", "VID: " + objects.get(i).getString("vehicleId"));
+                    for (ParseObject obj : objects){ 
+                    	String vehicleId = obj.getString(DBGlobals.PARSE_CHAT_TBL_KEY_VEHICLE_ID);
+                        vehicleToRoomMap.put(
+                        		vehicleId,
+                        		obj.getString(DBGlobals.PARSE_CHAT_TBL_KEY_ROOM_NAME));
+                        Log.d("RIDEKEEPER", "VID: " + vehicleId);
                     }
                     
+                    roomsReceiver.loadRooms(vehicleToRoomMap);
+                    
                     ParseQuery<ParseObject> queryVehicle = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL);
-                    queryVehicle.whereContainedIn("objectId", VID);
+                    queryVehicle.whereContainedIn(DBGlobals.PARSE_VEHICLE_TBL_KEY_VEHICLE_ID, vehicleToRoomMap.keySet());
                     
                     queryVehicle.findInBackground(callback);
                 }else{
                     callback.done(objects, e);
                 }
             }
-            
         });
     }
     

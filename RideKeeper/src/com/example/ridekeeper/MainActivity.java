@@ -42,9 +42,22 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.ridekeeper.account.MyQBUser;
 import com.parse.ParseUser;
+import com.quickblox.core.QBCallback;
+import com.quickblox.core.QBSettings;
+import com.quickblox.core.result.Result;
+import com.quickblox.module.auth.QBAuth;
+import com.quickblox.module.chat.smack.SmackAndroid;
 
 public class MainActivity extends Activity {
+	private static final String TAG = MainActivity.class.getSimpleName();
+
+    public static final String APP_ID = "5815";
+    private static final String AUTH_KEY = "8htqAuedCPgyW2z";
+    private static final String AUTH_SECRET = "6whwzbRPrYSSbmg";
+
+
 	public static Handler locationTimerHandler = new Handler();
 	public static Runnable locationTimerRunnable;
 
@@ -55,6 +68,8 @@ public class MainActivity extends Activity {
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
 	private String[] mDrawerMenuTitles;
+
+	private SmackAndroid mSmackAndroid;
 
 	private enum SelectedFrag{
 		STOLENVEHICLE, MYPROFILE, MYVEHICLES, SETTINGS, MYRIDE
@@ -112,16 +127,53 @@ public class MainActivity extends Activity {
 		};
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
+		initQuickblox();
+
+		// How does this code work? When is savedInstanceState not null?
 		if (savedInstanceState == null) {
 			
+            Log.d(TAG, "savedInstanceState null");
+
 			if (ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated()){
 				selectItem(2); //Select VBS List Fragment as default if user is authenticated
-			}else{
+
+                Log.d(TAG, "Parse user authenticated");
+				
+			} else {
 				selectItem(1); //Otherwise, Select My Profile Fragment so that user can login
+                Log.d(TAG, "No authenticated parse user");
 			}
 		}
 
 		enableLocationProviders();
+	}
+	
+	private void initQuickblox() {
+    	// Register with QuickBlox server
+        mSmackAndroid = SmackAndroid.init(this);
+
+    	MyQBUser.initContext(getApplicationContext());
+        QBSettings.getInstance().fastConfigInit(APP_ID, AUTH_KEY, AUTH_SECRET);
+    	
+		QBAuth.createSession(new QBCallback() {
+			@Override
+			public void onComplete(Result result) {
+		        if (result.isSuccess()) {
+		        	MyQBUser.sessionCreated = true;
+
+                    // Login to Quickblox
+                    if (ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated()){
+                        MyQBUser.signin(ParseUser.getCurrentUser().getUsername(), MyQBUser.DUMMY_PASSWORD);
+                    }
+
+		        } else {
+		        	Toast.makeText(getApplicationContext(), "Error: " + result.getErrors(), Toast.LENGTH_SHORT).show();
+		        }
+			}
+			@Override
+			public void onComplete(Result result, Object object) {
+			}
+		});
 	}
 
 	public static void initLocationUpdateTimer(final Context context) {
@@ -146,6 +198,8 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+
+		mSmackAndroid.onDestroy();
 
 		mLocationMgr.stopPeriodicUpdates();
 		mLocationMgr.disconnect();

@@ -1,4 +1,6 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.chat;
+
+import java.io.File;
 
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -9,35 +11,43 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.quickblox.module.chat.utils.QBChatUtils;
-//import com.quickblox.module.chat.QBChat;
 
-//Used as a callback after making connection to chat server
+// Used as a callback after making connection to chat server
 interface AfterConnectCallback{
 	void done(String errorMsg);
 }
 
 public class MultiUserChatController {
-	public final String ROOM_SUBFIX = "@muc.chat.quickblox.com";
+	private static final String TAG = MultiUserChatController.class.getSimpleName();
+	public static final String ROOM_SUBFIX = "@muc.chat.quickblox.com";
+
+	private static Connection sConnection = null;
 	
-	private String roomname; // should be in the form of <app_id>_name
-	private String userJID;  // should be in the form of '17744-1028' (<qb_user_id>-<qb_app_id>)
-	private String password;
-	private String nickname;  // the nickname used in the chat room
+	private String mRoomname; // should be in the form of <app_id>_name
+	private String mUserJID;  // should be in the form of '17744-1028' (<qb_user_id>-<qb_app_id>)
+	private String mPassword;
+	private String mNickname;  // the nickname used in the chat room
+	private Context mMyContext;
 	
 	public MultiUserChat muc = null;
-	private static Connection connection = null;
-	private Context myContext;
-	
-	public MultiUserChatController(Context context, String roomname, String userJID, String password, String nickname) {
-		myContext = context;
-		this.roomname = roomname;
-		this.userJID = userJID;  
-		this.password = password;
-		this.nickname = nickname;
+
+	public MultiUserChatController(
+			Context context,
+			String roomname, 
+			String userJID,
+			String password, 
+			String nickname) {
+
+		mMyContext = context;
+		this.mRoomname = roomname;
+		this.mUserJID = userJID;  
+		this.mPassword = password;
+		this.mNickname = nickname;
 	}
 	
 	private class ChatServerConnector extends AsyncTask<AfterConnectCallback, Void, Object>{
@@ -46,15 +56,29 @@ public class MultiUserChatController {
 		@Override
 		protected Object doInBackground(AfterConnectCallback... params) {
 			callback = params[0];
-			//ConnectionConfiguration config = new ConnectionConfiguration(QBChat.getChatServerDomain()); //***Must run in a thread***
 			ConnectionConfiguration config = new ConnectionConfiguration(QBChatUtils.getChatServerDomain()); //***Must run in a thread***
-			connection = new XMPPConnection(config);
+			sConnection = new XMPPConnection(config);
 			Connection.DEBUG_ENABLED = true;
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			    config.setTruststoreType("AndroidCAStore");
+			    config.setTruststorePassword(null);
+			    config.setTruststorePath(null);
+			} else {
+			    config.setTruststoreType("BKS");
+			    String path = System.getProperty("javax.net.ssl.trustStore");
+			    if (path == null)
+			        path = System.getProperty("java.home") + File.separator + "etc"
+			            + File.separator + "security" + File.separator
+			            + "cacerts.bks";
+			    config.setTruststorePath(path);
+			}
 			
 			try {
 				//setup connection
-	        	connection.connect();
-	        	connection.login(userJID, password);
+	        	sConnection.connect();
+	        	Log.d(TAG, "Connecting to chat server");
+	        	sConnection.login(mUserJID, mPassword);
 	        	//connection.loginAnonymously();
 	        	
 				return null;
@@ -75,7 +99,7 @@ public class MultiUserChatController {
 	}
 	
 	public void connect(final AfterConnectCallback afterConnectCallback){
-		if ( (connection == null) || (!connection.isConnected())){
+		if ( (sConnection == null) || (!sConnection.isConnected())){
 			//start the thread to connect to chat server
 			new ChatServerConnector().execute(afterConnectCallback);
 		}else{
@@ -84,14 +108,14 @@ public class MultiUserChatController {
 	}
 	
 	public void disconnect(){
-		if (connection!=null){
-			connection.disconnect();
+		if (sConnection!=null){
+			sConnection.disconnect();
 		}
 	}
 	
 	public void join() throws XMPPException{
-		muc = new MultiUserChat(connection, roomname + ROOM_SUBFIX);
-		muc.join(nickname);
+		muc = new MultiUserChat(sConnection, mRoomname + ROOM_SUBFIX);
+		muc.join(mNickname);
 	}
 	
 	public void leaveRoom(){
@@ -104,9 +128,9 @@ public class MultiUserChatController {
 		if ( (muc!=null) && (muc.isJoined())){
 			try {
 				muc.sendMessage(msgString);
-				Toast.makeText(myContext, "Message sent", Toast.LENGTH_SHORT).show();
+				Toast.makeText(mMyContext, "Message sent", Toast.LENGTH_SHORT).show();
 			} catch (XMPPException e) {
-				Toast.makeText(myContext, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+				Toast.makeText(mMyContext, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
