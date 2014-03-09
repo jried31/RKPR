@@ -19,6 +19,6 @@
   },
   "scripts": {
     "doc": "./node_modules/.bin/jsdoc cloud.js server.js util.js -d ./jsdoc/",
-    "test": "./node_modules/.bin/mocha test/unit/util-test.js"
+    "test": "./node_modules/.bin/mocha test/*/ --reporter spec"
   }
 }

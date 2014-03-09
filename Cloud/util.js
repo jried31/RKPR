@@ -45,10 +45,13 @@ function timestamp() {
  * @param {String} end - the ending timestamp
  * @param {String} start - the starting timestamp
  *
- * @return {Number} the difference in milliseconds
+ * @return {Number | Boolean} the difference in milliseconds or false on error
  */
 function diffTime(end, begin) {
-    return Date.parse(end) - Date.parse(begin);
+
+    var diff =  Date.parse(end) - Date.parse(begin);
+
+    return isNaN(diff) ? false : diff;
 }
 
 module.exports = {

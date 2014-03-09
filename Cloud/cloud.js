@@ -11,8 +11,9 @@ var KaisekiInc = require('kaiseki'),
     // collection of useful Javascript functions
     // see http://underscorejs.org/
     _ = require('underscore'),
-    util = require('util.js'),
+    util = require('./util.js'),
     timestamp = util.timestamp,
+    diffTime = util.diffTime,
 
     // credentials for Jabber
     jabber_creds = {
@@ -93,14 +94,25 @@ function sendPushNotification(alertKey, vehicle, message) {
  */
 function updateVehicleStatus(alert, vehicle, message) {
 
-    var alertKey = reverseAlertLevelDictionary[(parseInt(alert.lvl)).toString()];
+    var alertKey = reverseAlertLevelDictionary[(parseInt(alert.lvl)).toString()],
+        data = {
+            alertLevel: alertKey,
+            pos: alert.location
+        };
 
-    kaiseki.updateObject('Vehicle', vehicle.objectId, {
+    // store a timestamp of date vehicle is stolen
+    if (alertKey === AlertLevel.STOLEN) {
+        data.stolenDate = timestamp();
+        data.recoveredDate = undefined;
+    }
 
-        'alertLevel': alertKey,
-        'pos': alert.location
+    // store a timestamp of date when vehicle is recovered
+    if (alertKey === AlertLevel.RVD) {
+        data.recoveredDate = timestamp();
+    }
 
-    }, function(err, res, body, success) {
+    kaiseki.updateObject('Vehicle', vehicle.objectId, data,
+    function(err, res, body, success) {
         //send notifications w.r.t. the alert level
         if (err) {
             console.log(body.error);
@@ -396,6 +408,28 @@ var processTrackerAlert = function(req, resp, next) {
         });
 };
 
+/**
+ * @function refereshRecoveredVehicles
+ *
+ * @desc after a certain interval of vehicle recovery,
+ *       resets vehicle status metadata
+ */
+var refreshRecoveredVehicles = function() {
+
+    kaiseki.getObjects(
+        'Vehicle', {
+
+            where: { 
+                recoveredDate: {$exists: true} 
+            }
+
+        }, function(err, res, body, success) {
+            console.log(body);
+    });
+    // TODO: batch update / reset vehicle objects after certain time interval
+};
+
 
 exports.processTrackerAlert = processTrackerAlert;
 exports.notifyNearbyUsers = notifyNearbyUsers;
+exports.refreshRecoveredVehicles = refreshRecoveredVehicles;

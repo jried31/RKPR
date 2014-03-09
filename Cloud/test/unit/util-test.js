@@ -38,6 +38,14 @@ describe('Util', function() {
 
             expect( actual ).to.be(expected);
         });
+
+        it('it should return false for incorrect date parsing', function() {
+
+            var actual = diffTime("","01-17-2014 21:00:00"),
+                expected = false;
+
+            expect( actual ).to.be(expected);
+        });
     });
 
 });
