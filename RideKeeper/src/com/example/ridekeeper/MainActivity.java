@@ -42,9 +42,22 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.ridekeeper.account.MyQBUser;
 import com.parse.ParseUser;
+import com.quickblox.core.QBCallback;
+import com.quickblox.core.QBSettings;
+import com.quickblox.core.result.Result;
+import com.quickblox.module.auth.QBAuth;
+import com.quickblox.module.chat.smack.SmackAndroid;
 
 public class MainActivity extends Activity {
+	private static final String TAG = MainActivity.class.getSimpleName();
+
+    public static final String APP_ID = "5815";
+    private static final String AUTH_KEY = "8htqAuedCPgyW2z";
+    private static final String AUTH_SECRET = "6whwzbRPrYSSbmg";
+
+
 	public static Handler locationTimerHandler = new Handler();
 	public static Runnable locationTimerRunnable;
 
@@ -56,10 +69,13 @@ public class MainActivity extends Activity {
 	private CharSequence mTitle;
 	private String[] mDrawerMenuTitles;
 
-	private enum SelectedFrag{
-		STOLENVEHICLE, MYPROFILE, MYVEHICLES, SETTINGS, MYRIDE
+	private SmackAndroid mSmackAndroid;
+
+	public static enum SelectedFrag {
+		STOLENVEHICLE, MYPROFILE, MYVEHICLES, SETTINGS, MYRIDE, CHAT_ROOM
 	}
-	private SelectedFrag selectedFrag;
+
+	private SelectedFrag mSelectedFrag;
 	
 	public static LocationMgr mLocationMgr;
 
@@ -112,16 +128,57 @@ public class MainActivity extends Activity {
 		};
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
+		initQuickblox();
+
+		// How does this code work? When is savedInstanceState not null?
 		if (savedInstanceState == null) {
 			
+            Log.d(TAG, "savedInstanceState null");
+
 			if (ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated()){
 				selectItem(2); //Select VBS List Fragment as default if user is authenticated
-			}else{
+
+                Log.d(TAG, "Parse user authenticated");
+				
+			} else {
 				selectItem(1); //Otherwise, Select My Profile Fragment so that user can login
+                Log.d(TAG, "No authenticated parse user");
 			}
 		}
 
 		enableLocationProviders();
+	}
+	
+	private void initQuickblox() {
+    	// Register with QuickBlox server
+        mSmackAndroid = SmackAndroid.init(this);
+
+    	MyQBUser.initContext(getApplicationContext());
+        QBSettings.getInstance().fastConfigInit(APP_ID, AUTH_KEY, AUTH_SECRET);
+    	
+		QBAuth.createSession(new QBCallback() {
+			@Override
+			public void onComplete(Result result) {
+		        if (result.isSuccess()) {
+		        	MyQBUser.sessionCreated = true;
+
+                    // Login to Quickblox
+                    if (ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated()){
+                        MyQBUser.signin(ParseUser.getCurrentUser().getUsername(), MyQBUser.DUMMY_PASSWORD);
+                    }
+
+		        } else {
+		        	Toast.makeText(getApplicationContext(), "Error: " + result.getErrors(), Toast.LENGTH_SHORT).show();
+		        }
+			}
+			@Override
+			public void onComplete(Result result, Object object) {
+			}
+		});
+	}
+	
+	public void setDrawerTitle(SelectedFrag frag) {
+        setTitle(mDrawerMenuTitles[frag.ordinal()]);
 	}
 
 	public static void initLocationUpdateTimer(final Context context) {
@@ -146,6 +203,8 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+
+		mSmackAndroid.onDestroy();
 
 		mLocationMgr.stopPeriodicUpdates();
 		mLocationMgr.disconnect();
@@ -265,10 +324,10 @@ public class MainActivity extends Activity {
 		menu.findItem(R.id.action_addvehicle).setVisible(false);
 		menu.findItem(R.id.action_refreshvbslist).setVisible(false);
 		
-		if (selectedFrag == SelectedFrag.MYVEHICLES){
+		if (mSelectedFrag == SelectedFrag.MYVEHICLES){
 			//menu.findItem(R.id.action_websearch).setVisible(false);
 			menu.findItem(R.id.action_addvehicle).setVisible(true & !drawerOpen);
-		}else if (selectedFrag == SelectedFrag.STOLENVEHICLE) {
+		} else if (mSelectedFrag == SelectedFrag.STOLENVEHICLE) {
 			menu.findItem(R.id.action_refreshvbslist).setVisible(true & !drawerOpen);
 		}
 		
@@ -313,26 +372,28 @@ public class MainActivity extends Activity {
 		switch(position){
 		case DBGlobals.LIST_STOLEN_VEHICLES:
 			fragment = new StolenVehicleListFragment();
-			selectedFrag = SelectedFrag.STOLENVEHICLE;
+			mSelectedFrag = SelectedFrag.STOLENVEHICLE;
 			break;
 		case DBGlobals.MY_PROFILE:
 			fragment = new MyProfileFragment();
-			selectedFrag = SelectedFrag.MYPROFILE;
+			mSelectedFrag = SelectedFrag.MYPROFILE;
 			break;
 		case DBGlobals.LIST_MY_VEHICLES:
 			fragment = new MyVehicleListFragment();
-			selectedFrag = SelectedFrag.MYVEHICLES;
+			mSelectedFrag = SelectedFrag.MYVEHICLES;
 			break;
 		case DBGlobals.SETTINGS:
 			fragment = new SettingsFragment();
-			selectedFrag = SelectedFrag.SETTINGS;
+			mSelectedFrag = SelectedFrag.SETTINGS;
 			break;
         case DBGlobals.MY_RIDES:
             fragment = new MyRideListFragment();
-            selectedFrag = SelectedFrag.MYRIDE;
+            mSelectedFrag = SelectedFrag.MYRIDE;
             break;
 		default:
 			fragment = new MyProfileFragment();
+			mSelectedFrag = SelectedFrag.MYPROFILE;
+			break;
 		}
 
 		FragmentManager fragmentManager = getFragmentManager();
@@ -342,6 +403,10 @@ public class MainActivity extends Activity {
 		mDrawerList.setItemChecked(position, true);
 		setTitle(mDrawerMenuTitles[position]);
 		mDrawerLayout.closeDrawer(mDrawerList);
+	}
+	
+	public void setSelectedFrag(SelectedFrag frag) {
+		mSelectedFrag = frag;
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,8 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 public class MyProfileFragment extends Fragment {
+	private static final String TAG = MyProfileFragment.class.getSimpleName();
+
 	public static final int ID_PHOTO_PICKER_FROM_CAMERA = 0;
 	public static final int ID_PHOTO_PICKER_FROM_GALLERY = 1;
 	public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 100;
@@ -108,10 +111,17 @@ public class MyProfileFragment extends Fragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, 
-			ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(
+			LayoutInflater inflater,
+			ViewGroup container,
+			Bundle savedInstanceState) {
 		
 		View view;
+		
+		ParseUser user = ParseUser.getCurrentUser();
+		if (user != null) {
+            Log.d(TAG, "userId: " + user.getObjectId());
+		}
 		
 		//User authenticated, show user profile
 		if (ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated() ){

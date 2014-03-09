@@ -105,5 +105,9 @@
     <string name="cancel">Cancel</string>
 
 
+    <!-- Chat strings -->
+    <string name="camera_description">Camera</string>
+    <string name="send">Send</string>
+    <string name="current_user">Me</string>
 
 </resources>

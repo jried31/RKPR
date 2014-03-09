@@ -1,8 +1,6 @@
 package com.example.ridekeeper;
 
 import android.app.Application;
-import android.content.Context;
-import android.os.Handler;
 import android.widget.Toast;
 
 import com.example.ridekeeper.account.MyQBUser;
@@ -14,13 +12,11 @@ import com.quickblox.core.QBCallback;
 import com.quickblox.core.QBSettings;
 import com.quickblox.core.result.Result;
 import com.quickblox.module.auth.QBAuth;
+import com.quickblox.module.chat.QBChatRoom;
+import com.quickblox.module.users.model.QBUser;
 
 public class App extends Application{
 	public static boolean isMainActivityRunning = false;
-    private static final String APP_ID = "5815";
-    private static final String AUTH_KEY = "8htqAuedCPgyW2z";
-    private static final String AUTH_SECRET = "6whwzbRPrYSSbmg";
-
 	@Override public void onCreate() { 
         super.onCreate();
         
@@ -36,28 +32,10 @@ public class App extends Application{
     	
     	//bReceiver = new MyBroadcastReceiver(); //For receiving wake lock and do routine check
     	
-    	// Register with QuickBlox server
-    	MyQBUser.initContext(getApplicationContext());
-        QBSettings.getInstance().fastConfigInit(APP_ID, AUTH_KEY, AUTH_SECRET);
-    	
-		QBAuth.createSession(new QBCallback() {
-			@Override
-			public void onComplete(Result result) {
-		        if (result.isSuccess()) {
-		        	MyQBUser.sessionCreated = true;
-		        } else {
-		        	Toast.makeText(getApplicationContext(), "Error: " + result.getErrors(), Toast.LENGTH_SHORT).show();
-		        }
-			}
-			@Override
-			public void onComplete(Result result, Object object) {
-			}
-		});
-    	
     	NotificationMgr.initialize(this);
     	Preferences.loadSettingsFromSharedPref(this);
     	
     	ParseFunctions.updateOwnerIdInInstallation();
     }
-	
+
 }

@@ -27,13 +27,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Me"
-            android:id="@+id/meLabel" android:layout_gravity="left|center_vertical" android:singleLine="false"
-            android:textSize="20dp"/>
+            android:id="@+id/meLabel" 
+            android:layout_gravity="left|center_vertical" 
+            android:singleLine="false"
+            android:textSize="20sp"/>
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Friend"
-            android:id="@+id/friendLabel" android:layout_alignParentRight="true" android:textSize="20dp"/>
+            android:id="@+id/friendLabel" 
+            android:layout_alignParentRight="true" 
+            android:textSize="20sp"/>
 
     <ImageView
         android:id="@+id/meImageLabel"

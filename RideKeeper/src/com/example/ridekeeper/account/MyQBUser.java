@@ -1,31 +1,42 @@
 package com.example.ridekeeper.account;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.quickblox.core.QBCallback;
 import com.quickblox.core.result.Result;
+import com.quickblox.module.chat.QBChatRoom;
+import com.quickblox.module.chat.QBChatService;
+import com.quickblox.module.chat.listeners.SessionListener;
 import com.quickblox.module.chat.utils.QBChatUtils;
-//import com.quickblox.module.chat.QBChat;
 import com.quickblox.module.users.QBUsers;
 import com.quickblox.module.users.model.QBUser;
+//import com.quickblox.module.chat.QBChat;
 
 public class MyQBUser {
+	private static final String TAG = MyQBUser.class.getSimpleName();
+
 	private static Context myContext;
-	private static QBUser user = null;
+	private static QBUser sQbUser = null;
+
+    private static QBChatRoom sCurrentRoom;
+
 	
 	//Password for all QBUser accounts
 	public static final String DUMMY_PASSWORD = "abcde123";
 	public static boolean sessionCreated = false;
 	
-	public static void signUpSignin(String username, String password){
-		user = new QBUser(username, password);
-		QBUsers.signUpSignInTask(user,  new QBCallback() {
+	public static void signUpSignin(String username, String password) {
+		sQbUser = new QBUser(username, password);
+
+		QBUsers.signUpSignInTask(sQbUser,  new QBCallback() {
 			@Override
-			public void onComplete(Result arg0, Object arg1) {}
+			public void onComplete(Result result, Object context) {}
 			@Override
-			public void onComplete(Result arg0) {
-				if (arg0.isSuccess()){
+			public void onComplete(Result result) {
+				if (result.isSuccess()) {
 					saveUserJabberIDtoCache(getUserJabberID());
 				}
 			}
@@ -33,13 +44,41 @@ public class MyQBUser {
 	}
 	
 	public static void signin(String username, String password){
-		user = new QBUser(username, password);
-		QBUsers.signIn(user, new QBCallback() {
+		sQbUser = new QBUser(username, password);
+
+		Log.d(TAG, "Attempting to sign in to Quickblox: " + username);
+		QBUsers.signIn(sQbUser, new QBCallback() {
 			@Override
-			public void onComplete(Result arg0, Object arg1) {}
+			public void onComplete(Result result, Object context) {
+			}
+
 			@Override
-			public void onComplete(Result arg0) {
-				if (arg0.isSuccess()){
+			public void onComplete(Result result) {
+				if (result.isSuccess()) {
+                    Log.d(TAG, "Quickblox signin successful");
+
+                    QBChatService.getInstance().loginWithUser(sQbUser, new SessionListener() {
+                        @Override
+                        public void onLoginSuccess() {
+                            Log.i(TAG, "success when login");
+                        }
+
+                        @Override
+                        public void onLoginError() {
+                            Log.i(TAG, "error when login");
+                        }
+
+                        @Override
+                        public void onDisconnect() {
+                            Log.i(TAG, "disconnect when login");
+                        }
+
+                        @Override
+                        public void onDisconnectOnError(Exception exc) {
+                            Log.i(TAG, "disconnect error when login");
+                        }
+                    });
+
 					saveUserJabberIDtoCache(getUserJabberID());
 				}
 			}
@@ -47,16 +86,16 @@ public class MyQBUser {
 	}
 
 	public static String getLoginName(){
-		if (user != null){
-			return user.getLogin();	
+		if (sQbUser != null){
+			return sQbUser.getLogin();	
 		}else{
 			return null;
 		}
 	}
 	
 	public static String getLoginPassword(){
-		if (user != null){
-			return user.getPassword();
+		if (sQbUser != null){
+			return sQbUser.getPassword();
 		}else{
 			return null;
 		}
@@ -64,9 +103,9 @@ public class MyQBUser {
 	
 	//Get the JabberId of the user for login to chat room
 	public static String getUserJabberID(){
-		if (user != null){
+		if (sQbUser != null){
 			//return QBChat.getChatLoginShort(user);	
-			return QBChatUtils.getChatLoginShort(user);	
+			return QBChatUtils.getChatLoginShort(sQbUser);	
 		}else{
 			return null;
 		}
@@ -83,11 +122,26 @@ public class MyQBUser {
 	}
 	
 	public static QBUser getCurrentUser(){
-		return user;
+		return sQbUser;
 	}
 	
 	public static void initContext(Context context){
 		myContext = context;
 	}
-	
+
+    public static QBUser getQbUser() {
+        return sQbUser;
+    }
+
+    public static void setQbUser(QBUser qbUser) {
+        sQbUser = qbUser;
+    }
+
+    public static QBChatRoom getCurrentRoom() {
+        return sCurrentRoom;
+    }
+
+    public static void setCurrentRoom(QBChatRoom room) {
+        sCurrentRoom = room;
+    }
 }

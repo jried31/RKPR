@@ -20,14 +20,17 @@ import com.parse.ParseObject;
 
 @ParseClassName(DBGlobals.PARSE_VEHICLE_TBL)
 public class ParseVehicle extends ParseObject {
-	public static final String	MAKE = "make",
-			 					MODEL = "model",
-			 					YEAR = "year",
-			 					LICENSE = "license",
-			 					TRACKERID = "trackerId",
-			 					PHOTO = "photo",
-			 					OWNERID = "ownerId",
-			 					STATUS = "status";
+    public static final String MAKE = "make";
+    public static final String MODEL = "model";
+    public static final String YEAR = "year";
+    public static final String LICENSE = "license";
+    public static final String TRACKERID = "trackerId";
+
+    public static final String CHATROOM_NAME = "roomName"; // in Chat table
+
+    public static final String PHOTO = "photo";
+    public static final String OWNERID = "ownerId";
+    public static final String 	STATUS = "status";
 	
 	private static final String PHOTOFILE_PREFIX = "vehicle_photo_",
 								PHOTOFILE_SUBFIX = ".png";
@@ -86,6 +89,14 @@ public class ParseVehicle extends ParseObject {
 	}
 	void setLicense(String license){
 		put(LICENSE, license);
+	}
+	
+	void setChatRoomName(String chatroomName) {
+		put(CHATROOM_NAME, chatroomName);
+	}
+	 
+	public String getChatRoomName() {
+		return getString(CHATROOM_NAME);
 	}
 
 	public ParseFile getPhoto(){

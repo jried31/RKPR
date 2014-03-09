@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.chat;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,13 +31,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ridekeeper.ParseChatRoomPhoto;
+import com.example.ridekeeper.ParseFunctions;
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.StolenVehicleListFragment;
 import com.example.ridekeeper.account.MyQBUser;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -47,7 +50,13 @@ import com.parse.SaveCallback;
 //import android.view.ViewGroup.LayoutParams;
 //Need this for enlarging photo
 
-public class ChatFragment extends DialogFragment {
+public class ChatFragmentOld extends DialogFragment {
+	private static final String TAG = ChatFragmentOld.class.getSimpleName();
+
+	public static final String ARG_ROOM_NAME = "roomName";
+	public static final String ARG_VEHICLE_ID = "vehicleId";
+	public static final String ARG_TITLE = "title";
+
     // set gravity to center in OnCreateView
 	private static final LayoutParams IMAGE_SMALL_VIEW_LAYOUT = new LayoutParams(170, 170);
 
@@ -58,30 +67,26 @@ public class ChatFragment extends DialogFragment {
 	public static final int REQUEST_CODE_CROP_PHOTO = 101;
 	public static final int REQUEST_CODE_SELECT_FROM_GALLERY = 102;
 
-	public static final String ARG_ROOM_NAME = "roomName";
-	public static final String ARG_VEHICLE_ID = "vehicleId";
-	public static final String ARG_TITLE = "title";
-
 	private static final String IMAGE_UNSPECIFIED = "image/*";
-	
-	// For UI
-	private ImageView uploadPhotoBtn;
-	private EditText messageField;
-	private Button sendMessageBtn;
-	private ScrollView scrollContainer;
-	private LinearLayout msgContainer;
-	
-	// For chat room 
-	private String title;
-	private String roomname;
-	private String vehicleId; //vehicle onCreateView(Vehicle's objectId in Parse)
-	private MultiUserChatController mucController;
 
 	//Prefix denotes that an image is part of message
 	private static final String SPECIAL_STRING_PREFIX = "&&$*(";
+
+	// For UI
+	private ImageView mUploadPhotoBtn;
+	private EditText mMessageField;
+	private Button mSendMessageBtn;
+	private ScrollView mScrollContainer;
+	private LinearLayout mMsgContainer;
+	
+	// For chat room 
+	private String mTitle;
+	private String mRoomName;
+	private String mVehicleId; //vehicle onCreateView(Vehicle's objectId in Parse)
+	private MultiUserChatController mMucController;
 	
 	private Uri mImageCaptureUri;
-	private boolean isTakenFromCamera;
+	private boolean mIsTakenFromCamera;
 	// End for taking picture
 	
 	//For saving image to gallery:
@@ -91,38 +96,35 @@ public class ChatFragment extends DialogFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		roomname = getArguments().getString(ARG_ROOM_NAME);
-		vehicleId = getArguments().getString(ARG_VEHICLE_ID);
+		mRoomName = getArguments().getString(ChatFragmentOld.ARG_ROOM_NAME);
+		mVehicleId = getArguments().getString(ChatFragmentOld.ARG_VEHICLE_ID);
 		
-		title = getArguments().getString(ARG_TITLE);
+		mTitle = getArguments().getString(ChatFragmentOld.ARG_TITLE);
 		
 		setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_DeviceDefault_Light);
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_chat, container, false);
+		View view = inflater.inflate(R.layout.chat_fragment_old, container, false);
 		
-		getDialog().setTitle(title); //set the title of the Chat dialog fragment
+		getDialog().setTitle(mTitle); //set the title of the Chat dialog fragment
 
-		uploadPhotoBtn = (ImageView) view.findViewById(R.id.imageView_sendPic);
-		messageField = (EditText) view.findViewById(R.id.editText_msg);
-		sendMessageBtn = (Button) view.findViewById(R.id.buttton_sendMsg);
+		mUploadPhotoBtn = (ImageView) view.findViewById(R.id.imageView_sendPic);
+		mMessageField = (EditText) view.findViewById(R.id.editText_msg);
+		mSendMessageBtn = (Button) view.findViewById(R.id.buttton_sendMsg);
 		
-		scrollContainer = (ScrollView) view.findViewById(R.id.scrollContainer);
-		msgContainer = (LinearLayout) view.findViewById(R.id.messageContainer);
-
-		uploadPhotoBtn = (ImageView) view.findViewById(R.id.imageView_sendPic);
-		sendMessageBtn = (Button) view.findViewById(R.id.buttton_sendMsg);
+		mScrollContainer = (ScrollView) view.findViewById(R.id.scrollContainer);
+		mMsgContainer = (LinearLayout) view.findViewById(R.id.messageContainer);
 		
-		uploadPhotoBtn.setOnClickListener( new View.OnClickListener() {
+		mUploadPhotoBtn.setOnClickListener( new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				showPhotoSelection();
 			}
 		});
 		
-		sendMessageBtn.setOnClickListener(new View.OnClickListener() {
+		mSendMessageBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				sendText();
@@ -132,39 +134,42 @@ public class ChatFragment extends DialogFragment {
 		IMAGE_SMALL_VIEW_LAYOUT.gravity = Gravity.CENTER;
 		
 		
-		//disable buttons while server is connecting
+		// disable buttons while server is connecting
 		disableSendPic();
-		sendMessageBtn.setEnabled(false);
-		sendMessageBtn.setText("Connecting...");
+		mSendMessageBtn.setEnabled(false);
+		mSendMessageBtn.setText("Connecting...");
 
-		mucController = new MultiUserChatController(getActivity(),
-													roomname,
-													MyQBUser.getUserJabberIDfromCache(),
-													MyQBUser.DUMMY_PASSWORD,
-													ParseUser.getCurrentUser().getUsername()); // use parse username as chat room nickname
+		mMucController = new MultiUserChatController(
+				getActivity(),
+                mRoomName,
+                MyQBUser.getUserJabberIDfromCache(),
+                MyQBUser.DUMMY_PASSWORD,
+                ParseUser.getCurrentUser().getUsername()); // use parse username as chat room nickname
 		
-		mucController.connect( new AfterConnectCallback() {
+		Log.d(TAG, "jabberId: " + MyQBUser.getUserJabberIDfromCache());
+
+		mMucController.connect( new AfterConnectCallback() {
 			@Override
 			public void done(String errorMsg) {
 				if (errorMsg == null){
 					try {
-						mucController.join();
+						mMucController.join();
 					} catch (XMPPException e) {
-						sendMessageBtn.setText("No Connection");
+						mSendMessageBtn.setText("No Connection");
 						Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
 						//e.printStackTrace();
 						return;
 					}
 
-					mucController.addMsgListener(myPacketListener);
+					mMucController.addMsgListener(myPacketListener);
 					
 					enableSendPic();
-					sendMessageBtn.setEnabled(true);
-					sendMessageBtn.setText("Send");
+					mSendMessageBtn.setEnabled(true);
+					mSendMessageBtn.setText("Send");
 					Toast.makeText(getActivity(), "Joined chat room", Toast.LENGTH_SHORT).show();
 				}else{
 					Toast.makeText(getActivity(), "Error: " + errorMsg, Toast.LENGTH_SHORT).show();
-					sendMessageBtn.setText("Send");
+					mSendMessageBtn.setText("Send");
 				}
 			}
 		});
@@ -174,8 +179,8 @@ public class ChatFragment extends DialogFragment {
 	
 	@Override
 	public void onDestroy() {
-		mucController.removeMsgListener(myPacketListener);
-		mucController.leaveRoom();
+		mMucController.removeMsgListener(myPacketListener);
+		mMucController.leaveRoom();
 		super.onDestroy();
 	}
 	
@@ -207,7 +212,7 @@ public class ChatFragment extends DialogFragment {
 			}
 
 			// Delete temporary image taken by camera after crop.
-			if (isTakenFromCamera) {
+			if (mIsTakenFromCamera) {
 				File f = new File(mImageCaptureUri.getPath());
 				if (f.exists())
 					f.delete();
@@ -238,7 +243,7 @@ public class ChatFragment extends DialogFragment {
 				pivPhoto.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 				pivPhoto.setDrawingCacheEnabled(true);
 				pivPhoto.setAdjustViewBounds(true);
-				pivPhoto.setLayoutParams(ChatFragment.IMAGE_SMALL_VIEW_LAYOUT);
+				pivPhoto.setLayoutParams(ChatFragmentOld.IMAGE_SMALL_VIEW_LAYOUT);
 				
 				/*JERRID: Left Here for Background Bubbles
 				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -272,11 +277,11 @@ public class ChatFragment extends DialogFragment {
 	};
 	
 	private void sendText(){
-		String tmp = messageField.getText().toString();
+		String tmp = mMessageField.getText().toString();
 
 		if (!tmp.isEmpty()){
-			mucController.sendMessage(tmp);
-			messageField.setText("");
+			mMucController.sendMessage(tmp);
+			mMessageField.setText("");
 		}
 		
 	}
@@ -286,7 +291,7 @@ public class ChatFragment extends DialogFragment {
 	}
 	
 	private void sendSpecialString(String str){
-		mucController.sendMessage( SPECIAL_STRING_PREFIX + str);
+		mMucController.sendMessage( SPECIAL_STRING_PREFIX + str);
 	}
 	
 	private String extractFromSpecialString(String special){
@@ -299,7 +304,7 @@ public class ChatFragment extends DialogFragment {
 		disableSendPic();
 		
 		final ParseChatRoomPhoto chatPhoto = new ParseChatRoomPhoto();
-		chatPhoto.setVehicleId(vehicleId);
+		chatPhoto.setVehicleId(mVehicleId);
 		chatPhoto.prepareSavingPhoto(getActivity(), bitmap);
 		
 		chatPhoto.saveInBackground(new SaveCallback() {
@@ -330,12 +335,12 @@ public class ChatFragment extends DialogFragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                msgContainer.addView(textView);
+                mMsgContainer.addView(textView);
                 // Scroll to bottom
-                scrollContainer.post( new Runnable() {
+                mScrollContainer.post( new Runnable() {
 					@Override
 					public void run() {
-						scrollContainer.fullScroll(View.FOCUS_DOWN);
+						mScrollContainer.fullScroll(View.FOCUS_DOWN);
 					}
 				});
             }
@@ -347,12 +352,12 @@ public class ChatFragment extends DialogFragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                msgContainer.addView(pivPhoto);
+                mMsgContainer.addView(pivPhoto);
                 // Scroll to bottom
-                scrollContainer.post( new Runnable() {
+                mScrollContainer.post( new Runnable() {
 					@Override
 					public void run() {
-						scrollContainer.fullScroll(View.FOCUS_DOWN);
+						mScrollContainer.fullScroll(View.FOCUS_DOWN);
 					}
 				});
             }
@@ -383,7 +388,7 @@ public class ChatFragment extends DialogFragment {
 	//For taking picture from camera / gallery:
 	private void onPhotoPickerItemSelected(int item) {
 		Intent intent;
-		isTakenFromCamera = false;
+		mIsTakenFromCamera = false;
 
 		switch(item){
 		case ID_PHOTO_PICKER_FROM_CAMERA:
@@ -399,7 +404,7 @@ public class ChatFragment extends DialogFragment {
 			} catch (ActivityNotFoundException e) {
 				e.printStackTrace();
 			}
-			isTakenFromCamera = true;
+			mIsTakenFromCamera = true;
 			break;
 
 		case ID_PHOTO_PICKER_FROM_GALLERY:
@@ -416,7 +421,7 @@ public class ChatFragment extends DialogFragment {
 			}catch(ActivityNotFoundException e){
 				e.printStackTrace();
 			}
-			isTakenFromCamera = false;
+			mIsTakenFromCamera = false;
 			break;
 
 		default:
@@ -440,13 +445,13 @@ public class ChatFragment extends DialogFragment {
 	}
 	
 	private void disableSendPic(){
-		uploadPhotoBtn.setImageResource(R.drawable.camera_grey);
-		uploadPhotoBtn.setEnabled(false);
+		mUploadPhotoBtn.setImageResource(R.drawable.camera_grey);
+		mUploadPhotoBtn.setEnabled(false);
 	}
 	
 	private void enableSendPic(){
-		uploadPhotoBtn.setImageResource(R.drawable.camera);
-		uploadPhotoBtn.setEnabled(true);
+		mUploadPhotoBtn.setImageResource(R.drawable.camera);
+		mUploadPhotoBtn.setEnabled(true);
 	}
 	
 
@@ -457,8 +462,8 @@ public class ChatFragment extends DialogFragment {
 			ImageView iv = (ImageView) v;
 			
 			if (iv.getLayoutParams() == IMAGE_SMALL_VIEW_LAYOUT){
-				int h = iv.getHeight() * (msgContainer.getWidth() / iv.getWidth());
-				iv.setLayoutParams(new LayoutParams(msgContainer.getWidth(), h ));
+				int h = iv.getHeight() * (mMsgContainer.getWidth() / iv.getWidth());
+				iv.setLayoutParams(new LayoutParams(mMsgContainer.getWidth(), h ));
 			}else{
 				iv.setLayoutParams(IMAGE_SMALL_VIEW_LAYOUT);
 			}

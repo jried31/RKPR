@@ -1,6 +1,6 @@
 package com.example.ridekeeper;
 
- class DBGlobals {
+public class DBGlobals {
 	 
 	 //Trigonometry constants
 	 public static final double PI=3.14159265359;
@@ -35,6 +35,7 @@ package com.example.ridekeeper;
     // A fast frequency ceiling in milliseconds
     public static final long FASTEST_INTERVAL = MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
 	//****************
+    public static final long LOAD_CHATROOM_DELAY = MILLISECONDS_PER_SECOND * 1;
 	
 	public static final String PARSE_VEHICLE_TBL = "Vehicle";
 	public static final String PARSE_CHATROOM_TBL = "Chatroom";
@@ -44,5 +45,10 @@ package com.example.ridekeeper;
 	public static final String PARSE_VEHICLE_TBL_KEY_OWNER_ID = "ownerId";
 	public static final String PARSE_VEHICLE_TBL_KEY_VEHICLE_ID = "objectId";
 	
+    public static final String PARSE_CHAT_TBL_KEY_VEHICLE_ID = "vehicleId";
+    public static final String PARSE_CHAT_TBL_KEY_ROOM_NAME = "roomName";
+    public static final String PARSE_CHAT_TBL_KEY_MEMBERS = "members";
+	
+    public static final String ARG_VEHICLE_ID = "vehicleId";
 	
 }
