@@ -99,6 +99,8 @@ public class ChatFragment extends DialogFragment {
 	private Uri mImageCaptureUri;
 	private boolean mIsTakenFromCamera;
 	
+	private MainActivity mMainActivity;
+
 	// For saving image to gallery:
 	private File mAlbumDir;
 	
@@ -114,7 +116,8 @@ public class ChatFragment extends DialogFragment {
 		mTitle = args.getString(ChatFragment.ARG_TITLE);
         mMode = (Mode) args.getSerializable(EXTRA_MODE);
 		
-        ((MainActivity)getActivity()).setTitle(mTitle);
+        mMainActivity = (MainActivity)getActivity();
+        mMainActivity.setTitle(mTitle);
 
 		//setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_DeviceDefault_Light);
 	}
@@ -124,6 +127,9 @@ public class ChatFragment extends DialogFragment {
 		//super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.chat_fragment, container, false);
 		
+		mMainActivity.setSelectedFrag(MainActivity.SelectedFrag.CHAT_ROOM);
+		mMainActivity.invalidateOptionsMenu();
+
 		//getDialog().setTitle(mTitle);
 
         mMessagesContainer = (ListView) view.findViewById(R.id.messagesContainer);
@@ -134,13 +140,13 @@ public class ChatFragment extends DialogFragment {
         RelativeLayout containerLayout = (RelativeLayout) view.findViewById(R.id.container);
 		mUploadPhotoBtn = (ImageView) view.findViewById(R.id.sendPicBtn);
 
-        mAdapter = new ChatAdapter(getActivity(), new ArrayList<ChatMessage>());
+        mAdapter = new ChatAdapter(mMainActivity, new ArrayList<ChatMessage>());
         mMessagesContainer.setAdapter(mAdapter);
 
         switch (mMode) {
             case GROUP:
             	try {
-                    mChat = new ChatRoom(getActivity(), this, getArguments());
+                    mChat = new ChatRoom(mMainActivity, this, getArguments());
             	} catch (NullChatRoomException ne) {
             		// TODO: If we can't get the corresponding QBChatRoom, then
             		// show error view
@@ -200,7 +206,7 @@ public class ChatFragment extends DialogFragment {
         enableSendPic();
         mSendBtn.setEnabled(true);
         mSendBtn.setText("Send");
-        Toast.makeText(getActivity(), "Joined chat room", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mMainActivity, "Joined chat room", Toast.LENGTH_SHORT).show();
 		
 		return view;
 	}
@@ -290,7 +296,7 @@ public class ChatFragment extends DialogFragment {
 			
 			}else if (isSpecialString(body)){ //special string received -> a photo message
 				final String photoObjectId = extractFromSpecialString(body);
-				final ParseImageView pivPhoto = new ParseImageView(getActivity());
+				final ParseImageView pivPhoto = new ParseImageView(mMainActivity);
 				
 				pivPhoto.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 				pivPhoto.setDrawingCacheEnabled(true);
@@ -319,9 +325,9 @@ public class ChatFragment extends DialogFragment {
 					@Override
 					public void done(ParseChatRoomPhoto chatPhoto, ParseException e) {
 						if (e == null){
-							chatPhoto.loadPhotoIntoParseImageView(getActivity(), pivPhoto);
+							chatPhoto.loadPhotoIntoParseImageView(mMainActivity, pivPhoto);
 						}else{
-							Toast.makeText(getActivity(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+							Toast.makeText(mMainActivity, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
 						}
 					}
 				});
@@ -343,24 +349,24 @@ public class ChatFragment extends DialogFragment {
 	
 	private void SendPhoto(Bitmap bitmap){
 		//upload image to Parse
-		Toast.makeText(getActivity(), "Sending photo...", Toast.LENGTH_SHORT).show();
+		Toast.makeText(mMainActivity, "Sending photo...", Toast.LENGTH_SHORT).show();
 		disableSendPic();
 		
 		final ParseChatRoomPhoto chatPhoto = new ParseChatRoomPhoto();
 		chatPhoto.setVehicleId(mVehicleId);
-		chatPhoto.prepareSavingPhoto(getActivity(), bitmap);
+		chatPhoto.prepareSavingPhoto(mMainActivity, bitmap);
 		
 		chatPhoto.saveInBackground(new SaveCallback() {
 			@Override
 			public void done(ParseException e) {
 				if (e == null){ //successfully upload the photo to Parse
-					chatPhoto.savePhotoLocally(getActivity()); //also save the photo locally
+					chatPhoto.savePhotoLocally(mMainActivity); //also save the photo locally
 					
 					//send the Parse photo objectId string to the chat room
 					sendSpecialString( chatPhoto.getObjectId() );
 					//mucController.sendMessage(chatPhoto.getObjectId());
 				}else{
-					Toast.makeText(getActivity(), "Error " + e.getMessage(), Toast.LENGTH_SHORT).show();
+					Toast.makeText(mMainActivity, "Error " + e.getMessage(), Toast.LENGTH_SHORT).show();
 				}
 				
 				enableSendPic();
@@ -370,12 +376,12 @@ public class ChatFragment extends DialogFragment {
 	
 	//Put a text into the chat window
 	private void pushTextToContainer(String msg){
-		final TextView textView = new TextView(getActivity());
+		final TextView textView = new TextView(mMainActivity);
 		textView.setText(msg);
 		textView.setTextSize(20);
 		textView.setPadding(5, 0, 5, 10);
 		
-        getActivity().runOnUiThread(new Runnable() {
+        mMainActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mMsgContainer.addView(textView);
@@ -392,7 +398,7 @@ public class ChatFragment extends DialogFragment {
 	
 	//Put a text into the chat window
 	private void pushPhotoToContainer(final ParseImageView pivPhoto){
-        getActivity().runOnUiThread(new Runnable() {
+        mMainActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mMsgContainer.addView(pivPhoto);
@@ -473,7 +479,7 @@ public class ChatFragment extends DialogFragment {
 	}
 	
 	private void showPhotoSelection(){
-		final Activity parent = getActivity();
+		final Activity parent = mMainActivity;
 		AlertDialog.Builder builder = new AlertDialog.Builder(parent);
 		DialogInterface.OnClickListener dlistener;
 		builder.setTitle(R.string.photo_picker_title);
@@ -544,9 +550,9 @@ public class ChatFragment extends DialogFragment {
 			Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
 			Uri contentUri = Uri.fromFile(imageF);
 	        mediaScanIntent.setData(contentUri);
-	        getActivity().sendBroadcast(mediaScanIntent);
+	        mMainActivity.sendBroadcast(mediaScanIntent);
 			
-			Toast.makeText(getActivity(), "Saved to gallery", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mMainActivity, "Saved to gallery", Toast.LENGTH_SHORT).show();
 			return true;
 		}
 	};

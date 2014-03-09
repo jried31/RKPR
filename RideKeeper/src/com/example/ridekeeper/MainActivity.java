@@ -72,9 +72,10 @@ public class MainActivity extends Activity {
 	private SmackAndroid mSmackAndroid;
 
 	public static enum SelectedFrag {
-		STOLENVEHICLE, MYPROFILE, MYVEHICLES, SETTINGS, MYRIDE
+		STOLENVEHICLE, MYPROFILE, MYVEHICLES, SETTINGS, MYRIDE, CHAT_ROOM
 	}
-	private SelectedFrag selectedFrag;
+
+	private SelectedFrag mSelectedFrag;
 	
 	public static LocationMgr mLocationMgr;
 
@@ -177,7 +178,7 @@ public class MainActivity extends Activity {
 	}
 	
 	public void setDrawerTitle(SelectedFrag frag) {
-		 setTitle(mDrawerMenuTitles[frag.ordinal()]);
+        setTitle(mDrawerMenuTitles[frag.ordinal()]);
 	}
 
 	public static void initLocationUpdateTimer(final Context context) {
@@ -323,10 +324,10 @@ public class MainActivity extends Activity {
 		menu.findItem(R.id.action_addvehicle).setVisible(false);
 		menu.findItem(R.id.action_refreshvbslist).setVisible(false);
 		
-		if (selectedFrag == SelectedFrag.MYVEHICLES){
+		if (mSelectedFrag == SelectedFrag.MYVEHICLES){
 			//menu.findItem(R.id.action_websearch).setVisible(false);
 			menu.findItem(R.id.action_addvehicle).setVisible(true & !drawerOpen);
-		}else if (selectedFrag == SelectedFrag.STOLENVEHICLE) {
+		} else if (mSelectedFrag == SelectedFrag.STOLENVEHICLE) {
 			menu.findItem(R.id.action_refreshvbslist).setVisible(true & !drawerOpen);
 		}
 		
@@ -371,27 +372,27 @@ public class MainActivity extends Activity {
 		switch(position){
 		case DBGlobals.LIST_STOLEN_VEHICLES:
 			fragment = new StolenVehicleListFragment();
-			selectedFrag = SelectedFrag.STOLENVEHICLE;
+			mSelectedFrag = SelectedFrag.STOLENVEHICLE;
 			break;
 		case DBGlobals.MY_PROFILE:
 			fragment = new MyProfileFragment();
-			selectedFrag = SelectedFrag.MYPROFILE;
+			mSelectedFrag = SelectedFrag.MYPROFILE;
 			break;
 		case DBGlobals.LIST_MY_VEHICLES:
 			fragment = new MyVehicleListFragment();
-			selectedFrag = SelectedFrag.MYVEHICLES;
+			mSelectedFrag = SelectedFrag.MYVEHICLES;
 			break;
 		case DBGlobals.SETTINGS:
 			fragment = new SettingsFragment();
-			selectedFrag = SelectedFrag.SETTINGS;
+			mSelectedFrag = SelectedFrag.SETTINGS;
 			break;
         case DBGlobals.MY_RIDES:
             fragment = new MyRideListFragment();
-            selectedFrag = SelectedFrag.MYRIDE;
+            mSelectedFrag = SelectedFrag.MYRIDE;
             break;
 		default:
 			fragment = new MyProfileFragment();
-			selectedFrag = SelectedFrag.MYPROFILE;
+			mSelectedFrag = SelectedFrag.MYPROFILE;
 			break;
 		}
 
@@ -402,6 +403,10 @@ public class MainActivity extends Activity {
 		mDrawerList.setItemChecked(position, true);
 		setTitle(mDrawerMenuTitles[position]);
 		mDrawerLayout.closeDrawer(mDrawerList);
+	}
+	
+	public void setSelectedFrag(SelectedFrag frag) {
+		mSelectedFrag = frag;
 	}
 
 	@Override
