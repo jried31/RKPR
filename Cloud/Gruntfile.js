@@ -34,12 +34,16 @@ module.exports = function (grunt) {
                     "require": false,
                     "module": false,
                     "console": false,
-                    "exports": false
+                    "exports": false,
+
+                    // mocha test framework
+                    "describe": false,
+                    "it": false
                 }
             },
             all: {
                 src: [
-                    "Gruntfile.js","*.js"
+                    "Gruntfile.js","*.js", "test/**/*.js"
                 ]
             }
         },
@@ -51,6 +55,6 @@ module.exports = function (grunt) {
 
     });
 
-    grunt.registerTask('default',  ['jshint']);
+    grunt.registerTask('default',  ['jsonlint','jshint']);
 
 };

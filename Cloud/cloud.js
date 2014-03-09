@@ -11,6 +11,8 @@ var KaisekiInc = require('kaiseki'),
     // collection of useful Javascript functions
     // see http://underscorejs.org/
     _ = require('underscore'),
+    util = require('util.js'),
+    timestamp = util.timestamp,
 
     // credentials for Jabber
     jabber_creds = {
@@ -44,42 +46,6 @@ var KaisekiInc = require('kaiseki'),
     },
     // dictionary to look up alert level name by integer value
     reverseAlertLevelDictionary = _.invert(AlertLevel);
-
-
-/**
- * @function timestamp
- * @desc Return a timestamp with the format 'm/d/yy h:MM:ss TT'
- * @return {String} - the generated timestamp
- */
-function timestamp() {
-
-    var d       = new Date(),
-        month   = d.getMonth() + 1,
-        date    = d.getDate(),
-        year    = d.getFullYear(),
-        hour    = d.getHours() - 2,
-        min     = d.getMinutes(),
-        sec     = d.getSeconds();
-
-    // append 0 to single digit numbers
-    if (month < 10) {
-        month = '0' + month;
-    }
-    if (date < 10) {
-        date = '0' + date;
-    }
-    if (hour < 10) {
-        hour = '0' + hour;
-    }
-    if (min < 10) {
-        min = '0' + min;
-    }
-    if (sec < 10) {
-        sec = '0' + sec;
-    }
-
-    return month + '-' + date + '-' + year + ' ' + hour + ':' + min + ':' + sec;
-}
 
 /**
  * @function sendPushNotification
@@ -247,6 +213,7 @@ var notifyNearbyUsers = function() {
                                                 kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
                                                     if (success) {
                                                         // don't want to flood the console...
+                                                        // console.log('Push notification successfully sent:', body);
                                                     }
                                                     else {
                                                         console.log(body.error);
