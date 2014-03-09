@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: server.js</title>
+    <title>JSDoc: Source: util.js</title>
     
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Source: server.js</h1>
+    <h1 class="page-title">Source: util.js</h1>
     
     
 
@@ -25,34 +25,66 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * @overview instantiates web server for service
+            <pre class="prettyprint source linenums"><code>/* jshint -W097 */
+"use strict";
+/**
+ * @overview Utility Methods
  */
 
-/* jshint -W097 */
-"use strict";
+/**
+ * @function timestamp
+ * @desc Returns a timestamp with the format 'mm-dd-yyyy hh:MM:ss'
+ * @return {String} the generated timestamp
+ */
+function timestamp() {
 
-var restify = require('restify'),
-    request = require('request'),
-    cloud = require('./cloud.js'),
-    server = restify.createServer();
+    var d       = new Date(),
+        month   = d.getMonth() + 1,
+        date    = d.getDate(),
+        year    = d.getFullYear(),
+        hour    = d.getHours() - 2,
+        min     = d.getMinutes(),
+        sec     = d.getSeconds();
 
-server.use(restify.bodyParser({ mapParams: false }));
+    // append 0 to single digit numbers
+    if (month &lt; 10) {
+        month = '0' + month;
+    }
+    if (date &lt; 10) {
+        date = '0' + date;
+    }
+    if (hour &lt; 10) {
+        hour = '0' + hour;
+    }
+    if (min &lt; 10) {
+        min = '0' + min;
+    }
+    if (sec &lt; 10) {
+        sec = '0' + sec;
+    }
 
-server.post('/update', cloud.processTrackerAlert);
+    return month + '-' + date + '-' + year + ' ' + hour + ':' + min + ':' + sec;
+}
 
-server.listen(8888, function() {
-    console.log('%s listening at %s', server.name, server.url);
-});
+/**
+ * @function diffTime
+ *
+ * @param {String} end - the ending timestamp
+ * @param {String} start - the starting timestamp
+ *
+ * @return {Number | Boolean} the difference in milliseconds or false on error
+ */
+function diffTime(end, begin) {
 
+    var diff =  Date.parse(end) - Date.parse(begin);
 
-// A 'cronjob' to run the notify task. Yeah,
-// it leaks memory.
+    return isNaN(diff) ? false : diff;
+}
 
-
-var minutes = 1, interval = minutes * 1000 * 60;
-setInterval(cloud.notifyNearbyUsers, interval/4);
-
+module.exports = {
+    timestamp: timestamp,
+    diffTime: diffTime
+};
 </code></pre>
         </article>
     </section>

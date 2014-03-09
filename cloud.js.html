@@ -38,6 +38,9 @@ var KaisekiInc = require('kaiseki'),
     // collection of useful Javascript functions
     // see http://underscorejs.org/
     _ = require('underscore'),
+    util = require('./util.js'),
+    timestamp = util.timestamp,
+    diffTime = util.diffTime,
 
     // credentials for Jabber
     jabber_creds = {
@@ -71,42 +74,6 @@ var KaisekiInc = require('kaiseki'),
     },
     // dictionary to look up alert level name by integer value
     reverseAlertLevelDictionary = _.invert(AlertLevel);
-
-
-/**
- * @function timestamp
- * @desc Return a timestamp with the format 'm/d/yy h:MM:ss TT'
- * @return {String} - the generated timestamp
- */
-function timestamp() {
-
-    var d       = new Date(),
-        month   = d.getMonth() + 1,
-        date    = d.getDate(),
-        year    = d.getFullYear(),
-        hour    = d.getHours() - 2,
-        min     = d.getMinutes(),
-        sec     = d.getSeconds();
-
-    // append 0 to single digit numbers
-    if (month &lt; 10) {
-        month = '0' + month;
-    }
-    if (date &lt; 10) {
-        date = '0' + date;
-    }
-    if (hour &lt; 10) {
-        hour = '0' + hour;
-    }
-    if (min &lt; 10) {
-        min = '0' + min;
-    }
-    if (sec &lt; 10) {
-        sec = '0' + sec;
-    }
-
-    return month + '-' + date + '-' + year + ' ' + hour + ':' + min + ':' + sec;
-}
 
 /**
  * @function sendPushNotification
@@ -154,14 +121,25 @@ function sendPushNotification(alertKey, vehicle, message) {
  */
 function updateVehicleStatus(alert, vehicle, message) {
 
-    var alertKey = reverseAlertLevelDictionary[(parseInt(alert.lvl)).toString()];
+    var alertKey = reverseAlertLevelDictionary[(parseInt(alert.lvl)).toString()],
+        data = {
+            alertLevel: alertKey,
+            pos: alert.location
+        };
 
-    kaiseki.updateObject('Vehicle', vehicle.objectId, {
+    // store a timestamp of date vehicle is stolen
+    if (alertKey === AlertLevel.STOLEN) {
+        data.stolenDate = timestamp();
+        data.recoveredDate = undefined;
+    }
 
-        'alertLevel': alertKey,
-        'pos': alert.location
+    // store a timestamp of date when vehicle is recovered
+    if (alertKey === AlertLevel.RVD) {
+        data.recoveredDate = timestamp();
+    }
 
-    }, function(err, res, body, success) {
+    kaiseki.updateObject('Vehicle', vehicle.objectId, data,
+    function(err, res, body, success) {
         //send notifications w.r.t. the alert level
         if (err) {
             console.log(body.error);
@@ -274,6 +252,7 @@ var notifyNearbyUsers = function() {
                                                 kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
                                                     if (success) {
                                                         // don't want to flood the console...
+                                                        // console.log('Push notification successfully sent:', body);
                                                     }
                                                     else {
                                                         console.log(body.error);
@@ -456,9 +435,31 @@ var processTrackerAlert = function(req, resp, next) {
         });
 };
 
+/**
+ * @function refereshRecoveredVehicles
+ *
+ * @desc after a certain interval of vehicle recovery,
+ *       resets vehicle status metadata
+ */
+var refreshRecoveredVehicles = function() {
+
+    kaiseki.getObjects(
+        'Vehicle', {
+
+            where: { 
+                recoveredDate: {$exists: true} 
+            }
+
+        }, function(err, res, body, success) {
+            console.log(body);
+    });
+    // TODO: batch update / reset vehicle objects after certain time interval
+};
+
 
 exports.processTrackerAlert = processTrackerAlert;
 exports.notifyNearbyUsers = notifyNearbyUsers;
+exports.refreshRecoveredVehicles = refreshRecoveredVehicles;
 </code></pre>
         </article>
     </section>
@@ -469,13 +470,13 @@ exports.notifyNearbyUsers = notifyNearbyUsers;
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Global</h3><ul><li><a href="global.html#createChatroom">createChatroom</a></li><li><a href="global.html#notifyNearbyUsers">notifyNearbyUsers</a></li><li><a href="global.html#processTrackerAlert">processTrackerAlert</a></li><li><a href="global.html#sendPushNotification">sendPushNotification</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#updateVehicleLocation">updateVehicleLocation</a></li><li><a href="global.html#updateVehicleStatus">updateVehicleStatus</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Global</h3><ul><li><a href="global.html#createChatroom">createChatroom</a></li><li><a href="global.html#diffTime">diffTime</a></li><li><a href="global.html#notifyNearbyUsers">notifyNearbyUsers</a></li><li><a href="global.html#processTrackerAlert">processTrackerAlert</a></li><li><a href="global.html#refereshRecoveredVehicles">refereshRecoveredVehicles</a></li><li><a href="global.html#sendPushNotification">sendPushNotification</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#updateVehicleLocation">updateVehicleLocation</a></li><li><a href="global.html#updateVehicleStatus">updateVehicleStatus</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha4</a> on Sat Mar 08 2014 03:30:24 GMT-0800 (PST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha4</a> on Sun Mar 09 2014 15:17:11 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
