@@ -24,5 +24,8 @@ server.listen(8888, function() {
 
 
 var minutes = 1, interval = minutes * 1000 * 60;
+
 setInterval(cloud.notifyNearbyUsers, interval/4);
+// refresh vehicles everyday
+setInterval(cloud.refreshRecoveredVehicles, interval);
 

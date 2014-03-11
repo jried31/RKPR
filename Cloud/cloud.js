@@ -12,6 +12,7 @@ var KaisekiInc = require('kaiseki'),
     // see http://underscorejs.org/
     _ = require('underscore'),
     util = require('./util.js'),
+    config = require('./config.js'),
     timestamp = util.timestamp,
     diffTime = util.diffTime,
 
@@ -26,11 +27,13 @@ var KaisekiInc = require('kaiseki'),
         nickname: 'Big_Brother'
     },
 
-    // Kaiseki Constants 
-    APP_ID = 'TfBH3NJxzbOaxpksu5YymD4lP9bPlytcfZMG8i5a',
-    REST_API_KEY = 'IYkecC2bwjTYy4suhkGTEn7yrJaLC7ygVc5Esedd',
     // Kaiseki Instances
-    kaiseki = new KaisekiInc(APP_ID, REST_API_KEY),
+    kaiseki = new KaisekiInc(config.APP_ID, config.REST_API_KEY),
+
+    // the time difference between stolenDate and recoveredDate
+    // this threshold determines when to reset vechiles to a clean not stolen state
+    // 5 days in milliseconds
+    REFRESH_THRESHOLD = 5 * 24 * 60 * 60 * 1000,
 
     // Alert Constants
     AlertLevel = {
@@ -42,8 +45,9 @@ var KaisekiInc = require('kaiseki'),
         RIDING: 5,
         CRASHED: 6,
 
-        NRD:    "NRD",// not recovered
-        RVD:    "RVD"// recovered
+        // TODO: change this to numbers?
+        NRD:    "NRD", // not recovered
+        RVD:    "RVD" // recovered
     },
     // dictionary to look up alert level name by integer value
     reverseAlertLevelDictionary = _.invert(AlertLevel);
@@ -413,23 +417,60 @@ var processTrackerAlert = function(req, resp, next) {
  *
  * @desc after a certain interval of vehicle recovery,
  *       resets vehicle status metadata
+ *
+ * @param {Function} onSuccess - callback on success
+ * @param {Function} onError - callback on error
  */
-var refreshRecoveredVehicles = function() {
+var refreshRecoveredVehicles = function(onSuccess, onError) {
 
     kaiseki.getObjects(
         'Vehicle', {
 
-            where: { 
+            where: {
                 recoveredDate: {$exists: true} 
             }
 
         }, function(err, res, body, success) {
-            console.log(body);
-    });
-    // TODO: batch update / reset vehicle objects after certain time interval
+
+            var diff = 0,
+                deleteField = {__op: "Delete"};
+
+            body.forEach(function(vehicle, index) {
+
+                diff = diffTime(vehicle.recoveredDate, vehicle.stolenDate);
+
+                if (diff !== false && diff >= REFRESH_THRESHOLD) {
+
+                    kaiseki.updateObject('Vehicle', vehicle.objectId,
+                    {
+                        alertLevel: deleteField,
+                        stolenDate: deleteField,
+                        recoveredDate: deleteField,
+                        status: deleteField 
+                    },
+                    function(err, res, body, success) {
+
+                        if (success) {
+                            if (onSuccess) {
+                                onSuccess(body);
+                            }
+                        }
+
+                        if (err) {
+                            console.log(body.error);
+                            if (onError) {
+                                onError(body);
+                            }
+                        }
+                    });
+                }
+            });
+        });
 };
 
 
-exports.processTrackerAlert = processTrackerAlert;
-exports.notifyNearbyUsers = notifyNearbyUsers;
-exports.refreshRecoveredVehicles = refreshRecoveredVehicles;
+module.exports = {
+    processTrackerAlert:  processTrackerAlert,
+    notifyNearbyUsers: notifyNearbyUsers,
+    refreshRecoveredVehicles: refreshRecoveredVehicles
+};

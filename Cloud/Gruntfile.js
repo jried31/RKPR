@@ -38,7 +38,9 @@ module.exports = function (grunt) {
 
                     // mocha test framework
                     "describe": false,
-                    "it": false
+                    "it": false,
+                    "before": false,
+                    "after": false
                 }
             },
             all: {
