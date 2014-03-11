@@ -56,6 +56,9 @@ npm run doc
 ```
 The documentation is saved into ```Cloud/jsdoc```
 
+Read the [documentation](http://jried31.github.io/RKPR/) 
+It is saved under the `gh-pages` branch.
+
 ### JavaScript Testing
 [mocha](http://visionmedia.github.io/mocha/) is a framework for running tests on Node.js
 
