@@ -25,16 +25,22 @@ public class ParseCustomReceiver extends BroadcastReceiver{
 			//String action = intent.getAction();
 			JSONObject json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
 			String alertLevel = json.getString("alertLevel");
-			String vehicleName = json.getString("vehicleName");
+			String data = json.getString("message");
 				
-			if (alertLevel.equalsIgnoreCase("nearby")){
-				NotificationMgr.nearbyVBSAlert(context, vehicleName, App.isMainActivityRunning);
-			}else if (alertLevel.equalsIgnoreCase("TLT")){
-				NotificationMgr.ownerVehicleLiftTiltAlert(context, vehicleName, App.isMainActivityRunning);
+			if (alertLevel.equalsIgnoreCase(DBGlobals.ALERT_LEVEL_STOLEN)){
+				NotificationMgr.ownerVehicleStolenAlert(context, data, App.isMainActivityRunning);
+			}else if (alertLevel.equalsIgnoreCase(DBGlobals.ALERT_LEVEL_NEARBY)){
+				NotificationMgr.nearbyVBSAlert(context, data, App.isMainActivityRunning);
+			}else if (alertLevel.equalsIgnoreCase(DBGlobals.ALERT_LEVEL_MOVED)){
+				NotificationMgr.ownerVehicleStolenAlert(context, data, App.isMainActivityRunning);
+			}else if (alertLevel.equalsIgnoreCase(DBGlobals.ALERT_LEVEL_TILT)){
+				NotificationMgr.ownerVehicleLiftTiltAlert(context, data, App.isMainActivityRunning);
 			/*}else if (alertType.equalsIgnoreCase("lifted")){
 				NotificationMgr.ownerVehicleLiftTiltAlert(context, App.isMainActivityRunning);*/
-			}else if (alertLevel.equalsIgnoreCase("MVT")){
-				NotificationMgr.ownerVehicleStolenAlert(context, vehicleName, App.isMainActivityRunning);
+			} else if (alertLevel.equalsIgnoreCase(DBGlobals.ALERT_LEVEL_RECOVERED)){
+				NotificationMgr.nearbyVBSAlert(context, data, App.isMainActivityRunning);
+			}else if (alertLevel.equalsIgnoreCase(DBGlobals.ALERT_LEVEL_CRASHED)){
+				//CALL POLICE
 			}
 			
 		} catch (JSONException e) {
