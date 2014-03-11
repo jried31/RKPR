@@ -64,7 +64,7 @@ public class MyVehicleListFragment extends ListFragment {
 	    case R.id.find_item://Putting the UID of the select vehicle to the Google Map fragment argument
 		    String uid = myVehicleAdapter.getItem( info.position ).getObjectId();
 	    	Bundle bundle = new Bundle();
-	    	bundle.putString("UID", uid);
+	    	bundle.putString(DBGlobals.ARG_VEHICLE_ID, uid);
 	    	DialogFragmentMgr.showDialogFragment(getActivity(), new GoogleMapFindVehicleFragment(), "Map Dialog", true, bundle);
 	    	return true;
 	    case R.id.remove_item:
