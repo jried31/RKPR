@@ -74,8 +74,8 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
     	mBundle = savedInstanceState;
     	
     	//Load  UID argument for tracking
-    	if (getArguments()!=null && getArguments().containsKey("UID")){
-        	UIDtoTrack = getArguments().getString("UID");
+    	if (getArguments()!=null && getArguments().containsKey(DBGlobals.ARG_VEHICLE_ID)){
+        	UIDtoTrack = getArguments().getString(DBGlobals.ARG_VEHICLE_ID);
       		//Grab the vehicle location from Parse
             markerOptions = new MarkerOptions();
         	//Toast.makeText(getActivity(), UIDtoTrack, Toast.LENGTH_SHORT).show();
