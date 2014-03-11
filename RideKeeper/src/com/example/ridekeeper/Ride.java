@@ -8,6 +8,7 @@ import java.util.List;
 
 public class Ride {
     public static final SimpleDateFormat rideDateFormat = new SimpleDateFormat("MM-dd-yyyy");
+    public static final SimpleDateFormat prettyRideDateFormat = new SimpleDateFormat("MMMM d, yyyy");
     List<LatLng> points;
     Date startDate;
     Date endDate;
@@ -33,7 +34,6 @@ public class Ride {
     public Date getEndDate() {
         return endDate;
     }
-
 
     public void setDistance(double distance) {
         this.distance = distance;

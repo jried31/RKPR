@@ -3,6 +3,7 @@ package com.example.ridekeeper;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Point;
 import android.location.Location;
@@ -30,6 +31,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -43,14 +45,14 @@ import java.util.Date;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
-public class MyRideFragment extends Fragment implements GooglePlayServicesClient.ConnectionCallbacks,GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
+public class MyRideFragment extends Fragment implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
     private GoogleMap mRideMap;
     private MapView mRideMapView;
     private TextView mRideOdometerView;
     private Polyline mRidePolyline;
     private double mRideOdometer = 0;
-    private Button beginRideButton;
-    private Button endRideButton;
+    private Button mBeginRideButton;
+    private Button mEndRideButton;
     private SimpleDateFormat rideDateFormat = new SimpleDateFormat("MM-dd-yyyy");
     private Ride ride;
     private boolean savedRide = false;
@@ -77,9 +79,8 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         mLocationRequest.setFastestInterval(5000);
-        //mLocationRequest.setSmallestDisplacement(20);
+        mLocationRequest.setSmallestDisplacement(20);
         mLocationClient = new LocationClient(getActivity(), this, this);
-        mLocationClient.connect();
     }
 
     @Override
@@ -103,22 +104,24 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
         PolylineOptions rectOptions = new PolylineOptions();
         mRidePolyline = mRideMap.addPolyline(rectOptions);
 
-        beginRideButton = (Button) view.findViewById(R.id.begin_ride_button);
-        endRideButton = (Button) view.findViewById(R.id.end_ride_button);
-        beginRideButton.setOnClickListener(new View.OnClickListener() {
+        mBeginRideButton = (Button) view.findViewById(R.id.begin_ride_button);
+        mEndRideButton = (Button) view.findViewById(R.id.end_ride_button);
+        mBeginRideButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mLocationClient.requestLocationUpdates(mLocationRequest, MyRideFragment.this);
                 v.setVisibility(View.GONE);
-                endRideButton.setVisibility(View.VISIBLE);
+                mEndRideButton.setVisibility(View.VISIBLE);
+                Intent intent = new Intent(getActivity(), RideService.class);
+                getActivity().startService(intent);
             }
         });
 
-        endRideButton.setOnClickListener(new View.OnClickListener() {
+        mEndRideButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mLocationClient.removeLocationUpdates(MyRideFragment.this);
-                endRideButton.setVisibility(View.GONE);
+                mEndRideButton.setVisibility(View.GONE);
 
                 // Save the ride
                 List<LatLng> points = mRidePolyline.getPoints();
@@ -144,11 +147,13 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
                 } catch (Exception e) {
                     Toast.makeText(getActivity(), "There was an error saving your ride.",Toast.LENGTH_SHORT).show();
                 }
+                Intent intent = new Intent(getActivity(), RideService.class);
+                getActivity().stopService(intent);
             }
         });
 
         if (savedRide) {
-            beginRideButton.setVisibility(View.GONE);
+            mBeginRideButton.setVisibility(View.GONE);
             List<LatLng> points = mRidePolyline.getPoints();
             points.addAll(ride.getPoints());
             mRidePolyline.setPoints(points);
@@ -158,7 +163,10 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
             }
             LatLngBounds rideBounds = boundsBuilder.build();
             getScreenDimensions();
-            mRideMap.moveCamera(CameraUpdateFactory.newLatLngBounds(rideBounds, screenWidth, screenHeight, 150));
+            mRideOdometerView.setText(new DecimalFormat("#.##").format(ride.getDistance() / 1000.0));
+            mRideMap.moveCamera(CameraUpdateFactory.newLatLngBounds(rideBounds, screenWidth, screenHeight, 250));
+            mRideMap.addMarker(new MarkerOptions().position(ride.getPoints().get(0)).title("Start"));
+            mRideMap.addMarker(new MarkerOptions().position(ride.getPoints().get(ride.getPoints().size() - 1)).title("End"));
         }
         return view;
     }
@@ -249,7 +257,6 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
         if (myLocation == null) {
             return;
         }
-        Log.v("RideView", myLocation.toString());
         List<LatLng> points = mRidePolyline.getPoints();
         LatLng newPoint = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
         points.add(newPoint);
@@ -259,7 +266,7 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
             Location.distanceBetween(lastPoint.latitude, lastPoint.longitude, newPoint.latitude, newPoint.longitude, distance);
         }
         mRideOdometer += distance[0];
-        mRideOdometerView.setText(new DecimalFormat("#.##").format(mRideOdometer/1000.0) + " km");
+        mRideOdometerView.setText(new DecimalFormat("#.##").format(mRideOdometer/1000.0));
         mRidePolyline.setPoints(points);
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(newPoint, 16);
         mRideMap.animateCamera(cameraUpdate);

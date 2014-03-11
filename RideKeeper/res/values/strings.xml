@@ -110,4 +110,8 @@
     <string name="send">Send</string>
     <string name="current_user">Me</string>
 
+    <!-- Ride strings -->
+    <string name="start_ride">Start Ride</string>
+    <string name="end_ride">End Ride</string>
+
 </resources>

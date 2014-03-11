@@ -27,8 +27,8 @@ public class RideAdapter extends ArrayAdapter<Ride> {
         View rowView = inflater.inflate(R.layout.fragment_ride_item, parent, false);
         TextView dateView = (TextView) rowView.findViewById(R.id.ride_date);
         TextView distanceView = (TextView) rowView.findViewById(R.id.ride_distance);
-        dateView.setText(Ride.rideDateFormat.format(rides.get(position).getStartDate()));
-        distanceView.setText(new DecimalFormat("#.##").format(rides.get(position).getDistance()/1000) + " km");
+        dateView.setText(Ride.prettyRideDateFormat.format(rides.get(position).getStartDate()));
+        distanceView.setText(new DecimalFormat("#.##").format(rides.get(position).getDistance()/1000));
         return rowView;
     }
 }

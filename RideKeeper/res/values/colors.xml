@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="addRidePressedGreen">#00AB0B</color>
+    <color name="addRideGreen">#00C90D</color>
+</resources>
