@@ -71,6 +71,8 @@
         
         <!-- Parse Service -->
         <service android:name="com.parse.PushService" />
+        <service android:name=".RideService"/>
+
         <receiver android:name="com.example.ridekeeper.ParseCustomReceiver" android:exported="false">
 			<intent-filter>
 				<action android:name="CUSTOMIZED" />

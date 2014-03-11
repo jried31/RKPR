@@ -1,14 +1,18 @@
 package com.example.ridekeeper;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.Fragment;
+import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
+import android.content.ServiceConnection;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -18,12 +22,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.location.LocationClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -43,9 +42,11 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @SuppressLint("ValidFragment")
-public class MyRideFragment extends Fragment implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
+public class MyRideFragment extends Fragment {
     private GoogleMap mRideMap;
     private MapView mRideMapView;
     private TextView mRideOdometerView;
@@ -60,8 +61,9 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
     private Bundle mBundle;
 
     private Location myLocation;
-    private LocationClient mLocationClient;
-    private LocationRequest mLocationRequest;
+    private RideService mRideService;
+    private boolean mRideServiceBound = false;
+    private Timer mServiceTimer;
 
 	public MyRideFragment(Ride ride) {
         super();
@@ -75,24 +77,24 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBundle = savedInstanceState;
-
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setSmallestDisplacement(20);
-        mLocationClient = new LocationClient(getActivity(), this, this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_ride_view, container, false);
+
         try{
             MapsInitializer.initialize(getActivity());
         }catch (GooglePlayServicesNotAvailableException e){
-
         }
+
+        // Set up all of the view elements
         mRideOdometerView = (TextView) view.findViewById(R.id.odometer);
         mRideMapView = (MapView) view.findViewById(R.id.map);
+        mBeginRideButton = (Button) view.findViewById(R.id.begin_ride_button);
+        mEndRideButton = (Button) view.findViewById(R.id.end_ride_button);
+
+        // Set up the map view
         mRideMapView.onCreate(mBundle);
         mRideMap = mRideMapView.getMap();
         mRideMap.setMyLocationEnabled(true);
@@ -103,24 +105,32 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
 
         PolylineOptions rectOptions = new PolylineOptions();
         mRidePolyline = mRideMap.addPolyline(rectOptions);
-
-        mBeginRideButton = (Button) view.findViewById(R.id.begin_ride_button);
-        mEndRideButton = (Button) view.findViewById(R.id.end_ride_button);
+        Log.v("banana", "creating view");
         mBeginRideButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mLocationClient.requestLocationUpdates(mLocationRequest, MyRideFragment.this);
                 v.setVisibility(View.GONE);
                 mEndRideButton.setVisibility(View.VISIBLE);
                 Intent intent = new Intent(getActivity(), RideService.class);
                 getActivity().startService(intent);
+                getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+                mServiceTimer = new Timer();
+                mServiceTimer.scheduleAtFixedRate(new TimerTask() {
+                    synchronized public void run() {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateLocation();
+                            }
+                        });
+                    }
+                }, 0, 5000);
             }
         });
 
         mEndRideButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mLocationClient.removeLocationUpdates(MyRideFragment.this);
                 mEndRideButton.setVisibility(View.GONE);
 
                 // Save the ride
@@ -148,7 +158,9 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
                     Toast.makeText(getActivity(), "There was an error saving your ride.",Toast.LENGTH_SHORT).show();
                 }
                 Intent intent = new Intent(getActivity(), RideService.class);
+                getActivity().unbindService(mConnection);
                 getActivity().stopService(intent);
+                mServiceTimer.cancel();
             }
         });
 
@@ -167,6 +179,9 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
             mRideMap.moveCamera(CameraUpdateFactory.newLatLngBounds(rideBounds, screenWidth, screenHeight, 250));
             mRideMap.addMarker(new MarkerOptions().position(ride.getPoints().get(0)).title("Start"));
             mRideMap.addMarker(new MarkerOptions().position(ride.getPoints().get(ride.getPoints().size() - 1)).title("End"));
+        } else if (isRideServiceRunning()) {
+            mBeginRideButton.setVisibility(View.GONE);
+            mEndRideButton.setVisibility(View.VISIBLE);
         }
         return view;
     }
@@ -174,7 +189,21 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
     @Override
     public void onStart() {
         super.onStart();
-        mLocationClient.connect();
+        if (isRideServiceRunning()) {
+            Intent intent = new Intent(getActivity(), RideService.class);
+            getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            mServiceTimer = new Timer();
+            mServiceTimer.scheduleAtFixedRate(new TimerTask() {
+                synchronized public void run() {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateLocation();
+                        }
+                    });
+                }
+            }, 0, 5000);
+        }
     }
 
     @Override
@@ -191,67 +220,23 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
 
     @Override
     public void onStop() {
-
-        mLocationClient.removeLocationUpdates(this);
-        mLocationClient.disconnect();
+        if (isRideServiceRunning()) {
+            getActivity().unbindService(mConnection);
+            mRideServiceBound = false;
+        }
+        if (mServiceTimer != null) {
+            Log.v("banana", "canceling timer");
+            mServiceTimer.cancel();
+        }
         super.onStop();
     }
 
     @Override
     public void onDestroy() {
         mRideMapView.onDestroy();
-        mLocationClient.disconnect();
         super.onDestroy();
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
-        if (!savedRide) {
-            myLocation = mLocationClient.getLastLocation();
-            if (myLocation == null) {
-            	Log.d("MyRideFragment.onConnected()", "LocationClient.getLastLocation() == null");
-            } else {
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16);
-                mRideMap.animateCamera(cameraUpdate);
-            }
-        }
-    }
-
-    @Override
-    public void onDisconnected() {
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-         /*
-         * Google Play services can resolve some errors it detects.
-         * If the error has a resolution, try sending an Intent to
-         * start a Google Play services activity that can resolve
-         * error.
-         */
-        if (connectionResult.hasResolution()) {
-            try {
-                // Start an Activity that tries to resolve the error
-                connectionResult.startResolutionForResult(
-                        getActivity(),
-                        DBGlobals.CONNECTION_FAILURE_RESOLUTION_REQUEST);
-                /*
-                 * Thrown if Google Play services canceled the original
-                 * PendingIntent
-                 */
-            } catch (IntentSender.SendIntentException e) {
-                // Log the error
-                e.printStackTrace();
-            }
-        } else {
-            /*
-             * If we can't connect, display a toast telling the user.
-             */
-            Toast.makeText(getActivity(), "Unable to get location.",Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
     public void onLocationChanged(Location location) {
         myLocation = location;
         if (myLocation == null) {
@@ -272,6 +257,19 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
         mRideMap.animateCamera(cameraUpdate);
     }
 
+    public void updateLocation() {
+        if (!mRideServiceBound) {
+            return;
+        }
+        List<LatLng> points = mRideService.getRidePoints();
+        mRideOdometer = Ride.calculateDistance(points);
+        mRideOdometerView.setText(new DecimalFormat("#.##").format(mRideOdometer/1000.0));
+        mRidePolyline.setPoints(points);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(points.get(points.size()-1), 16);
+        mRideMap.animateCamera(cameraUpdate);
+        Log.v("banana", "updating location!");
+    }
+
     private int screenWidth;
     private int screenHeight;
     private void getScreenDimensions()
@@ -290,4 +288,30 @@ public class MyRideFragment extends Fragment implements GooglePlayServicesClient
             screenHeight = display.getHeight();
         }
     }
+
+    private boolean isRideServiceRunning() {
+        ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (RideService.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            RideService.RideBinder binder = (RideService.RideBinder) service;
+            mRideService = binder.getService();
+            mRideServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mRideServiceBound = false;
+        }
+    };
 }
