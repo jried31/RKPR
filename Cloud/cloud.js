@@ -161,12 +161,11 @@ var notifyNearbyUsers = function() {
     // First get all Vechiles that are stolen
     kaiseki.getObjects('Vehicle', {where: {alertLevel: "STOLEN"}}, function(err, res, body, success) {
         if (success) {
-            console.log('we got some data back'); 
-            
+        	console.log("vehicle body length - "+body.length);
             for (var i = 0; i < body.length; ++i) {
                 var veh = body[i];
-                console.log('Notifying users near vehicleId: ' + veh['objectId']);
-
+                
+				console.log('Notifying users near vehicleId: ' + veh['objectId']);
                 // refer to https://parse.com/docs/rest#geo
                 var geopoint_where = {
                     GeoPoint: {
@@ -179,8 +178,6 @@ var notifyNearbyUsers = function() {
                     }
                 };
                 
-				var vehicleOwner = veh['ownerId'];  //Grab the owner of the vehicle
-                console.log("We get this far buddy");
                 kaiseki.getUsers(geopoint_where, function(err, res, body, success) {
 
                     if (success) {
@@ -188,11 +185,11 @@ var notifyNearbyUsers = function() {
                         var nearby_users = [];
 						
                         for (var j = 0; j < body.length; ++j) {
-                            console.log(body[j]['objectId']);
+                            //console.log(body[j]['objectId']);
                             nearby_users.push(body[j]['objectId']);
                         }
                         
-						
+						console.log("vehicle id -" +veh['objectId']);
                         // get chatroom assocated with vehicle
                         kaiseki.getObjects('Chatroom', { where: { vehicleId : veh['objectId']},limit:1, order:'-createdAt' }, function(err, res, body, success) {
 
@@ -204,7 +201,8 @@ var notifyNearbyUsers = function() {
                                     if (!room['members']) {
                                         room['members'] = [];
                                     }
-
+									console.log("near by Users: "+ nearby_users);
+									console.log("Room Members: " + room['members']);
                                     var new_users = _.difference(nearby_users, room['members']),
                                         // add new users to chat room
                                         members = room['members'].concat(new_users);

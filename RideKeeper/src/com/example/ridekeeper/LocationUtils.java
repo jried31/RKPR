@@ -64,7 +64,7 @@ public final class LocationUtils {
     public static final long FAST_INTERVAL_CEILING_IN_MILLISECONDS =
             MILLISECONDS_PER_SECOND * FAST_CEILING_IN_SECONDS;
 
-	public static final int LOCATION_UPDATE_RATE = MILLISECONDS_PER_SECOND * SECONDS_PER_MIN / 2; //wake up phone and run some tasks every X ms
+	public static final int LOCATION_UPDATE_RATE = MILLISECONDS_PER_SECOND * SECONDS_PER_MIN * 5; //Update Location every 5 mins 
 
     // Create an empty string for initializing strings
     public static final String EMPTY_STRING = new String();
