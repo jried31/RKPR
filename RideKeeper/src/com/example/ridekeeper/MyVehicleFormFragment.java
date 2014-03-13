@@ -43,9 +43,8 @@ public class MyVehicleFormFragment extends Fragment implements ImageConsumer {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-    	mImageFragment = ImageFragment.newInstance(this, null);
-    	FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-    	fragmentTransaction.add(mImageFragment, ImageFragment.TAG).commit();
+    	mImageFragment = ImageFragment.newInstance(this, null,
+    			getFragmentManager());
 	}
 
     @Override

@@ -235,6 +235,7 @@ public class StolenVehicleListFragment extends ListFragment {
 	//Should be called only when ParseUser.getCurrentUser() is authenticated
 	public static void refreshList(){
         Log.d(TAG, "refreshList() refreshing stolen vehicles list");
+        clearList();
 
         ParseFunctions.queryForVehicleInMyChatRoom_InBackground(
                 sRoomsReceiver,

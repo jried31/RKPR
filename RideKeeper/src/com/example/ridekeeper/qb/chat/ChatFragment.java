@@ -60,8 +60,6 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 	// For UI
 	private ImageView mUploadPhotoBtn;
 	private Button mSendBtn;
-	private ScrollView mScrollContainer;
-	private LinearLayout mMsgContainer;
 
     public static final String EXTRA_MODE = "mode";
     private EditText mMessageEditText;
@@ -90,9 +88,8 @@ public class ChatFragment extends Fragment implements ImageConsumer {
         mMainActivity = (MainActivity)getActivity();
         mMainActivity.setTitle(mTitle);
 
-    	mImageFragment = ImageFragment.newInstance(this, null);
-    	FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-    	fragmentTransaction.add(mImageFragment, ImageFragment.TAG).commit();
+    	mImageFragment = ImageFragment.newInstance(this, null,
+    			getFragmentManager());
 	}
 	
 	@Override
@@ -224,7 +221,7 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 
 			String body = msg.getBody();
 
-			Log.d("DEBUG", "RECEIVED MESSAGE: " + from + ": " + msg.getBody());
+			Log.d("DEBUG", "RECEIVED MESSAGE: " + from + ": " + body);
 			
 			//Check if message is a text message
 			/*
@@ -293,30 +290,9 @@ public class ChatFragment extends Fragment implements ImageConsumer {
         }
 
         enableSendPic();
-
-		//final ParseChatRoomPhoto chatPhoto = new ParseChatRoomPhoto();
-		//chatPhoto.setVehicleId(mVehicleId);
-		//chatPhoto.prepareSavingPhoto(mMainActivity, bitmap);
-		
-		//chatPhoto.saveInBackground(new SaveCallback() {
-		//	@Override
-		//	public void done(ParseException e) {
-		//		if (e == null){ //successfully upload the photo to Parse
-		//			chatPhoto.savePhotoLocally(mMainActivity); //also save the photo locally
-		//			
-		//			//send the Parse photo objectId string to the chat room
-		//			sendImageSpecialString( chatPhoto.getObjectId() );
-		//			//mucController.sendMessage(chatPhoto.getObjectId());
-		//		}else{
-		//			Toast.makeText(mMainActivity, "Error " + e.getMessage(), Toast.LENGTH_SHORT).show();
-		//		}
-		//		
-		//		enableSendPic();
-		//	}
-		//});
 	}
 
-	private void uploadImageToQuickBlox(File image) {
+	private void uploadImageToQuickBlox(final File image) {
 		// Upload file to Content module
 		QBContent.uploadFileTask(image, false, new QBCallbackImpl() {
 		    @Override
@@ -336,7 +312,10 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 		            }
 		            
 		            // TODO: should we delete the temporary image file?
-
+                    if (image.exists()) {
+                        Log.wtf(TAG, "Deleting file: " + image.getAbsolutePath());
+                        image.delete();
+                    }
 
 		        } else {
 		        	displaySendImageFailure();

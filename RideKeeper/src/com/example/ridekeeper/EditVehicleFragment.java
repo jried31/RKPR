@@ -45,9 +45,8 @@ public class EditVehicleFragment extends DialogFragment implements ImageConsumer
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	
-    	mImageFragment = ImageFragment.newInstance(this, null);
-    	FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-    	fragmentTransaction.add(mImageFragment, ImageFragment.TAG).commit();
+    	mImageFragment = ImageFragment.newInstance(this, null,
+    			getFragmentManager());
 
     	//Checking whether we're adding or editing a vehicle
     	if (getArguments()!=null && getArguments().containsKey("mode")){

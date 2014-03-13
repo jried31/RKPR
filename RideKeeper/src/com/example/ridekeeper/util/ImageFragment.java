@@ -11,10 +11,10 @@ import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.R;
 import com.example.ridekeeper.qb.chat.ChatFragment;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -58,6 +58,7 @@ public class ImageFragment extends Fragment {
 			new LinearLayout.LayoutParams(170, 170);
 
 	private static final String IMAGE_TIME_FORMAT = "yyyyMMdd_HHmmss";
+	private static final SimpleDateFormat sImageTimeFormat=  new SimpleDateFormat(IMAGE_TIME_FORMAT);
 
 	private ImageConsumer mImageConsumer;
 	private ViewGroup mContainer;
@@ -65,7 +66,6 @@ public class ImageFragment extends Fragment {
 	private Activity mMainActivity;
 
 	private Uri mImageCaptureUri;
-	private boolean mIsTakenFromCamera;
 
     /**
      * Saves image to device
@@ -74,7 +74,7 @@ public class ImageFragment extends Fragment {
      * @param photoPrefix
      * @param id
      */
-	public static void savePhotoLocally(
+	public static void savePhotoLocally (
 			Context context, 
 			byte[] photoData, 
 			String photoPrefix,
@@ -98,16 +98,18 @@ public class ImageFragment extends Fragment {
 		}
 	}
 	
-	public void setContainer(ViewGroup container){
+	public void setContainer(ViewGroup container) {
 		mContainer = container;
 	}
 	
-	public static ImageFragment newInstance(ImageConsumer consumer, ViewGroup container) {
+	public static ImageFragment newInstance(ImageConsumer consumer, ViewGroup container,
+			FragmentManager fragManager) {
 		ImageFragment imageFragment = new ImageFragment();
 
 		imageFragment.mImageConsumer = consumer;
 		imageFragment.mContainer = container;
 
+		fragManager.beginTransaction().add(imageFragment, TAG).commit();
 		return imageFragment;
 	}
 
@@ -123,7 +125,7 @@ public class ImageFragment extends Fragment {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		if (resultCode != Activity.RESULT_OK){
+		if (resultCode != Activity.RESULT_OK) {
 			return;
 		}
 
@@ -134,13 +136,10 @@ public class ImageFragment extends Fragment {
 			break;
 
 		case REQUEST_CODE_TAKE_FROM_CAMERA:
-			// Send image taken from camera for cropping
 			cropImage();
 			break;
 
 		case REQUEST_CODE_CROP_PHOTO:
-			// Update image view after image crop
-
 			Bundle extras = data.getExtras();
 			
 			// Set the picture image in UI
@@ -148,15 +147,14 @@ public class ImageFragment extends Fragment {
 				Bitmap bitmap = (Bitmap) extras.getParcelable("data");
 				mImageConsumer.processBitmap(bitmap);
 			}
+			
+			// Delete temporary file from camera
+            File f = new File(mImageCaptureUri.getPath());
+            if (f.exists()) {
+                Log.wtf(TAG, "Deleting file: " + mImageCaptureUri.getPath());
+                f.delete();
+            }
 
-			// Delete temporary image taken by camera after crop.
-			// TODO: doesn't gallery create a new temp file also?
-			if (mIsTakenFromCamera) {
-				File f = new File(mImageCaptureUri.getPath());
-				if (f.exists())
-					Log.wtf(TAG, "Deleting file: " + mImageCaptureUri.getPath());
-					f.delete();
-			}
 			break;
 		}
 	}
@@ -189,12 +187,12 @@ public class ImageFragment extends Fragment {
 	 */
 	private void onPhotoPickerItemSelected(int item) {
 		Intent intent;
-		mIsTakenFromCamera = false;
 
 		switch(item){
 		case ID_PHOTO_PICKER_FROM_CAMERA:
 			intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
+			// Use temporary file to store the camera pic
 			mImageCaptureUri = Uri.fromFile(createTmpImageFile());
 
 			intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
@@ -211,15 +209,12 @@ public class ImageFragment extends Fragment {
 				e.printStackTrace();
 			}
 
-			mIsTakenFromCamera = true;
 			break;
 
 		case ID_PHOTO_PICKER_FROM_GALLERY:
-		// TODO: check that the gallery will also create tmp file, need to delete as well
 			intent = new Intent(Intent.ACTION_PICK);
 
 			intent.setType(IMAGE_TYPE_UNSPECIFIED);
-			mImageCaptureUri = Uri.fromFile(createTmpImageFile());
 
 			intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
 					mImageCaptureUri);
@@ -234,7 +229,7 @@ public class ImageFragment extends Fragment {
 				Toast.makeText(mMainActivity, "No gallery found", Toast.LENGTH_SHORT).show();
 				e.printStackTrace();
 			}
-			mIsTakenFromCamera = false;
+
 			break;
 
 		default:
@@ -308,8 +303,8 @@ public class ImageFragment extends Fragment {
                 // Add file to gallery
                 Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
 
-                Uri contentUri = Uri.fromFile(imageFile);
-                mediaScanIntent.setData(contentUri);
+                mImageCaptureUri = Uri.fromFile(imageFile);
+                mediaScanIntent.setData(mImageCaptureUri);
 
                 mMainActivity.sendBroadcast(mediaScanIntent);
                 
@@ -339,25 +334,14 @@ public class ImageFragment extends Fragment {
 	}
 	
 	public static File createAlbumImageFile() {
-        String timeStamp = DateFormat.format(IMAGE_TIME_FORMAT, new Date()).toString();
-        String imageFileName = "IMG" + timeStamp + "_";
+        String timestamp = sImageTimeFormat.format(new Date()).toString();
+        String imageFileName = "IMG" + timestamp;
 
         File albumDir = getAlbumDir();
 
         return new File(albumDir + "/" + imageFileName + IMAGE_FILE_SUFFIX);
 	}
-	
-	/**
-	 * Create a temporary File object in the Android public storage directory
-	 * @return
-	 */
-	private static File createTmpImageFile() {
-		return new File(
-				Environment.getExternalStorageDirectory(), "tmp_" +
-                String.valueOf(System.currentTimeMillis()) + ".jpg");
-	}
 
-	
     private static File getAlbumDir() {
     	File storageDir = new File(
     			Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
@@ -379,4 +363,17 @@ public class ImageFragment extends Fragment {
         return storageDir;
     }
     
+	
+	/**
+	 * Create a temporary File object in the Android public storage directory
+	 * @return
+	 */
+	private static File createTmpImageFile() {
+		File external = Environment.getExternalStorageDirectory();
+		String fileName = "tmp_" + String.valueOf(System.currentTimeMillis()) + ".jpg"; 
+
+		Log.d(TAG, "createTmpImageFile(): " + external.getAbsolutePath() + "/" + fileName);
+
+		return new File(external, fileName);
+	}
 }

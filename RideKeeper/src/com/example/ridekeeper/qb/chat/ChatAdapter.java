@@ -27,7 +27,7 @@ import com.example.ridekeeper.R;
 public class ChatAdapter extends BaseAdapter {
 
     private static final String DATE_FORMAT = 
-    		"MMM d, yyyy " + DBGlobals.UNICODE_BULLET + " hh:mm a";
+    		"MMM d, yyyy " + DBGlobals.UNICODE_BULLET + " h:mm a";
 
     private final List<ChatMessage> chatMessages;
     private OnClickListener mResizeImageListener;

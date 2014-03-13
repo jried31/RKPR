@@ -184,7 +184,7 @@ public class LocationMgr implements
      */
     @Override
     public void onConnected(Bundle bundle) {
-    	Log.d("LocationMgr.onConnected()", "LocationClient connected");
+    	Log.i("LocationMgr.onConnected()", "LocationClient connected");
         startPeriodicUpdates();
     }
 
@@ -194,7 +194,7 @@ public class LocationMgr implements
      */
     @Override
     public void onDisconnected() {
-    	Log.d("LocationMgr.onDisconnected()", "LocationClient disconnected");
+    	Log.i("LocationMgr.onDisconnected()", "LocationClient disconnected");
     }
 
     /*
