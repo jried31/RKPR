@@ -1,16 +1,14 @@
 package com.example.ridekeeper;
 
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -24,6 +22,7 @@ import java.util.List;
 
 public class MyRideListFragment extends ListFragment {
     List<Ride> rides;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,10 +55,9 @@ public class MyRideListFragment extends ListFragment {
             RideAdapter adapter = new RideAdapter(getActivity(), rides);
             setListAdapter(adapter);
         } catch (Exception e) {
-
+            Toast.makeText(getActivity(), "There was an error displaying your rides", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

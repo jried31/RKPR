@@ -8,14 +8,15 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#BBBBBB"
+        android:background="#EEE"
         android:padding="10dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Distance Traveled"
+            android:textColor="#999"
+            android:text="DISTANCE"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"/>
@@ -23,13 +24,31 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="0 m"
+            android:textSize="30dp"
             android:id="@+id/odometer"
-            android:layout_alignParentTop="true"
+            android:layout_marginRight="5dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/kiloMarker"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="KM"
+            android:textColor="#999"
+            android:id="@+id/kiloMarker"
+            android:layout_alignBaseline="@+id/odometer"
+            android:layout_alignBottom="@+id/odometer"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"/>
     </RelativeLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.2dp"
+        android:id="@+id/separator"
+        android:visibility="visible"
+        android:background="@android:color/darker_gray"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -43,7 +62,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Begin Ride"
+            android:text="@string/start_ride"
             android:id="@+id/begin_ride_button"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"/>
@@ -51,12 +70,10 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="End Ride"
+            android:text="@string/end_ride"
             android:id="@+id/end_ride_button"
             android:visibility="gone"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"/>
-
     </RelativeLayout>
-
 </LinearLayout>

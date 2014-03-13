@@ -2,6 +2,8 @@ RideKeeper/bin/
 RideKeeper/gen/
 *.class
 google_play_services
+.idea
+out/*
 
 # Node.js
 # from https://github.com/github/gitignore/blob/master/Node.gitignore

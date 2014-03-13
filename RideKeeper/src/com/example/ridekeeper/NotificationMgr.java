@@ -55,6 +55,27 @@ public class NotificationMgr {
 			    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		notifManager.notify(0, notifBuilder.build());
 	}
+
+    public static void createPersistentAndroidNotification(Context context, String title, String contentText){
+        NotificationCompat.Builder notifBuilder =
+                new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setContentTitle(title)
+                        .setContentText(contentText)
+                        .setOngoing(true);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(new Intent(context, MainActivity.class));
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        notifBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager notifManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notifManager.notify(DBGlobals.RIDE_NOTIFICATION_ID, notifBuilder.build());
+    }
 	
 	public static void vibrationLong(){
 		myVibrator.vibrate(vibrationPattern, 0);
