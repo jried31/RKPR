@@ -1,6 +1,7 @@
 package com.example.ridekeeper;
 
 public class DBGlobals {
+	public static final String APP_NAME = "RideKeeper";
 	 
 	 //Trigonometry constants
 	 public static final double PI=3.14159265359;

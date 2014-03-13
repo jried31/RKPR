@@ -4,10 +4,13 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.DefaultPacketExtension;
 import org.jivesoftware.smack.packet.Message;
 
+import android.R.integer;
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,15 +23,22 @@ import com.quickblox.module.chat.listeners.RoomListener;
 import com.quickblox.module.chat.utils.QBChatUtils;
 import com.quickblox.module.users.model.QBUser;
 
-public class ChatRoom implements Chat, RoomListener, ChatMessageListener {
-    private static final String TAG = ChatRoom.class.getSimpleName();
+public class RoomChat implements Chat, RoomListener, ChatMessageListener {
+    private static final String TAG = RoomChat.class.getSimpleName();
+    
+    private static final String ATTACHMENT = "attachment";
+    private static final String JABBER_ATTACHMENT_EVENT = "jabber:attachment:event";
+
+	// Prefix denotes that the message should be treated as a Quickblox image
+	private static final String IMAGE_STRING_PREFIX = "&&$*(";
+
+    public static class NullChatRoomException extends Exception {};
+    
     private Activity mMainActivity;
     private QBChatRoom mChatRoom;
     private ChatFragment mChatFragment;
 
-    public static class NullChatRoomException extends Exception {};
-
-    public ChatRoom(Activity mainActivity, ChatFragment chatFragment, Bundle args)
+    public RoomChat(Activity mainActivity, ChatFragment chatFragment, Bundle args)
     		throws NullChatRoomException {
         this.mMainActivity = mainActivity;
         this.mChatFragment = chatFragment;
@@ -57,7 +67,7 @@ public class ChatRoom implements Chat, RoomListener, ChatMessageListener {
             mChatRoom.sendMessage(message);
         } else {
             Toast.makeText(mMainActivity, "Join unsuccessful", Toast.LENGTH_LONG).show();
-        }
+        };
     }
 
     @Override
@@ -96,12 +106,45 @@ public class ChatRoom implements Chat, RoomListener, ChatMessageListener {
         // Show message
         String sender = QBChatUtils.parseRoomOccupant(message.getFrom());
         QBUser qbUser = MyQBUser.getQbUser();
-        if (sender.equals(qbUser.getFullName()) || sender.equals(qbUser.getId().toString())) {
-            mChatFragment.showMessage(new ChatMessage(message.getBody(), "me", time, false));
+        String body = Html.fromHtml(message.getBody()).toString();
+
+        Log.i(TAG, "Received msg from: " + sender + ": " + body);
+        boolean isImage = isImageString(body);
+        if (isImage) { 
+        
         } else {
-            mChatFragment.showMessage(new ChatMessage(message.getBody(), sender, time, true));
+            if (sender.equals(qbUser.getFullName()) || sender.equals(qbUser.getId().toString())) {
+                mChatFragment.showMessage(new ChatMessage(body, "me", time, false));
+            } else {
+                mChatFragment.showMessage(new ChatMessage(body, sender, time, true));
+            }
         }
+
+        //String uid = ((DefaultPacketExtension) extension).getValue("fileID");
+        //// download file by ID    
+        //QBContent.downloadFile(uid, new QBCallbackImpl() {
+        //    @Override
+        //    public void onComplete(Result result) {
+        //        // extract image
+        //        QBFileDownloadResult downloadResult = (QBFileDownloadResult) result;
+        //        InputStream s = downloadResult.getContentStream();
+        //        Bitmap bitmap = BitmapFactory.decodeStream(s);
+        //    }
+        //});
     }
+
+	private boolean isImageString(String str){
+		return str.startsWith(IMAGE_STRING_PREFIX);
+	}
+	
+	public void sendImageString(String uid) throws XMPPException {
+        this.sendMessage(IMAGE_STRING_PREFIX + uid);
+	}
+	
+	private String extractFromImageString(String imageStr) {
+		return imageStr.substring(IMAGE_STRING_PREFIX.length());
+	}
+	
 
     @Override
     public boolean accept(Message.Type messageType) {

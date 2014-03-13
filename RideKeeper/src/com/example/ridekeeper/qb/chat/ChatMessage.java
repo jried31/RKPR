@@ -3,35 +3,60 @@ package com.example.ridekeeper.qb.chat;
 import java.util.Date;
 
 public class ChatMessage {
-    private boolean incoming;
-    private String text;
-    private Date time;
-    private String sender;
+    private boolean mIncoming;
+    private boolean mIsImage;
+    private String mText;
+    private Date mTime;
+    private String mSender;
 
+    /**
+     * Send text message
+     * @param text
+     * @param time
+     * @param incoming
+     */
     public ChatMessage(String text, Date time, boolean incoming) {
         this(text, null, time, incoming);
     }
+    
+    /**
+     * Send image message
+     */
+    public ChatMessage() {
+    	
+    }
 
+    /**
+     * Send text message with sender
+     * @param text
+     * @param sender
+     * @param time
+     * @param incoming
+     */
     public ChatMessage(String text, String sender, Date time, boolean incoming) {
-        this.text = text;
-        this.sender = sender;
-        this.time = time;
-        this.incoming = incoming;
+        this.mText = text;
+        this.mSender = sender;
+        this.mTime = time;
+        this.mIncoming = incoming;
     }
 
     public boolean isIncoming() {
-        return incoming;
+        return mIncoming;
     }
 
     public String getText() {
-        return text;
+        return mText;
     }
 
     public Date getTime() {
-        return time;
+        return mTime;
     }
 
     public String getSender() {
-        return sender;
+        return mSender;
+    }
+    
+    public boolean isImage(){
+    	return mIsImage;
     }
 }
