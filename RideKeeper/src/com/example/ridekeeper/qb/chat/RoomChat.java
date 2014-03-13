@@ -1,33 +1,36 @@
 package com.example.ridekeeper.qb.chat;
 
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.DefaultPacketExtension;
 import org.jivesoftware.smack.packet.Message;
 
-import android.R.integer;
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.ridekeeper.App;
 import com.example.ridekeeper.qb.MyQBUser;
+import com.quickblox.core.QBCallbackImpl;
+import com.quickblox.core.result.Result;
 import com.quickblox.module.chat.QBChatRoom;
 import com.quickblox.module.chat.QBChatService;
 import com.quickblox.module.chat.listeners.ChatMessageListener;
 import com.quickblox.module.chat.listeners.RoomListener;
 import com.quickblox.module.chat.utils.QBChatUtils;
+import com.quickblox.module.content.QBContent;
+import com.quickblox.module.content.result.QBFileDownloadResult;
 import com.quickblox.module.users.model.QBUser;
 
 public class RoomChat implements Chat, RoomListener, ChatMessageListener {
     private static final String TAG = RoomChat.class.getSimpleName();
     
-    private static final String ATTACHMENT = "attachment";
-    private static final String JABBER_ATTACHMENT_EVENT = "jabber:attachment:event";
+    public static final String MESSAGE_USER_NAME = "me";
 
 	// Prefix denotes that the message should be treated as a Quickblox image
 	private static final String IMAGE_STRING_PREFIX = "&&$*(";
@@ -72,7 +75,7 @@ public class RoomChat implements Chat, RoomListener, ChatMessageListener {
 
     @Override
     public void release() throws XMPPException {
-        if (mChatRoom != null) {
+        if (mChatRoom != null && QBChatService.getInstance().isLoggedIn()) {
             QBChatService.getInstance().leaveRoom(mChatRoom);
             mChatRoom.removeMessageListener(this);
         }
@@ -103,34 +106,43 @@ public class RoomChat implements Chat, RoomListener, ChatMessageListener {
         if (time == null) {
             time = Calendar.getInstance().getTime();
         }
+        final Date finalTime = time;
+
         // Show message
         String sender = QBChatUtils.parseRoomOccupant(message.getFrom());
         QBUser qbUser = MyQBUser.getQbUser();
-        String body = Html.fromHtml(message.getBody()).toString();
+
+        boolean isMessageFromSelf = sender.equals(qbUser.getFullName()) || 
+        		sender.equals(qbUser.getId().toString());
+        final boolean isIncoming = !isMessageFromSelf;
+
+        final String messageUser = isMessageFromSelf ? MESSAGE_USER_NAME : sender;
+
+        final String body = Html.fromHtml(message.getBody()).toString();
 
         Log.i(TAG, "Received msg from: " + sender + ": " + body);
+
         boolean isImage = isImageString(body);
+
         if (isImage) { 
+            String uid = extractUidFromImageString(body);
+            // download file by ID    
+            QBContent.downloadFile(uid, new QBCallbackImpl() {
+                @Override
+                public void onComplete(Result result) {
+                    // extract image
+                    QBFileDownloadResult downloadResult = (QBFileDownloadResult) result;
+                    InputStream s = downloadResult.getContentStream();
+                    Bitmap bitmap = BitmapFactory.decodeStream(s);
+
+                    mChatFragment.showMessage(
+                            new ChatMessage(body, messageUser, finalTime, isIncoming, bitmap));
+                }
+            });
         
         } else {
-            if (sender.equals(qbUser.getFullName()) || sender.equals(qbUser.getId().toString())) {
-                mChatFragment.showMessage(new ChatMessage(body, "me", time, false));
-            } else {
-                mChatFragment.showMessage(new ChatMessage(body, sender, time, true));
-            }
+            mChatFragment.showMessage(new ChatMessage(body, messageUser, time, isIncoming));
         }
-
-        //String uid = ((DefaultPacketExtension) extension).getValue("fileID");
-        //// download file by ID    
-        //QBContent.downloadFile(uid, new QBCallbackImpl() {
-        //    @Override
-        //    public void onComplete(Result result) {
-        //        // extract image
-        //        QBFileDownloadResult downloadResult = (QBFileDownloadResult) result;
-        //        InputStream s = downloadResult.getContentStream();
-        //        Bitmap bitmap = BitmapFactory.decodeStream(s);
-        //    }
-        //});
     }
 
 	private boolean isImageString(String str){
@@ -141,7 +153,7 @@ public class RoomChat implements Chat, RoomListener, ChatMessageListener {
         this.sendMessage(IMAGE_STRING_PREFIX + uid);
 	}
 	
-	private String extractFromImageString(String imageStr) {
+	private String extractUidFromImageString(String imageStr) {
 		return imageStr.substring(IMAGE_STRING_PREFIX.length());
 	}
 	

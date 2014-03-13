@@ -3,28 +3,43 @@ package com.example.ridekeeper.qb.chat;
 import java.util.Date;
 import java.util.List;
 
+import org.jivesoftware.smack.packet.Message;
+
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.R;
 
 public class ChatAdapter extends BaseAdapter {
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd hh:mm:ss";
+    private static final String DATE_FORMAT = 
+    		"MMM d, yyyy " + DBGlobals.UNICODE_BULLET + " hh:mm a";
+
     private final List<ChatMessage> chatMessages;
+    private OnClickListener mResizeImageListener;
+    private OnLongClickListener mSaveImageListener;
     private Context context;
 
-    public ChatAdapter(Context context, List<ChatMessage> chatMessages) {
+    public ChatAdapter(Context context, List<ChatMessage> chatMessages,
+    		OnClickListener resizeListener, OnLongClickListener saveImageListener) {
         this.context = context;
         this.chatMessages = chatMessages;
+        this.mResizeImageListener = resizeListener;
+        this.mSaveImageListener = saveImageListener;
     }
 
     @Override
@@ -54,19 +69,35 @@ public class ChatAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
         ChatMessage chatMessage = getItem(position);
-        LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         if (convertView == null) {
-            convertView = vi.inflate(R.layout.chat_list_item_message, null);
+            convertView = inflater.inflate(R.layout.chat_list_item_message, null);
             holder = createViewHolder(convertView);
             convertView.setTag(holder);
+
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
+
         setAlignment(holder, chatMessage.isIncoming());
-        holder.txtMessage.setText(chatMessage.getText());
+
+        if (chatMessage.isImage()) {
+        	holder.imageView.setImageBitmap(chatMessage.getBitmap());
+            holder.imageView.setOnClickListener(mResizeImageListener);
+            holder.imageView.setOnLongClickListener(mSaveImageListener);
+            holder.txtMessage.setVisibility(View.GONE);
+        } else {
+            holder.txtMessage.setVisibility(View.VISIBLE);
+            holder.txtMessage.setText(chatMessage.getText());
+            holder.imageView.setImageDrawable(null);
+        }
+
         if (chatMessage.getSender() != null) {
-            holder.txtInfo.setText(chatMessage.getSender() + ": " + getTimeText(chatMessage.getTime()));
+            holder.txtInfo.setText(
+            		chatMessage.getSender() + " " + DBGlobals.UNICODE_BULLET + " " + 
+                    getTimeText(chatMessage.getTime()));
         } else {
             holder.txtInfo.setText(getTimeText(chatMessage.getTime()));
         }
@@ -98,9 +129,12 @@ public class ChatAdapter extends BaseAdapter {
             layoutParams.gravity = Gravity.LEFT;
             holder.txtMessage.setLayoutParams(layoutParams);
 
+            holder.imageView.setLayoutParams(layoutParams);
+
             layoutParams = (LinearLayout.LayoutParams) holder.txtInfo.getLayoutParams();
             layoutParams.gravity = Gravity.LEFT;
             holder.txtInfo.setLayoutParams(layoutParams);
+            holder.txtInfo.setPadding(10, 0, 0, 0);
         } else {
             holder.contentWithBG.setBackgroundResource(R.drawable.right_message_bg);
 
@@ -116,9 +150,12 @@ public class ChatAdapter extends BaseAdapter {
             layoutParams.gravity = Gravity.RIGHT;
             holder.txtMessage.setLayoutParams(layoutParams);
 
+            holder.imageView.setLayoutParams(layoutParams);
+
             layoutParams = (LinearLayout.LayoutParams) holder.txtInfo.getLayoutParams();
             layoutParams.gravity = Gravity.RIGHT;
             holder.txtInfo.setLayoutParams(layoutParams);
+            holder.txtInfo.setPadding(0, 0, 10, 0);
         }
     }
 
@@ -128,6 +165,7 @@ public class ChatAdapter extends BaseAdapter {
         holder.content = (LinearLayout) v.findViewById(R.id.content);
         holder.contentWithBG = (LinearLayout) v.findViewById(R.id.contentWithBackground);
         holder.txtInfo = (TextView) v.findViewById(R.id.txtInfo);
+        holder.imageView = (ImageView) v.findViewById(R.id.chatImage);
         return holder;
     }
 
@@ -140,5 +178,6 @@ public class ChatAdapter extends BaseAdapter {
         public TextView txtInfo;
         public LinearLayout content;
         public LinearLayout contentWithBG;
+        public ImageView imageView;
     }
 }

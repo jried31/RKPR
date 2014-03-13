@@ -1,10 +1,8 @@
 package com.example.ridekeeper.qb.chat;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -14,20 +12,10 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.util.StringUtils;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.app.Fragment;
-import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.app.FragmentTransaction;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -47,16 +35,11 @@ import android.widget.Toast;
 
 import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.MainActivity;
-import com.example.ridekeeper.ParseChatRoomPhoto;
-import com.example.ridekeeper.ParseFunctions;
 import com.example.ridekeeper.R;
 import com.example.ridekeeper.qb.MyQBUser;
 import com.example.ridekeeper.qb.chat.RoomChat.NullChatRoomException;
 import com.example.ridekeeper.util.ImageConsumer;
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseImageView;
-import com.parse.SaveCallback;
+import com.example.ridekeeper.util.ImageFragment;
 import com.quickblox.core.QBCallbackImpl;
 import com.quickblox.core.result.Result;
 import com.quickblox.module.content.QBContent;
@@ -74,16 +57,6 @@ public class ChatFragment extends Fragment implements ImageConsumer {
     // Set gravity to center in OnCreateView
 	private static final LayoutParams IMAGE_SMALL_VIEW_LAYOUT = new LayoutParams(170, 170);
 
-	// For taking picture:
-	public static final int ID_PHOTO_PICKER_FROM_CAMERA = 0;
-	public static final int ID_PHOTO_PICKER_FROM_GALLERY = 1;
-	public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 100;
-	public static final int REQUEST_CODE_CROP_PHOTO = 101;
-	public static final int REQUEST_CODE_SELECT_FROM_GALLERY = 102;
-
-	private static final String IMAGE_TYPE_UNSPECIFIED = "image/*";
-	private static final int IMAGE_COMPRESS_QUALITY = 100;
-
 	// For UI
 	private ImageView mUploadPhotoBtn;
 	private Button mSendBtn;
@@ -97,34 +70,29 @@ public class ChatFragment extends Fragment implements ImageConsumer {
     private ChatAdapter mAdapter;
     private ListView mMessagesContainer;
 	
+    public static enum Mode {SINGLE, GROUP}
+	
 	// For chat room 
 	private String mTitle;
-	private String mRoomName;
-	private String mVehicleId;
-	private MultiUserChatController mMucController;
-	
-	private Uri mImageCaptureUri;
-	private boolean mIsTakenFromCamera;
 	
 	private MainActivity mMainActivity;
-
-	// For saving image to gallery:
-	private File mAlbumDir;
 	
-    public static enum Mode {SINGLE, GROUP}
+	private ImageFragment mImageFragment;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		Bundle args = getArguments();
-		mRoomName = args.getString(ChatFragment.ARG_ROOM_NAME);
-		mVehicleId = args.getString(DBGlobals.ARG_VEHICLE_ID);
 		mTitle = args.getString(ChatFragment.ARG_TITLE);
         mMode = (Mode) args.getSerializable(EXTRA_MODE);
 		
         mMainActivity = (MainActivity)getActivity();
         mMainActivity.setTitle(mTitle);
+
+    	mImageFragment = ImageFragment.newInstance(this, null);
+    	FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+    	fragmentTransaction.add(mImageFragment, ImageFragment.TAG).commit();
 	}
 	
 	@Override
@@ -139,6 +107,8 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 		mMainActivity.invalidateOptionsMenu();
 
         mMessagesContainer = (ListView) view.findViewById(R.id.messagesContainer);
+        mImageFragment.setContainer(mMessagesContainer);
+
         mMessageEditText = (EditText) view.findViewById(R.id.messageEdit);
         mSendBtn = (Button) view.findViewById(R.id.chatSendButton);
         TextView meLabel = (TextView) view.findViewById(R.id.meLabel);
@@ -146,7 +116,10 @@ public class ChatFragment extends Fragment implements ImageConsumer {
         RelativeLayout containerLayout = (RelativeLayout) view.findViewById(R.id.container);
 		mUploadPhotoBtn = (ImageView) view.findViewById(R.id.sendPicBtn);
 
-        mAdapter = new ChatAdapter(mMainActivity, new ArrayList<ChatMessage>());
+        mAdapter = new ChatAdapter(mMainActivity, new ArrayList<ChatMessage>(),
+        		mImageFragment.getToggleImageSizeListener(this),
+        		mImageFragment.getSaveImageToGalleryListener());
+
         mMessagesContainer.setAdapter(mAdapter);
 
         switch (mMode) {
@@ -174,7 +147,7 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 		mUploadPhotoBtn.setOnClickListener( new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				showPhotoSelection();
+				mImageFragment.showPhotoSelection();
 			}
 		});
 		
@@ -224,7 +197,7 @@ public class ChatFragment extends Fragment implements ImageConsumer {
         scrollDown();
     }
 
-    private void scrollDown() {
+    public void scrollDown() {
         mMessagesContainer.setSelection(mMessagesContainer.getCount() - 1);
     }
 	
@@ -240,46 +213,7 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 
 		super.onDestroy();
 	}
-	
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode != Activity.RESULT_OK)
-			return;
 
-		switch (requestCode) {
-		case REQUEST_CODE_SELECT_FROM_GALLERY:
-			mImageCaptureUri = data.getData();
-			cropImage();
-			break;
-
-		case REQUEST_CODE_TAKE_FROM_CAMERA:
-			// Send image taken from camera for cropping
-			cropImage();
-			break;
-
-		case REQUEST_CODE_CROP_PHOTO:
-			// Update image view after image crop
-
-			Bundle extras = data.getExtras();
-
-			// Set the picture image in UI
-			if (extras != null) {
-				Bitmap bitmap = (Bitmap) extras.getParcelable("data");
-				sendPhoto(bitmap);
-			}
-
-			// Delete temporary image taken by camera after crop.
-			// TODO: doesn't gallery create a new temp file also?
-			if (mIsTakenFromCamera) {
-				File f = new File(mImageCaptureUri.getPath());
-				if (f.exists())
-					f.delete();
-			}
-
-			break;
-		}
-	}
-	
 	//how to process incoming message
 	private PacketListener myPacketListener = new PacketListener() {
 		@Override
@@ -344,10 +278,16 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 		disableSendPic();
 		
 		// Save on temporarily on device, then delete after upload to Quickblox
-        File imageFile = createAlbumImageFile();
+        File imageFile = ImageFragment.createAlbumImageFile();
 
-        if (storeBitmap(bitmap, imageFile)) {
+        if (ImageFragment.storeBitmap(bitmap, imageFile)) {
         	uploadImageToQuickBlox(imageFile);
+            
+            // Show the sent image right away instead of waiting to receive
+            // it from quickblox
+            Date time = Calendar.getInstance().getTime();
+            showMessage(new ChatMessage("", RoomChat.MESSAGE_USER_NAME, time, false, bitmap));
+		            
         } else {
         	displaySendImageFailure();
         }
@@ -397,6 +337,7 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 		            
 		            // TODO: should we delete the temporary image file?
 
+
 		        } else {
 		        	displaySendImageFailure();
 		        }
@@ -408,107 +349,6 @@ public class ChatFragment extends Fragment implements ImageConsumer {
         Toast.makeText(mMainActivity, "Failed to send image", Toast.LENGTH_SHORT).show();
 	}
 	
-	
-	//Put a text into the chat window
-	private void pushPhotoToContainer(final ParseImageView pivPhoto){
-        mMainActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mMsgContainer.addView(pivPhoto);
-                // Scroll to bottom
-                mScrollContainer.post( new Runnable() {
-					@Override
-					public void run() {
-						mScrollContainer.fullScroll(View.FOCUS_DOWN);
-					}
-				});
-            }
-        });
-	}
-	
-	
-	// Crop and resize the image for profile
-	private void cropImage() {
-		// Use existing crop activity.
-		Intent intent = new Intent("com.android.camera.action.CROP");
-		intent.setDataAndType(mImageCaptureUri, IMAGE_TYPE_UNSPECIFIED);
-
-		// Specify image size
-		intent.putExtra("outputX", 100);
-		intent.putExtra("outputY", 100);
-
-		// Specify aspect ratio, 1:1
-		intent.putExtra("aspectX", 1);
-		intent.putExtra("aspectY", 1);
-		intent.putExtra("scale", true);
-		intent.putExtra("return-data", true);
-		// REQUEST_CODE_CROP_PHOTO is an integer tag you defined to
-		// identify the activity in onActivityResult() when it returns
-		startActivityForResult(intent, REQUEST_CODE_CROP_PHOTO);
-	}
-	
-	//For taking picture from camera / gallery:
-	private void onPhotoPickerItemSelected(int item) {
-		Intent intent;
-		mIsTakenFromCamera = false;
-
-		switch(item){
-		case ID_PHOTO_PICKER_FROM_CAMERA:
-			intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			mImageCaptureUri = Uri.fromFile(createTmpImageFile());
-			intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-					mImageCaptureUri);
-			intent.putExtra("return-data", true);
-			try {
-				startActivityForResult(intent, REQUEST_CODE_TAKE_FROM_CAMERA);
-			} catch (ActivityNotFoundException e) {
-				// TODO: give error message to user that they have no camera
-				// Better yet, don't allow camera option at all if no activity is
-				// found (check earlier on view create and don't display option)
-				e.printStackTrace();
-			}
-			mIsTakenFromCamera = true;
-			break;
-
-		case ID_PHOTO_PICKER_FROM_GALLERY:
-		// TODO: check that the gallery will also create tmp file, need to delete as well
-			intent = new Intent(Intent.ACTION_PICK);
-			intent.setType(IMAGE_TYPE_UNSPECIFIED);
-			mImageCaptureUri = Uri.fromFile(createTmpImageFile());
-			intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-					mImageCaptureUri);
-			intent.putExtra("return-data", true);
-			try {
-				startActivityForResult(intent, REQUEST_CODE_SELECT_FROM_GALLERY);
-			} catch (ActivityNotFoundException e){
-				// TODO: give error message to user that they have no gallery
-				// Better yet, don't allow option at all if no activity is
-				// found (check earlier on view create and don't display option)
-				e.printStackTrace();
-			}
-			mIsTakenFromCamera = false;
-			break;
-
-		default:
-			break;
-		}
-	}
-	
-	private void showPhotoSelection(){
-		final Activity parent = mMainActivity;
-		AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-		DialogInterface.OnClickListener dlistener;
-		builder.setTitle(R.string.photo_picker_title);
-		dlistener = new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int item) {
-				onPhotoPickerItemSelected(item);
-			}
-		};
-
-		builder.setItems(R.array.photo_picker_items, dlistener);
-		builder.create().show();
-	}
-	
 	private void disableSendPic(){
 		mUploadPhotoBtn.setImageResource(R.drawable.camera_grey);
 		mUploadPhotoBtn.setEnabled(false);
@@ -518,103 +358,4 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 		mUploadPhotoBtn.setImageResource(R.drawable.camera);
 		mUploadPhotoBtn.setEnabled(true);
 	}
-	
-	private View.OnClickListener toggleImageSize = new View.OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			ImageView iv = (ImageView) v;
-			
-			// Enlarge the image
-			if (iv.getLayoutParams() == IMAGE_SMALL_VIEW_LAYOUT){
-				int h = iv.getHeight() * (mMsgContainer.getWidth() / iv.getWidth());
-				iv.setLayoutParams(new LayoutParams(mMsgContainer.getWidth(), h ));
-			} else {
-				// shrink the image
-				iv.setLayoutParams(IMAGE_SMALL_VIEW_LAYOUT);
-			}
-			
-		}
-	};
-	
-	private View.OnLongClickListener saveImageToGallery = new View.OnLongClickListener() {
-		@SuppressLint("SimpleDateFormat")
-		@Override
-		public boolean onLongClick(View v) {
-			ImageView iv = (ImageView) v;
-			Bitmap bitmap = iv.getDrawingCache(true);
-			
-			// Create image file
-            File imageFile = createAlbumImageFile();
-
-			if (storeBitmap(bitmap, imageFile)) {
-                // Add file to gallery
-                Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
-
-                Uri contentUri = Uri.fromFile(imageFile);
-                mediaScanIntent.setData(contentUri);
-
-                mMainActivity.sendBroadcast(mediaScanIntent);
-                
-                Toast.makeText(mMainActivity, "Saved to gallery", Toast.LENGTH_SHORT).show();
-			}
-			return true;
-		}
-	};
-	
-	private boolean storeBitmap(Bitmap bitmap, File imageFile) {
-        try {
-            imageFile.createNewFile();
-            FileOutputStream ostream = new FileOutputStream(imageFile);
-            bitmap.compress(CompressFormat.PNG, IMAGE_COMPRESS_QUALITY, ostream);
-            ostream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-			
-		return true;
-	}
-	
-	private File createAlbumImageFile() {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "IMG" + timeStamp + "_";
-
-        if (mAlbumDir == null) {
-            mAlbumDir = getAlbumDir();
-        }
-
-        return new File(mAlbumDir + "/" + imageFileName + ".png");
-	}
-	
-	/**
-	 * Create a temporary File object in the Android public storage directory
-	 * @return
-	 */
-	private File createTmpImageFile() {
-		return new File(
-				Environment.getExternalStorageDirectory(), "tmp_" +
-                String.valueOf(System.currentTimeMillis()) + ".jpg");
-	}
-
-	
-    private File getAlbumDir() {
-    	File storageDir = new File(
-    			Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-    			DBGlobals.APP_NAME
-    			);
-
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            if (storageDir != null) {
-                if (! storageDir.mkdirs()) {
-                    if (! storageDir.exists()){
-                        Log.d("RideKeeper", "failed to create directory");
-                        return null;
-                    }
-                }
-            }
-        } else {
-            Log.v(getString(R.string.app_name), "External storage is not mounted READ/WRITE.");
-        }
-        return storageDir;
-    }
 }

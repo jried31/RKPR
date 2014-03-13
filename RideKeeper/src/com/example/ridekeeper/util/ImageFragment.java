@@ -9,6 +9,8 @@ import java.util.Date;
 
 import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.R;
+import com.example.ridekeeper.qb.chat.ChatFragment;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,18 +22,24 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+/**
+ * Fragment class that handles image selection logic from camera
+ * or gallery.
+ */
 public class ImageFragment extends Fragment {
 	public static final String TAG = ImageFragment.class.getSimpleName();
 
@@ -46,10 +54,10 @@ public class ImageFragment extends Fragment {
 	private static final int IMAGE_COMPRESS_QUALITY = 100;
 
     // Set gravity to center in OnCreateView
-	private static final LayoutParams sImageSmallLayoutParams = new LayoutParams(170, 170);
+	private static final LinearLayout.LayoutParams sImageSmallLayoutParams = 
+			new LinearLayout.LayoutParams(170, 170);
 
-    @SuppressLint("SimpleDateFormat")
-	private SimpleDateFormat mImageTimeFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+	private static final String IMAGE_TIME_FORMAT = "yyyyMMdd_HHmmss";
 
 	private ImageConsumer mImageConsumer;
 	private ViewGroup mContainer;
@@ -58,7 +66,6 @@ public class ImageFragment extends Fragment {
 
 	private Uri mImageCaptureUri;
 	private boolean mIsTakenFromCamera;
-	private File mAlbumDir;
 
     /**
      * Saves image to device
@@ -91,6 +98,9 @@ public class ImageFragment extends Fragment {
 		}
 	}
 	
+	public void setContainer(ViewGroup container){
+		mContainer = container;
+	}
 	
 	public static ImageFragment newInstance(ImageConsumer consumer, ViewGroup container) {
 		ImageFragment imageFragment = new ImageFragment();
@@ -107,7 +117,9 @@ public class ImageFragment extends Fragment {
 		mMainActivity = getActivity();
 	}
 
-	// Handle data after activity returns.
+	/**
+	 *  Handle data after activity returns.
+	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -142,40 +154,28 @@ public class ImageFragment extends Fragment {
 			if (mIsTakenFromCamera) {
 				File f = new File(mImageCaptureUri.getPath());
 				if (f.exists())
+					Log.wtf(TAG, "Deleting file: " + mImageCaptureUri.getPath());
 					f.delete();
 			}
 			break;
 		}
 	}
 	
-	//get a photo from Camera or gallery
-	public void getPhotoIntoImage() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(mMainActivity);
-		DialogInterface.OnClickListener dlistener;
-		builder.setTitle(R.string.photo_picker_title);
-		dlistener = new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int item) {
-				onPhotoPickerItemSelected(item);
-			}
-		};
-
-		builder.setItems(R.array.photo_picker_items, dlistener);
-		builder.create().show();
-	}
-	
-	// Crop and resize the image for profile
+	/**
+	 *  Crop and resize the image for profile
+	 */
 	private void cropImage() {
 		// Use existing crop activity.
 		Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setDataAndType(mImageCaptureUri, IMAGE_TYPE_UNSPECIFIED);
 
 		// Specify image size
-		intent.putExtra("outputX", 100);
-		intent.putExtra("outputY", 100);
+		//intent.putExtra("outputX", 100);
+		//intent.putExtra("outputY", 100);
 
-		// Specify aspect ratio, 1:1
-		intent.putExtra("aspectX", 1);
-		intent.putExtra("aspectY", 1);
+		//// Specify aspect ratio, 1:1
+		//intent.putExtra("aspectX", 1);
+		//intent.putExtra("aspectY", 1);
 		intent.putExtra("scale", true);
 		intent.putExtra("return-data", true);
 		// REQUEST_CODE_CROP_PHOTO is an integer tag you defined to
@@ -183,7 +183,10 @@ public class ImageFragment extends Fragment {
 		startActivityForResult(intent, REQUEST_CODE_CROP_PHOTO);
 	}
 	
-	//For taking picture from camera / gallery:
+	/**
+	 * For taking picture from camera/gallery
+	 * @param item
+	 */
 	private void onPhotoPickerItemSelected(int item) {
 		Intent intent;
 		mIsTakenFromCamera = false;
@@ -239,13 +242,12 @@ public class ImageFragment extends Fragment {
 		}
 	}
 	
+	/**
+	 * Display alert dialog to user to choose an option to select
+	 * an image.
+	 */
 	public void showPhotoSelection() {
-		if (mMainActivity == null) {
-			mMainActivity = getActivity();
-		}
-		final Activity parent = mMainActivity;
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+		AlertDialog.Builder builder = new AlertDialog.Builder(mMainActivity);
 
 		DialogInterface.OnClickListener dlistener;
 		builder.setTitle(R.string.photo_picker_title);
@@ -260,41 +262,44 @@ public class ImageFragment extends Fragment {
 		builder.create().show();
 	}
 	
-	private View.OnClickListener mToggleImageSizeListener = new View.OnClickListener() {
-		@Override
-		public void onClick(View view) {
-			ImageView imageView = (ImageView) view;
-			
-			// Enlarge the image
-			if (imageView.getLayoutParams() == sImageSmallLayoutParams) {
-				int containerWidth;
-				if (mContainer == null) {
-                    Display display = mMainActivity.getWindowManager().getDefaultDisplay();
-                    Point deviceSize = new Point();
-                    display.getSize(deviceSize);
-                    containerWidth = deviceSize.x;
-					
-				} else {
-					containerWidth = mContainer.getWidth();
-				}
-				int h = imageView.getHeight() * (containerWidth / imageView.getWidth());
-				imageView.setLayoutParams(new LayoutParams(containerWidth, h ));
-			} else {
-				// shrink the image
-				imageView.setLayoutParams(sImageSmallLayoutParams);
-			}
-		}
-	};
+	public View.OnClickListener getToggleImageSizeListener(final ChatFragment chatFragment) {
+        View.OnClickListener toggleImageSizeListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ImageView imageView = (ImageView) view;
+                
+                // Enlarge the image
+                if (imageView.getLayoutParams() == sImageSmallLayoutParams) {
+                    int containerWidth;
+                    if (mContainer == null) {
+                        Display display = mMainActivity.getWindowManager().getDefaultDisplay();
+                        Point deviceSize = new Point();
+                        display.getSize(deviceSize);
+                        containerWidth = deviceSize.x;
+                        Log.d(TAG, "mContainer null, width: " + containerWidth);
+                        
+                    } else {
+                        containerWidth = mContainer.getWidth();
+                        Log.d(TAG, "mContainer width: " + containerWidth);
+                    }
+                    int h = imageView.getHeight() * (containerWidth / imageView.getWidth());
+                    imageView.setLayoutParams(new LinearLayout.LayoutParams(containerWidth, h ));
+                } else {
+                    // shrink the image
+                    imageView.setLayoutParams(sImageSmallLayoutParams);
+                }
+                //chatFragment.scrollDown();
+            }
+        };
 	
-	public View.OnClickListener getToggleImageSizeListener() {
-		return mToggleImageSizeListener;
+        return toggleImageSizeListener;
 	}
 	
 	private View.OnLongClickListener mSaveImageToGallery = new View.OnLongClickListener() {
 		@Override
 		public boolean onLongClick(View v) {
-			ImageView iv = (ImageView) v;
-			Bitmap bitmap = iv.getDrawingCache(true);
+			ImageView imageView = (ImageView) v;
+			Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
 			
 			// Create image file
             File imageFile = createAlbumImageFile();
@@ -318,11 +323,12 @@ public class ImageFragment extends Fragment {
 		return mSaveImageToGallery;
 	}
 	
-	private boolean storeBitmap(Bitmap bitmap, File imageFile) {
+	public static boolean storeBitmap(Bitmap bitmap, File imageFile) {
         try {
             imageFile.createNewFile();
             FileOutputStream ostream = new FileOutputStream(imageFile);
             bitmap.compress(CompressFormat.PNG, IMAGE_COMPRESS_QUALITY, ostream);
+            Log.d(TAG, "Storing bitmap to file: " + imageFile.getAbsolutePath());
             ostream.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -332,29 +338,27 @@ public class ImageFragment extends Fragment {
 		return true;
 	}
 	
-	private File createAlbumImageFile() {
-        String timeStamp = mImageTimeFormat.format(new Date());
+	public static File createAlbumImageFile() {
+        String timeStamp = DateFormat.format(IMAGE_TIME_FORMAT, new Date()).toString();
         String imageFileName = "IMG" + timeStamp + "_";
 
-        if (mAlbumDir == null) {
-            mAlbumDir = getAlbumDir();
-        }
+        File albumDir = getAlbumDir();
 
-        return new File(mAlbumDir + "/" + imageFileName + IMAGE_FILE_SUFFIX);
+        return new File(albumDir + "/" + imageFileName + IMAGE_FILE_SUFFIX);
 	}
 	
 	/**
 	 * Create a temporary File object in the Android public storage directory
 	 * @return
 	 */
-	private File createTmpImageFile() {
+	private static File createTmpImageFile() {
 		return new File(
 				Environment.getExternalStorageDirectory(), "tmp_" +
                 String.valueOf(System.currentTimeMillis()) + ".jpg");
 	}
 
 	
-    private File getAlbumDir() {
+    private static File getAlbumDir() {
     	File storageDir = new File(
     			Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
     			DBGlobals.APP_NAME
@@ -370,7 +374,7 @@ public class ImageFragment extends Fragment {
                 }
             }
         } else {
-            Log.v(getString(R.string.app_name), "External storage is not mounted READ/WRITE.");
+            Log.v(TAG, "getAlbumDir(): External storage is not mounted READ/WRITE.");
         }
         return storageDir;
     }

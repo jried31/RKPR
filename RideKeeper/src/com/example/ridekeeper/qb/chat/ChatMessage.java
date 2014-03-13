@@ -2,12 +2,15 @@ package com.example.ridekeeper.qb.chat;
 
 import java.util.Date;
 
+import android.graphics.Bitmap;
+
 public class ChatMessage {
-    private boolean mIncoming;
-    private boolean mIsImage;
     private String mText;
-    private Date mTime;
     private String mSender;
+    private Date mTime;
+    private boolean mIncoming;
+
+    private Bitmap mBitmap;
 
     /**
      * Send text message
@@ -18,13 +21,6 @@ public class ChatMessage {
     public ChatMessage(String text, Date time, boolean incoming) {
         this(text, null, time, incoming);
     }
-    
-    /**
-     * Send image message
-     */
-    public ChatMessage() {
-    	
-    }
 
     /**
      * Send text message with sender
@@ -34,11 +30,19 @@ public class ChatMessage {
      * @param incoming
      */
     public ChatMessage(String text, String sender, Date time, boolean incoming) {
+    	this(text, sender, time, incoming, null);
+
+    }
+    
+    public ChatMessage(String text, String sender, Date time,
+    		boolean incoming, Bitmap bitmap) {
         this.mText = text;
         this.mSender = sender;
         this.mTime = time;
         this.mIncoming = incoming;
+        this.mBitmap = bitmap;
     }
+
 
     public boolean isIncoming() {
         return mIncoming;
@@ -56,7 +60,11 @@ public class ChatMessage {
         return mSender;
     }
     
-    public boolean isImage(){
-    	return mIsImage;
+    public boolean isImage() {
+    	return mBitmap != null;
+    }
+    
+    public Bitmap getBitmap() {
+    	return mBitmap;
     }
 }

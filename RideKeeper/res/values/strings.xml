@@ -110,6 +110,7 @@
     <string name="camera_description">Camera</string>
     <string name="send">Send</string>
     <string name="current_user">Me</string>
+    <string name="chat_image_description">A user shared an image.</string>
 
     <!-- Ride strings -->
     <string name="start_ride">Start Ride</string>

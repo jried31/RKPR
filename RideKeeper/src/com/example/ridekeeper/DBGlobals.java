@@ -63,6 +63,7 @@ public class DBGlobals {
     public static final String PARSE_CHAT_TBL_KEY_MEMBERS = "members";
 	
     public static final String ARG_VEHICLE_ID = "vehicleId";
+    public static final String UNICODE_BULLET = "\u25CF";
 
     public static final int RIDE_NOTIFICATION_ID = 1;
 	
