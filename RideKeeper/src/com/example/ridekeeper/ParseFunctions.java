@@ -45,7 +45,18 @@ public class ParseFunctions {
 		mLocationMgr = locationMgr;
 	}
 		
-    public static void queryForStolenVehicle_InBackground(double lat, double lng, double withInMiles, FindCallback<ParseObject> callback){
+	/**
+	 * Retrieve stolen vehicles from Parse
+	 * @param lat
+	 * @param lng
+	 * @param withInMiles
+	 * @param callback
+	 */
+    public static void queryForStolenVehicle_InBackground(
+    		double lat, 
+    		double lng, 
+    		double withInMiles, 
+    		FindCallback<ParseObject> callback) {
         ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL); //Query the VBS table
 
         //Constraints: Find any VBS within 'withInMiles' miles of given lat, lng
@@ -55,6 +66,11 @@ public class ParseFunctions {
         query.findInBackground(callback);
     }
     
+    /**
+     * Retrieve the owner of the vehicle
+     * @param vehicleId
+     * @return
+     */
     public static String queryForVehicleOwner(String vehicleId) {
         //Query the VBS table
         ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL);
@@ -74,10 +90,13 @@ public class ParseFunctions {
         return null;
     }
     
+    /**
+     * Retrieve chatrooms that the current ParseUser is a member of. Then retrieve
+     * the vehicle information corresponding to the vehicle ID of the chatroom.
+     * @param roomsReceiver
+     * @param callback
+     */
     public static void queryForVehicleInMyChatRoom_InBackground(
-    		double lat, 
-    		double lng, 
-    		double withInMiles, 
     		final RoomsReceiver roomsReceiver,
     		final FindCallback<ParseObject> callback) {
 
@@ -87,10 +106,10 @@ public class ParseFunctions {
         queryChatRoom.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
-                if (e==null && !objects.isEmpty()){
+                if (e == null && !objects.isEmpty()) {
                     Map<String, String> vehicleToRoomMap = new HashMap<String, String>();
                     
-                    for (ParseObject obj : objects){ 
+                    for (ParseObject obj : objects) { 
                     	String vehicleId = obj.getString(DBGlobals.PARSE_CHAT_TBL_KEY_VEHICLE_ID);
                         vehicleToRoomMap.put(
                         		vehicleId,
@@ -98,13 +117,14 @@ public class ParseFunctions {
                         Log.d("RIDEKEEPER", "VID: " + vehicleId);
                     }
                     
+                    // Begin loading Quickblox chatrooms
                     roomsReceiver.loadRooms(vehicleToRoomMap);
                     
                     ParseQuery<ParseObject> queryVehicle = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL);
                     queryVehicle.whereContainedIn(DBGlobals.PARSE_VEHICLE_TBL_KEY_VEHICLE_ID, vehicleToRoomMap.keySet());
                     
                     queryVehicle.findInBackground(callback);
-                }else{
+                } else {
                     callback.done(objects, e);
                 }
             }

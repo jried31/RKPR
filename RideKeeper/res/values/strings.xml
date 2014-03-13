@@ -66,7 +66,8 @@
     <string name="camara_photo_picker_dialog">Take from camera</string>
     <string name="gallery_photo_picker_dialog">Select from gallery</string>
     <string name="photo_picker_tag">photo picker tag</string>
-    <string name="photo_picker_title">Select profile image</string>
+    <string name="profile_photo_picker_title">Select profile image</string>
+    <string name="photo_picker_title">Select an image</string>
 
     <string-array name="photo_picker_items">
         <item>Take picture from camera</item>

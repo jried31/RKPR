@@ -92,10 +92,12 @@ public class RoomsReceiver implements RoomReceivingListener {
     }
 
     public void loadRooms(Map<String, String> vehiclesToRoomMap) {
+        mRoomsReceived = false;
+
     	if (QBChatService.getInstance().isLoggedIn()) {
-    		mRoomsReceived = false;
             QBChatService.getInstance().getRooms(this);
     	}
+
     	if (vehiclesToRoomMap != null) {
             mVehiclesToRoomMap = vehiclesToRoomMap;
     	}

@@ -24,7 +24,7 @@ import android.widget.Toast;
 import com.example.ridekeeper.MainActivity.SelectedFrag;
 import com.example.ridekeeper.qb.MyQBUser;
 import com.example.ridekeeper.qb.chat.ChatFragment;
-import com.example.ridekeeper.qb.chat.ChatRoom;
+import com.example.ridekeeper.qb.chat.RoomChat;
 import com.example.ridekeeper.qb.chat.RoomsReceiver;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -40,8 +40,6 @@ public class StolenVehicleListFragment extends ListFragment {
 
 	private static ParseVehicleArrayAdapter stolenVehicleArrayAdapter;
 	private static Activity sMainActivity;
-	
-	private ProgressDialog mProgressDialog;
 
 	private static FindCallback<ParseObject> queryVehicleInMyChatRoomCallback = new FindCallback<ParseObject>() {
 		@Override
@@ -81,8 +79,6 @@ public class StolenVehicleListFragment extends ListFragment {
 		setListAdapter(stolenVehicleArrayAdapter);
 		
 		registerForContextMenu(getListView());
-		
-		mProgressDialog = new ProgressDialog(sMainActivity);
 
 		sRoomsReceiver = new RoomsReceiver(sMainActivity);
 
@@ -229,35 +225,20 @@ public class StolenVehicleListFragment extends ListFragment {
         bundle.putString(ChatFragment.ARG_ROOM_NAME, roomName);
 
         if (createChat) {
-            bundle.putSerializable(ChatFragment.ARG_ROOM_ACTION, ChatRoom.RoomAction.CREATE);
+            bundle.putSerializable(ChatFragment.ARG_ROOM_ACTION, RoomChat.RoomAction.CREATE);
         } else {
-            bundle.putSerializable(ChatFragment.ARG_ROOM_ACTION, ChatRoom.RoomAction.JOIN);
+            bundle.putSerializable(ChatFragment.ARG_ROOM_ACTION, RoomChat.RoomAction.JOIN);
         }
         return bundle;
     }
 	
 	//Should be called only when ParseUser.getCurrentUser() is authenticated
 	public static void refreshList(){
-		LocationMgr locationMgr = MainActivity.mLocationMgr;
-		
-        Location location = locationMgr.getLastGoodLocation();
-	
-		if (location != null){
-			Log.d(TAG, "refreshList() refreshing stolen vehicles list");
+        Log.d(TAG, "refreshList() refreshing stolen vehicles list");
 
-			Toast.makeText(sMainActivity,
-					"My location lat/lng: " + location.getLatitude() + "/" + location.getLongitude(),
-					Toast.LENGTH_SHORT).show();
-
-			ParseFunctions.queryForVehicleInMyChatRoom_InBackground(
-					location.getLatitude(),
-					location.getLongitude(),
-					DBGlobals.searchRadius,
-					sRoomsReceiver,
-					queryVehicleInMyChatRoomCallback);
-		} else {
-			Log.d(TAG, "refreshList() location is null");
-		}
+        ParseFunctions.queryForVehicleInMyChatRoom_InBackground(
+                sRoomsReceiver,
+                queryVehicleInMyChatRoomCallback);
 	}
 	
 	public static void clearList(){

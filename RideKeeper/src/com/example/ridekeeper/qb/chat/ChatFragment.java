@@ -2,6 +2,7 @@ package com.example.ridekeeper.qb.chat;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,6 +14,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.util.StringUtils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -27,6 +29,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,17 +44,21 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.MainActivity;
 import com.example.ridekeeper.ParseChatRoomPhoto;
 import com.example.ridekeeper.ParseFunctions;
 import com.example.ridekeeper.R;
-import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.qb.MyQBUser;
-import com.example.ridekeeper.qb.chat.ChatRoom.NullChatRoomException;
+import com.example.ridekeeper.qb.chat.RoomChat.NullChatRoomException;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseImageView;
 import com.parse.SaveCallback;
+import com.quickblox.core.QBCallbackImpl;
+import com.quickblox.core.result.Result;
+import com.quickblox.module.content.QBContent;
+import com.quickblox.module.content.result.QBFileUploadTaskResult;
 //import android.view.ViewGroup.LayoutParams;
 //Need this for enlarging photo
 
@@ -72,10 +79,8 @@ public class ChatFragment extends DialogFragment {
 	public static final int REQUEST_CODE_CROP_PHOTO = 101;
 	public static final int REQUEST_CODE_SELECT_FROM_GALLERY = 102;
 
-	private static final String IMAGE_UNSPECIFIED = "image/*";
-
-	// Prefix denotes that an image is part of message
-	private static final String SPECIAL_STRING_PREFIX = "&&$*(";
+	private static final String IMAGE_TYPE_UNSPECIFIED = "image/*";
+	private static final int IMAGE_COMPRESS_QUALITY = 100;
 
 	// For UI
 	private ImageView mUploadPhotoBtn;
@@ -125,6 +130,9 @@ public class ChatFragment extends DialogFragment {
 		//super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.chat_fragment, container, false);
 		
+		// initialize the gravity for small image
+		IMAGE_SMALL_VIEW_LAYOUT.gravity = Gravity.CENTER;
+		
 		mMainActivity.setSelectedFrag(MainActivity.SelectedFrag.CHAT_ROOM);
 		mMainActivity.invalidateOptionsMenu();
 
@@ -142,7 +150,7 @@ public class ChatFragment extends DialogFragment {
         switch (mMode) {
             case GROUP:
             	try {
-                    mChat = new ChatRoom(mMainActivity, this, getArguments());
+                    mChat = new RoomChat(mMainActivity, this, getArguments());
             	} catch (NullChatRoomException ne) {
             		// TODO: If we can't get the corresponding QBChatRoom, then
             		// show error view
@@ -255,6 +263,7 @@ public class ChatFragment extends DialogFragment {
 			}
 
 			// Delete temporary image taken by camera after crop.
+			// TODO: doesn't gallery create a new temp file also?
 			if (mIsTakenFromCamera) {
 				File f = new File(mImageCaptureUri.getPath());
 				if (f.exists())
@@ -278,10 +287,11 @@ public class ChatFragment extends DialogFragment {
 			Log.d("DEBUG", "RECEIVED MESSAGE: " + from + ": " + msg.getBody());
 			
 			//Check if message is a text message
-			if ( !isSpecialString(body) ){
-				pushTextToContainer( from + ": " + msg.getBody());
+			/*
+			if ( !isSpecialString(body) ) {
+				//pushTextToContainer( from + ": " + msg.getBody());
 			
-			}else if (isSpecialString(body)){ //special string received -> a photo message
+			} else if (isSpecialString(body)) { //special string received -> a photo message
 				final String photoObjectId = extractFromSpecialString(body);
 				final ParseImageView pivPhoto = new ParseImageView(mMainActivity);
 				
@@ -290,21 +300,20 @@ public class ChatFragment extends DialogFragment {
 				pivPhoto.setAdjustViewBounds(true);
 				pivPhoto.setLayoutParams(ChatFragment.IMAGE_SMALL_VIEW_LAYOUT);
 				
-				/*JERRID: Left Here for Background Bubbles
-				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-	                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);				
-				params.gravity = Gravity.LEFT;
+				// JERRID: Left Here for Background Bubbles
+				//LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+	            //        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);				
+				//params.gravity = Gravity.LEFT;
 				
-	        	int bgRes = R.drawable.left_message_bg;
-				pivPhoto.setLayoutParams(params);
-				pivPhoto.setBackgroundResource(bgRes);
-				*/
+	        	//int bgRes = R.drawable.left_message_bg;
+				//pivPhoto.setLayoutParams(params);
+				//pivPhoto.setBackgroundResource(bgRes);
 				
 				pivPhoto.setOnClickListener(toggleImageSize);
 				pivPhoto.setOnLongClickListener(saveImageToGallery);
 				
 				
-				pushTextToContainer( from + " posted a photo:");
+				//pushTextToContainer( from + " posted a photo:");
 				pushPhotoToContainer(pivPhoto);
 
 				ParseFunctions.queryForChatPhoto(photoObjectId, new GetCallback<ParseChatRoomPhoto>() {
@@ -319,69 +328,80 @@ public class ChatFragment extends DialogFragment {
 					}
 				});
 			}
+			*/
 		}
 	};
 	
-	private boolean isSpecialString(String str){
-		return str.startsWith(SPECIAL_STRING_PREFIX);
-	}
-	
-	private void sendSpecialString(String str){
-		mMucController.sendMessage( SPECIAL_STRING_PREFIX + str);
-	}
-	
-	private String extractFromSpecialString(String special){
-		return special.substring(SPECIAL_STRING_PREFIX.length());
-	}
-	
 	private void sendPhoto(Bitmap bitmap){
-		//upload image to Parse
+		// Upload image to Quickblox
 		Toast.makeText(mMainActivity, "Sending photo...", Toast.LENGTH_SHORT).show();
 		disableSendPic();
 		
-		final ParseChatRoomPhoto chatPhoto = new ParseChatRoomPhoto();
-		chatPhoto.setVehicleId(mVehicleId);
-		chatPhoto.prepareSavingPhoto(mMainActivity, bitmap);
+		// Save on temporarily on device, then delete after upload to Quickblox
+        File imageFile = createAlbumImageFile();
+
+        if (storeBitmap(bitmap, imageFile)) {
+        	uploadImageToQuickBlox(imageFile);
+        } else {
+        	displaySendImageFailure();
+        }
+
+        enableSendPic();
+
+		//final ParseChatRoomPhoto chatPhoto = new ParseChatRoomPhoto();
+		//chatPhoto.setVehicleId(mVehicleId);
+		//chatPhoto.prepareSavingPhoto(mMainActivity, bitmap);
 		
-		chatPhoto.saveInBackground(new SaveCallback() {
-			@Override
-			public void done(ParseException e) {
-				if (e == null){ //successfully upload the photo to Parse
-					chatPhoto.savePhotoLocally(mMainActivity); //also save the photo locally
-					
-					//send the Parse photo objectId string to the chat room
-					sendSpecialString( chatPhoto.getObjectId() );
-					//mucController.sendMessage(chatPhoto.getObjectId());
-				}else{
-					Toast.makeText(mMainActivity, "Error " + e.getMessage(), Toast.LENGTH_SHORT).show();
-				}
-				
-				enableSendPic();
-			}
+		//chatPhoto.saveInBackground(new SaveCallback() {
+		//	@Override
+		//	public void done(ParseException e) {
+		//		if (e == null){ //successfully upload the photo to Parse
+		//			chatPhoto.savePhotoLocally(mMainActivity); //also save the photo locally
+		//			
+		//			//send the Parse photo objectId string to the chat room
+		//			sendImageSpecialString( chatPhoto.getObjectId() );
+		//			//mucController.sendMessage(chatPhoto.getObjectId());
+		//		}else{
+		//			Toast.makeText(mMainActivity, "Error " + e.getMessage(), Toast.LENGTH_SHORT).show();
+		//		}
+		//		
+		//		enableSendPic();
+		//	}
+		//});
+	}
+
+	private void uploadImageToQuickBlox(File image) {
+		// Upload file to Content module
+		QBContent.uploadFileTask(image, false, new QBCallbackImpl() {
+		    @Override
+		    public void onComplete(Result result) {
+		        if (result.isSuccess()) {
+		            // get uploaded file ID
+		            QBFileUploadTaskResult res = (QBFileUploadTaskResult) result;
+		            String uid = res.getFile().getUid();
+		 
+		            // TODO: do we need to save locally?
+		            //savePhotoLocally(mMainActivity);
+
+		            try {
+                        mChat.sendImageString(uid);
+		            } catch (XMPPException xe){
+                        Log.e(TAG, "failed to send a special image message", xe);
+		            }
+		            
+		            // TODO: should we delete the temporary image file?
+
+		        } else {
+		        	displaySendImageFailure();
+		        }
+		    }
 		});
 	}
 	
-	//Put a text into the chat window
-	private void pushTextToContainer(String msg){
-		final TextView textView = new TextView(mMainActivity);
-		textView.setText(msg);
-		textView.setTextSize(20);
-		textView.setPadding(5, 0, 5, 10);
-		
-        mMainActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mMsgContainer.addView(textView);
-                // Scroll to bottom
-                mScrollContainer.post( new Runnable() {
-					@Override
-					public void run() {
-						mScrollContainer.fullScroll(View.FOCUS_DOWN);
-					}
-				});
-            }
-        });
+	private void displaySendImageFailure() {
+        Toast.makeText(mMainActivity, "Failed to send image", Toast.LENGTH_SHORT).show();
 	}
+	
 	
 	//Put a text into the chat window
 	private void pushPhotoToContainer(final ParseImageView pivPhoto){
@@ -405,7 +425,7 @@ public class ChatFragment extends DialogFragment {
 	private void cropImage() {
 		// Use existing crop activity.
 		Intent intent = new Intent("com.android.camera.action.CROP");
-		intent.setDataAndType(mImageCaptureUri, IMAGE_UNSPECIFIED);
+		intent.setDataAndType(mImageCaptureUri, IMAGE_TYPE_UNSPECIFIED);
 
 		// Specify image size
 		intent.putExtra("outputX", 100);
@@ -429,39 +449,42 @@ public class ChatFragment extends DialogFragment {
 		switch(item){
 		case ID_PHOTO_PICKER_FROM_CAMERA:
 			intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			mImageCaptureUri = Uri.fromFile(new File(Environment
-					.getExternalStorageDirectory(), "tmp_"
-							+ String.valueOf(System.currentTimeMillis()) + ".jpg"));
+			mImageCaptureUri = Uri.fromFile(createTmpImageFile());
 			intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
 					mImageCaptureUri);
 			intent.putExtra("return-data", true);
 			try {
 				startActivityForResult(intent, REQUEST_CODE_TAKE_FROM_CAMERA);
 			} catch (ActivityNotFoundException e) {
+				// TODO: give error message to user that they have no camera
+				// Better yet, don't allow camera option at all if no activity is
+				// found (check earlier on view create and don't display option)
 				e.printStackTrace();
 			}
 			mIsTakenFromCamera = true;
 			break;
 
 		case ID_PHOTO_PICKER_FROM_GALLERY:
+		// TODO: check that the gallery will also create tmp file, need to delete as well
 			intent = new Intent(Intent.ACTION_PICK);
-			intent.setType("image/*");
-			mImageCaptureUri = Uri.fromFile(new File(Environment
-					.getExternalStorageDirectory(), "tmp_"
-							+ String.valueOf(System.currentTimeMillis()) + ".jpg"));
+			intent.setType(IMAGE_TYPE_UNSPECIFIED);
+			mImageCaptureUri = Uri.fromFile(createTmpImageFile());
 			intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
 					mImageCaptureUri);
 			intent.putExtra("return-data", true);
-			try{
+			try {
 				startActivityForResult(intent, REQUEST_CODE_SELECT_FROM_GALLERY);
-			}catch(ActivityNotFoundException e){
+			} catch (ActivityNotFoundException e){
+				// TODO: give error message to user that they have no gallery
+				// Better yet, don't allow option at all if no activity is
+				// found (check earlier on view create and don't display option)
 				e.printStackTrace();
 			}
 			mIsTakenFromCamera = false;
 			break;
 
 		default:
-			return;
+			break;
 		}
 	}
 	
@@ -490,17 +513,17 @@ public class ChatFragment extends DialogFragment {
 		mUploadPhotoBtn.setEnabled(true);
 	}
 	
-
-	
 	private View.OnClickListener toggleImageSize = new View.OnClickListener() {
 		@Override
 		public void onClick(View v) {
 			ImageView iv = (ImageView) v;
 			
+			// Enlarge the image
 			if (iv.getLayoutParams() == IMAGE_SMALL_VIEW_LAYOUT){
 				int h = iv.getHeight() * (mMsgContainer.getWidth() / iv.getWidth());
 				iv.setLayoutParams(new LayoutParams(mMsgContainer.getWidth(), h ));
-			}else{
+			} else {
+				// shrink the image
 				iv.setLayoutParams(IMAGE_SMALL_VIEW_LAYOUT);
 			}
 			
@@ -508,44 +531,72 @@ public class ChatFragment extends DialogFragment {
 	};
 	
 	private View.OnLongClickListener saveImageToGallery = new View.OnLongClickListener() {
+		@SuppressLint("SimpleDateFormat")
 		@Override
 		public boolean onLongClick(View v) {
 			ImageView iv = (ImageView) v;
-			Bitmap bm = iv.getDrawingCache(true);
+			Bitmap bitmap = iv.getDrawingCache(true);
 			
 			// Create image file
-			String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-			String imageFileName = "IMG" + timeStamp + "_";
-			if (mAlbumDir==null){
-				mAlbumDir = getAlbumDir();
-			}
-			File imageF = new File(mAlbumDir + "/" + imageFileName + ".png");
+            File imageFile = createAlbumImageFile();
 
-			try 
-	        {
-				imageF.createNewFile();
-	            FileOutputStream ostream = new FileOutputStream(imageF);
-	            bm.compress(CompressFormat.PNG, 100, ostream);
-	            ostream.close();
-	        } 
-	        catch (Exception e) 
-	        {
-	            e.printStackTrace();
-	        }
-			
-			//Add file to gallery
-			Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
-			Uri contentUri = Uri.fromFile(imageF);
-	        mediaScanIntent.setData(contentUri);
-	        mMainActivity.sendBroadcast(mediaScanIntent);
-			
-			Toast.makeText(mMainActivity, "Saved to gallery", Toast.LENGTH_SHORT).show();
+			if (storeBitmap(bitmap, imageFile)) {
+                // Add file to gallery
+                Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
+
+                Uri contentUri = Uri.fromFile(imageFile);
+                mediaScanIntent.setData(contentUri);
+
+                mMainActivity.sendBroadcast(mediaScanIntent);
+                
+                Toast.makeText(mMainActivity, "Saved to gallery", Toast.LENGTH_SHORT).show();
+			}
 			return true;
 		}
 	};
 	
+	private boolean storeBitmap(Bitmap bitmap, File imageFile) {
+        try {
+            imageFile.createNewFile();
+            FileOutputStream ostream = new FileOutputStream(imageFile);
+            bitmap.compress(CompressFormat.PNG, IMAGE_COMPRESS_QUALITY, ostream);
+            ostream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+			
+		return true;
+	}
+	
+	private File createAlbumImageFile() {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "IMG" + timeStamp + "_";
+
+        if (mAlbumDir == null) {
+            mAlbumDir = getAlbumDir();
+        }
+
+        return new File(mAlbumDir + "/" + imageFileName + ".png");
+	}
+	
+	/**
+	 * Create a temporary File object in the Android public storage directory
+	 * @return
+	 */
+	private File createTmpImageFile() {
+		return new File(
+				Environment.getExternalStorageDirectory(), "tmp_" +
+                String.valueOf(System.currentTimeMillis()) + ".jpg");
+	}
+
+	
     private File getAlbumDir() {
-    	File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "RideKeeper");
+    	File storageDir = new File(
+    			Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+    			DBGlobals.APP_NAME
+    			);
+
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             if (storageDir != null) {
                 if (! storageDir.mkdirs()) {
@@ -560,5 +611,4 @@ public class ChatFragment extends DialogFragment {
         }
         return storageDir;
     }
-	
 }

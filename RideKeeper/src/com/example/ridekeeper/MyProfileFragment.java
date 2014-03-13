@@ -169,7 +169,7 @@ public class MyProfileFragment extends Fragment {
 				final Activity parent = getActivity();
 				AlertDialog.Builder builder = new AlertDialog.Builder(parent);
 				DialogInterface.OnClickListener dlistener;
-				builder.setTitle(R.string.photo_picker_title);
+				builder.setTitle(R.string.profile_photo_picker_title);
 				dlistener = new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int item) {
 						onPhotoPickerItemSelected(item);
