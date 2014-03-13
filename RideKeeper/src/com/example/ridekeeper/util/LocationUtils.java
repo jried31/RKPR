@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.example.ridekeeper;
+package com.example.ridekeeper.util;
+
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.R.string;
 
 import android.content.Context;
 import android.location.Location;

@@ -66,7 +66,7 @@
            android:value="@integer/google_play_services_version" />
 
         <!-- Android Broadcast receiver -->
-        <receiver android:name=".MyBroadcastReceiver"></receiver>
+        <receiver android:name="com.example.ridekeeper.util.MyBroadcastReceiver"></receiver>
         
         
         <!-- Parse Service -->

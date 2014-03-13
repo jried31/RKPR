@@ -10,7 +10,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
+import com.example.ridekeeper.util.ImageFragment;
 import com.parse.GetDataCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
@@ -20,6 +22,8 @@ import com.parse.ParseObject;
 
 @ParseClassName(DBGlobals.PARSE_VEHICLE_TBL)
 public class ParseVehicle extends ParseObject {
+	private static final String TAG = ParseVehicle.class.getSimpleName();
+
     public static final String MAKE = "make";
     public static final String MODEL = "model";
     public static final String YEAR = "year";
@@ -33,7 +37,7 @@ public class ParseVehicle extends ParseObject {
     public static final String 	STATUS = "status";
 	
 	private static final String PHOTOFILE_PREFIX = "vehicle_photo_",
-								PHOTOFILE_SUBFIX = ".png";
+								PHOTOFILE_SUFFIX = ".png";
 	private Context myContext;
 	private byte[] photoData;
 	
@@ -118,29 +122,12 @@ public class ParseVehicle extends ParseObject {
 		setPhoto( new ParseFile("photo.png", photoData) );
 	}
 	
-	//Save the photo locally
-	public void savePhotoLocally(Context context){
-		if (photoData != null){
-			try {
-				FileOutputStream fos = context.openFileOutput(
-						PHOTOFILE_PREFIX + getObjectId() + PHOTOFILE_SUBFIX, Activity.MODE_PRIVATE);
-				fos.write(photoData);
-				fos.flush();
-				fos.close();
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-			} catch (IOException e2){
-				e2.printStackTrace();
-			}
-		}
-	}
-	
 	
 	public void loadPhotoIntoParseImageView(Context context, ParseImageView mImageView ) {
 		myContext = context;
 		// Try to load profile photo from internal storage first
 		try {
-			FileInputStream fis = context.openFileInput( PHOTOFILE_PREFIX + getObjectId() + PHOTOFILE_SUBFIX );
+			FileInputStream fis = context.openFileInput( PHOTOFILE_PREFIX + getObjectId() + PHOTOFILE_SUFFIX );
 			Bitmap bmap = BitmapFactory.decodeStream(fis);
 			mImageView.setImageBitmap(bmap);
 			fis.close();
@@ -164,6 +151,14 @@ public class ParseVehicle extends ParseObject {
 				}
 			});
 	    }
-	    
 	}
+	
+	public void savePhotoLocally(Context context) {
+        ImageFragment.savePhotoLocally(
+                context, 
+                photoData, 
+                PHOTOFILE_PREFIX, 
+                getObjectId());
+	}
+	
 }

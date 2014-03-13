@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.util;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -8,6 +8,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.R.string;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;

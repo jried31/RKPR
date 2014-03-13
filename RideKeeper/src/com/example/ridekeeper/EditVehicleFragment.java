@@ -23,26 +23,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.ridekeeper.util.ImageConsumer;
+import com.example.ridekeeper.util.ImageFragment;
 import com.parse.ParseException;
 import com.parse.ParseImageView;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-public class EditVehicleFragment extends DialogFragment {
-	// For taking picture:
-	public static final int ID_PHOTO_PICKER_FROM_CAMERA = 0;
-	public static final int ID_PHOTO_PICKER_FROM_GALLERY = 1;
-	public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 100;
-	public static final int REQUEST_CODE_CROP_PHOTO = 101;
-	public static final int REQUEST_CODE_SELECT_FROM_GALLERY = 102;
-
-	private static final String IMAGE_UNSPECIFIED = "image/*";
-	private Uri mImageCaptureUri;
-	private boolean isTakenFromCamera;
-	// End for taking picture
-	
-	
+public class EditVehicleFragment extends DialogFragment implements ImageConsumer {
     private ParseImageView pivPhoto;
     private EditText etMake, etModel, etYear, etLicense,etTrackerId;
     private Button btSave, btChangePhoto,btToggleTrackerId;
@@ -50,11 +39,16 @@ public class EditVehicleFragment extends DialogFragment {
 	private String mode = "add"; //Default is add mode
     private int pos = 0;
     ParseVehicle vehicle; //current vehicle being add/edit
+    private ImageFragment mImageFragment;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	
+    	mImageFragment = ImageFragment.newInstance(this, null);
+    	FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+    	fragmentTransaction.add(mImageFragment, ImageFragment.TAG).commit();
+
     	//Checking whether we're adding or editing a vehicle
     	if (getArguments()!=null && getArguments().containsKey("mode")){
     		mode = getArguments().getString("mode");
@@ -116,19 +110,7 @@ public class EditVehicleFragment extends DialogFragment {
 		btChangePhoto.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				final Activity parent = getActivity();
-				AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-				DialogInterface.OnClickListener dlistener;
-				builder.setTitle(R.string.photo_picker_title);
-				dlistener = new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int item) {
-						onPhotoPickerItemSelected(item);
-					}
-				};
-
-				builder.setItems(R.array.photo_picker_items, dlistener);
-				builder.create().show();
-				
+				mImageFragment.showPhotoSelection();
 			}
 		});
 		
@@ -157,6 +139,7 @@ public class EditVehicleFragment extends DialogFragment {
 						if (e==null){
 							//Now the 'objectId' of the vehicle is available.
 							vehicle.savePhotoLocally(getActivity());
+
 							Toast.makeText(getActivity(), "Saved!", Toast.LENGTH_SHORT).show();
 							
 						}else{
@@ -187,45 +170,9 @@ public class EditVehicleFragment extends DialogFragment {
 		return view;
     }
     
-    
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-		if (resultCode != Activity.RESULT_OK)
-			return;
-
-		switch (requestCode) {
-		case REQUEST_CODE_SELECT_FROM_GALLERY:
-			mImageCaptureUri = data.getData();
-			cropImage();
-			break;
-
-		case REQUEST_CODE_TAKE_FROM_CAMERA:
-			// Send image taken from camera for cropping
-			cropImage();
-			break;
-
-		case REQUEST_CODE_CROP_PHOTO:
-			// Update image view after image crop
-
-			Bundle extras = data.getExtras();
-
-			// Set the picture image in UI
-			if (extras != null) {
-				Bitmap bitmap = (Bitmap) extras.getParcelable("data");
-				pivPhoto.setImageBitmap(bitmap);
-			}
-
-			// Delete temporary image taken by camera after crop.
-			if (isTakenFromCamera) {
-				File f = new File(mImageCaptureUri.getPath());
-				if (f.exists())
-					f.delete();
-			}
-
-			break;
-		}
+	public void processBitmap(Bitmap bitmap) {
+        pivPhoto.setImageBitmap(bitmap);
 	}
-    
     
 	public static void addVehicle(FragmentManager fm){
     	FragmentTransaction ft = fm.beginTransaction();
@@ -257,70 +204,4 @@ public class EditVehicleFragment extends DialogFragment {
     	editVehicleFrag.setArguments(args);
     	editVehicleFrag.show(ft, "Add Vehicle Dialog");
 	}
-	
-	
-	//For taking picture from camera / gallery:
-	private void onPhotoPickerItemSelected(int item) {
-		Intent intent;
-		isTakenFromCamera = false;
-
-		switch(item){
-		case ID_PHOTO_PICKER_FROM_CAMERA:
-			intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			mImageCaptureUri = Uri.fromFile(new File(Environment
-					.getExternalStorageDirectory(), "tmp_"
-							+ String.valueOf(System.currentTimeMillis()) + ".jpg"));
-			intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-					mImageCaptureUri);
-			intent.putExtra("return-data", true);
-			try {
-				startActivityForResult(intent, REQUEST_CODE_TAKE_FROM_CAMERA);
-			} catch (ActivityNotFoundException e) {
-				e.printStackTrace();
-			}
-			isTakenFromCamera = true;
-			break;
-
-		case ID_PHOTO_PICKER_FROM_GALLERY:
-			intent = new Intent(Intent.ACTION_PICK);
-			intent.setType("image/*");
-			mImageCaptureUri = Uri.fromFile(new File(Environment
-					.getExternalStorageDirectory(), "tmp_"
-							+ String.valueOf(System.currentTimeMillis()) + ".jpg"));
-			intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-					mImageCaptureUri);
-			intent.putExtra("return-data", true);
-			try{
-				startActivityForResult(intent, REQUEST_CODE_SELECT_FROM_GALLERY);
-			}catch(ActivityNotFoundException e){
-				e.printStackTrace();
-			}
-			isTakenFromCamera = false;
-			break;
-
-		default:
-			return;
-		}
-	}
-
-	// Crop and resize the image for profile
-	private void cropImage() {
-		// Use existing crop activity.
-		Intent intent = new Intent("com.android.camera.action.CROP");
-		intent.setDataAndType(mImageCaptureUri, IMAGE_UNSPECIFIED);
-
-		// Specify image size
-		intent.putExtra("outputX", 100);
-		intent.putExtra("outputY", 100);
-
-		// Specify aspect ratio, 1:1
-		intent.putExtra("aspectX", 1);
-		intent.putExtra("aspectY", 1);
-		intent.putExtra("scale", true);
-		intent.putExtra("return-data", true);
-		// REQUEST_CODE_CROP_PHOTO is an integer tag you defined to
-		// identify the activity in onActivityResult() when it returns
-		startActivityForResult(intent, REQUEST_CODE_CROP_PHOTO);
-	}
-	
 }

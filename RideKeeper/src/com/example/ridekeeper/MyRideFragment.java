@@ -3,7 +3,6 @@ package com.example.ridekeeper;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Fragment;
-import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -275,15 +274,12 @@ public class MyRideFragment extends Fragment {
     private void getScreenDimensions()
     {
         Display display = getActivity().getWindowManager().getDefaultDisplay();
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
-        {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             Point outSize = new Point();
             display.getSize(outSize);
             screenWidth = outSize.x;
             screenHeight = outSize.y;
-        }
-        else
-        {
+        } else {
             screenWidth = display.getWidth();
             screenHeight = display.getHeight();
         }

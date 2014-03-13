@@ -18,6 +18,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -51,6 +52,7 @@ import com.example.ridekeeper.ParseFunctions;
 import com.example.ridekeeper.R;
 import com.example.ridekeeper.qb.MyQBUser;
 import com.example.ridekeeper.qb.chat.RoomChat.NullChatRoomException;
+import com.example.ridekeeper.util.ImageConsumer;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseImageView;
@@ -62,7 +64,7 @@ import com.quickblox.module.content.result.QBFileUploadTaskResult;
 //import android.view.ViewGroup.LayoutParams;
 //Need this for enlarging photo
 
-public class ChatFragment extends DialogFragment {
+public class ChatFragment extends Fragment implements ImageConsumer {
 	private static final String TAG = ChatFragment.class.getSimpleName();
 
 	public static final String ARG_ROOM_NAME = "roomName";
@@ -204,6 +206,10 @@ public class ChatFragment extends DialogFragment {
         Toast.makeText(mMainActivity, "Joined chat room", Toast.LENGTH_SHORT).show();
 		
 		return view;
+	}
+
+	public void processBitmap(Bitmap bitmap) {
+        sendPhoto(bitmap);
 	}
 
     public void showMessage(ChatMessage message) {
