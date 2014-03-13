@@ -151,6 +151,127 @@ function updateVehicleLocation(alert, vehicle) {
 }
 
 /**
+ * @function updateChatroomMembers
+ *
+ * @desc updates chatroom members of specified
+ *
+ * @param {Number} chatroomId - chatroom's ObjectId
+ * @param {Array} members - array of User ObjectIds 
+ * @param {Function} onSuccess - on success callback
+ * @param {Function} onError - on error callback
+ */
+function updateChatroomMembers(chatroomId, members, onSuccess, onError) {
+    // Update chatroom members with new users
+    kaiseki.updateObject('Chatroom', chatroomId, { members: members }, function(err, res, body, success) {
+        if (success) {
+            if (onSuccess) {
+                onSuccess(body);
+            }
+        } else {
+            console.log(body.error);
+            if (onError) {
+                onError(body);
+            }
+        }
+    });
+}
+
+/**
+ * @function getVehicleChatroom 
+ *
+ * @desc finds chatroom associated with vehicle
+ * @param {Number} vehicleId - a vehicle's ObjectId
+ * @param {Function} onSuccess - callback on success
+ * @param {Function} onError - callback on error
+ */
+function getVehicleChatroom(vehicleId, onSuccess, onError) {
+    // get chatroom assocated with vehicle
+    kaiseki.getObjects('Chatroom', { 
+        where: { vehicleId : vehicleId},
+        limit: 1, 
+        order: '-createdAt'
+    }, function(err, res, body, success) {
+
+        if (success) {
+
+            if (onSuccess) {
+                onSuccess(body);
+            }
+
+        } else {
+
+            if (onError) {
+                onError(body);
+            }
+
+        }
+    });
+}
+/**
+ * @function updateStolenVehicleChatroomUsers
+ *
+ * @desc updates chatroom users  associated with stolen vehicle and sends out push notifications 
+ * @param {Object} vehicle - the stolen vehicle
+ * @param {Array} users - Array of User ObjectIds to add
+ */
+function updateStolenVehicleChatroomUsers(vehicle, users) {
+
+    getVehicleChatroom(vehicle.objectId, function(data) {
+        console.log('Number of chatrooms found: '+ data.length);
+        var room = data[0];
+
+        // should not hit this case because  a chatroom is created when a stolen alert is sent
+        if( !_.isObject(room) ) {
+            console.log("No Chatroom found for stolen vehicle");
+            return;
+        }
+
+        if (!room['members']) {
+            room['members'] = [];
+        }
+        console.log("near by Users: "+ users);
+        console.log("Room Members: " + room['members']);
+
+        // make sure new users doesn't duplicate existing room members
+        var new_users = _.difference(users, room['members']),
+            // add new users to chat room
+            members = room['members'].concat(new_users);
+
+
+        if (new_users.length > 0) {
+            console.log("Added " + new_users.length + " new members: " + new_users);
+        }
+
+        updateChatroomMembers(room.objectId, members, function() {
+            console.log('New members successfully added to chatroom.');
+            // Send push notification to all new users regarding stolen vehicle 
+            for (var j = 0; j < new_users.length; ++j) {
+                var notification_data = {
+                    where: { objectId: new_users[j] },
+                    data: {
+                        action: 'CUSTOMIZED',
+                        alertLevel: 'NEARBY',
+                        message: 'Time to roll out. Help us recover this ' + vehicle.make + ' ' + vehicle.model + ".",
+                        room: room['objectId']
+                    }
+                };
+                kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
+                    if (success) {
+                        // don't want to flood the console...
+                        console.log('Push notification successfully sent:', body);
+                    } else {
+                        console.log(body.error);
+                    }
+                });
+            }
+        });
+    }, function(){
+        console.log("Error retrieving vehicle chatroom");
+    });
+}
+
+
+/**
  * @function notifyNearbyUsers
  *
  * @desc Cycle through every stolen vehicle and notify users within specified radius  that the vehicle is stolen.
@@ -161,11 +282,11 @@ var notifyNearbyUsers = function() {
     // First get all Vechiles that are stolen
     kaiseki.getObjects('Vehicle', {where: {alertLevel: "STOLEN"}}, function(err, res, body, success) {
         if (success) {
-        	console.log("vehicle body length - "+body.length);
+            console.log("vehicle body length - "+body.length);
             for (var i = 0; i < body.length; ++i) {
                 var veh = body[i];
                 
-				console.log('Notifying users near vehicleId: ' + veh['objectId']);
+                console.log('Notifying users near vehicleId: ' + veh['objectId']);
                 // refer to https://parse.com/docs/rest#geo
                 var geopoint_where = {
                     GeoPoint: {
@@ -177,80 +298,32 @@ var notifyNearbyUsers = function() {
                         '$maxDistanceInMiles': 0.5
                     }
                 };
-                
-                kaiseki.getUsers(geopoint_where, function(err, res, body, success) {
 
-                    if (success) {
-                    
-                        var nearby_users = [];
-						
-                        for (var j = 0; j < body.length; ++j) {
-                            //console.log(body[j]['objectId']);
-                            nearby_users.push(body[j]['objectId']);
-                        }
-                        
-						console.log("vehicle id -" +veh['objectId']);
-                        // get chatroom assocated with vehicle
-                        kaiseki.getObjects('Chatroom', { where: { vehicleId : veh['objectId']},limit:1, order:'-createdAt' }, function(err, res, body, success) {
+                // create closure around vehicle object
+                // so that we can use that object for the callback
+                // otherwise we lose reference to the vehicle, because this async function 
+                // is getting invoked in a for loop
+                (function(vehicle) {
+                    kaiseki.getUsers(geopoint_where, function(err, res, body, success) {
 
-                            if (success) {
-                                console.log('Number of chatrooms found: '+body.length);
-                                for (var k = 0; k < body.length; ++k) {
-                                    var room = body[k];
+                        if (success) {
 
-                                    if (!room['members']) {
-                                        room['members'] = [];
-                                    }
-									console.log("near by Users: "+ nearby_users);
-									console.log("Room Members: " + room['members']);
-                                    var new_users = _.difference(nearby_users, room['members']),
-                                        // add new users to chat room
-                                        members = room['members'].concat(new_users);
+                            var nearby_users = [];
+                            for (var j = 0; j < body.length; ++j) {
 
-
-                                    if (new_users.length > 0) {
-                                        console.log("Added " + new_users.length + " new members: " + new_users);
-                                    }
-
-                                    // Update chatroom members with new users
-                                    kaiseki.updateObject('Chatroom', room['objectId'], { members: members }, function(err, res, body, success) {
-                                        if (success) {
-                                            console.log('New members successfully added to chatroom.');
-                                            // Send push notification to all new users regarding stolen vehicle 
-                                            for (var j = 0; j < new_users.length; ++j) {
-                                                var notification_data = {
-                                                    where: { objectId: new_users[j] },
-                                                    data: {
-                                                        action: 'CUSTOMIZED',
-                                                        alertLevel: 'NEARBY',
-                                                        message: 'Time to roll out. Help us recover this ' + body.make + ' ' + body.model+".",
-                                                        room: room['objectId']
-                                                    }
-                                                };
-                                                kaiseki.sendPushNotification(notification_data, function(err, res, body, success) {
-                                                    if (success) {
-                                                        // don't want to flood the console...
-                                                        // console.log('Push notification successfully sent:', body);
-                                                    }
-                                                    else {
-                                                        console.log(body.error);
-                                                    }
-                                                });
-                                            }
-                                        }
-                                        else {
-                                            console.log(body.error);
-                                        }
-                                    });
-                                }
-                            } else {
-                                console.log(body.error);
+                                //console.log(body[j]['objectId']);
+                                nearby_users.push(body[j]['objectId']);
                             }
-                        });
-                    } else {
-                        console.log(body.error);
-                    }
-                });
+
+                            console.log("vehicle id -" + vehicle['objectId']);
+                            // update chatroom and then send out notification
+                            updateStolenVehicleChatroomUsers(vehicle, nearby_users);
+
+                        } else {
+                            console.log(body.error);
+                        }
+                    });
+                })(veh);
             }
         }
         else {
@@ -269,7 +342,7 @@ var notifyNearbyUsers = function() {
  */
 function createChatroom(vehicle) {
 
-	var vehicleId = vehicle['objectId'];
+    var vehicleId = vehicle['objectId'];
     var roomName = vehicleId + (new Date().getTime()).toString();
 
     // create chatroom
