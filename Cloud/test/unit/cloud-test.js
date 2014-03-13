@@ -11,7 +11,7 @@ var expect = require('expect.js'),
 
 describe('cloud', function() {
 
-    var vehicle = {
+    var mock_vehicle = {
         license: '123456',
         make: '123456',
         model: '123456',
@@ -21,36 +21,44 @@ describe('cloud', function() {
         stolenDate: "01-17-2014 21:00:00",
         recoveredDate: "01-22-2014 21:00:00"
     },
-    className = 'Vehicle',
-    object = null;
-    // set up dummy vehicle before every test
+    mockChatroom = {
+    },
+    CLASS = {
+        VEHICLE: 'Vehicle',
+        CHATROOM: 'Chatroom'
+    },
+    vehicle = null,
+    chatroom = null;
+    // set up dummy mock_vehicle before every test
     before(function(done) {
 
-        kaiseki.createObject(className, vehicle, function(err, res, body, success) {
+        kaiseki.createObject(CLASS.VEHICLE, mock_vehicle, function(err, res, body, success) {
             expect( success ).to.equal(true);
             expect( err ).to.not.exist;
-            object = body;
+            vehicle = body;
 
-            expect( object.license ).to.equal( vehicle.license );
-            expect( object.make ).to.equal( vehicle.make );
-            expect( object.model ).to.equal( vehicle.model );
-            expect( object.ownerId ).to.equal( vehicle.ownerId );
-            expect( object.alertLevel ).to.equal( vehicle.alertLevel );
-            expect( object.stolenDate ).to.equal( vehicle.stolenDate );
-            expect( object.recoveredDate ).to.equal( vehicle.recoveredDate );
+            expect( vehicle.license ).to.equal( mock_vehicle.license );
+            expect( vehicle.make ).to.equal( mock_vehicle.make );
+            expect( vehicle.model ).to.equal( mock_vehicle.model );
+            expect( vehicle.ownerId ).to.equal( mock_vehicle.ownerId );
+            expect( vehicle.alertLevel ).to.equal( mock_vehicle.alertLevel );
+            expect( vehicle.stolenDate ).to.equal( mock_vehicle.stolenDate );
+            expect( vehicle.recoveredDate ).to.equal( mock_vehicle.recoveredDate );
 
-            expect( object.createdAt ).to.exist;
-            expect( object.objectId ).to.exist;
+            expect( vehicle.createdAt ).to.exist;
+            expect( vehicle.vehicleId ).to.exist;
 
             done(err);
         });
 
+        // kaiseki.createObject(CLASS.CHATROOM:Q
+
 
     });
 
-    // clean up object
+    // clean up vehicle
     after(function(done) {
-        kaiseki.deleteObject(className, object.objectId, function() {
+        kaiseki.deleteObject(CLASS.VEHICLE, vehicle.vehicleId, function() {
             done();
         });
     });
@@ -65,17 +73,17 @@ describe('cloud', function() {
                 },
 
                 function(next) {
-                    kaiseki.getObject(className, object.objectId, null, function(err, res, body, success) {
+                    kaiseki.getObject(CLASS.VEHICLE, vehicle.objectId, null, function(err, res, body, success) {
                         var refreshedObject  = body;
 
                         expect( success ).to.equal(true);
                         expect( err ).to.exist;
                         expect( err ).to.not.exist;
 
-                        expect( refreshedObject.license ).to.equal( object.license );
-                        expect( refreshedObject.make ).to.equal( object.make );
-                        expect( refreshedObject.model ).to.equal( object.model );
-                        expect( refreshedObject.ownerId ).to.equal( object.ownerId );
+                        expect( refreshedObject.license ).to.equal( vehicle.license );
+                        expect( refreshedObject.make ).to.equal( vehicle.make );
+                        expect( refreshedObject.model ).to.equal( vehicle.model );
+                        expect( refreshedObject.ownerId ).to.equal( vehicle.ownerId );
 
                         // check that fields were actually cleared
                         expect( refreshedObject.alertLevel ).to.equal(undefined);
@@ -84,7 +92,7 @@ describe('cloud', function() {
                         expect( refreshedObject.recoveredDate ).to.equal(undefined);
 
                         expect( refreshedObject.createdAt ).to.exist;
-                        expect( refreshedObject.objectId ).to.exist;
+                        expect( refreshedObject.vehicleId ).to.exist;
                         next(null);
                     }); 
                 },
