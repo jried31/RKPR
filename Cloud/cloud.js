@@ -183,6 +183,8 @@ function updateChatroomMembers(chatroomId, members, onSuccess, onError) {
  * @param {Number} vehicleId - a vehicle's ObjectId
  * @param {Function} onSuccess - callback on success
  * @param {Function} onError - callback on error
+ *
+ * @return {Array} an Array of one chatroom
  */
 function getVehicleChatroom(vehicleId, onSuccess, onError) {
     // get chatroom assocated with vehicle
@@ -213,8 +215,10 @@ function getVehicleChatroom(vehicleId, onSuccess, onError) {
  * @desc updates chatroom users  associated with stolen vehicle and sends out push notifications 
  * @param {Object} vehicle - the stolen vehicle
  * @param {Array} users - Array of User ObjectIds to add
+ * @param {Function} onSuccess - callback on success
+ * @param {Function} onError - callback on error
  */
-function updateStolenVehicleChatroomUsers(vehicle, users) {
+function updateStolenVehicleChatroomUsers(vehicle, users, onSuccess, onError) {
 
     getVehicleChatroom(vehicle.objectId, function(data) {
         console.log('Number of chatrooms found: '+ data.length);
@@ -244,6 +248,9 @@ function updateStolenVehicleChatroomUsers(vehicle, users) {
 
         updateChatroomMembers(room.objectId, members, function() {
             console.log('New members successfully added to chatroom.');
+            if (onSuccess) {
+                onSuccess();
+            }
             // Send push notification to all new users regarding stolen vehicle 
             for (var j = 0; j < new_users.length; ++j) {
                 var notification_data = {
@@ -266,6 +273,9 @@ function updateStolenVehicleChatroomUsers(vehicle, users) {
             }
         });
     }, function(){
+        if (onError) {
+            onError();
+        }
         console.log("Error retrieving vehicle chatroom");
     });
 }
@@ -548,5 +558,10 @@ var refreshRecoveredVehicles = function(onSuccess, onError) {
 module.exports = {
     processTrackerAlert:  processTrackerAlert,
     notifyNearbyUsers: notifyNearbyUsers,
-    refreshRecoveredVehicles: refreshRecoveredVehicles
+    refreshRecoveredVehicles: refreshRecoveredVehicles,
+
+    // expose private methods for testing
+    _getVehicleChatroom: getVehicleChatroom,
+    _updateChatroomMembers: updateChatroomMembers,
+    _updateStolenVehicleChatroomUsers: updateStolenVehicleChatroomUsers
 };
