@@ -1,4 +1,4 @@
-package com.example.ridekeeper.chat;
+package com.example.ridekeeper.qb.chat;
 
 import org.jivesoftware.smack.XMPPException;
 

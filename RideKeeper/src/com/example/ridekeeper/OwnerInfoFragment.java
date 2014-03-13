@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.ridekeeper.chat.ChatFragment;
+import com.example.ridekeeper.qb.chat.ChatFragment;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;

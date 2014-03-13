@@ -1,4 +1,4 @@
-package com.example.ridekeeper.chat;
+package com.example.ridekeeper.qb.chat;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -12,7 +12,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.ridekeeper.App;
-import com.example.ridekeeper.account.MyQBUser;
+import com.example.ridekeeper.qb.MyQBUser;
 import com.quickblox.module.chat.QBChatRoom;
 import com.quickblox.module.chat.QBChatService;
 import com.quickblox.module.chat.listeners.ChatMessageListener;

@@ -42,7 +42,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.ridekeeper.account.MyQBUser;
+import com.example.ridekeeper.qb.MyQBUser;
 import com.parse.ParseUser;
 import com.quickblox.core.QBCallback;
 import com.quickblox.core.QBSettings;
