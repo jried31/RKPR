@@ -6,6 +6,7 @@ import java.util.List;
 import org.jivesoftware.smack.packet.Message;
 
 import android.content.Context;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.format.DateFormat;
@@ -120,6 +121,7 @@ public class ChatAdapter extends BaseAdapter {
             LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) holder.contentWithBG.getLayoutParams();
             layoutParams.gravity = Gravity.LEFT;
             holder.contentWithBG.setLayoutParams(layoutParams);
+            //holder.contentWithBG.setBackgroundColor(context.getResources().getColor(R.color.green));
 
             RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.content.getLayoutParams();
             lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
