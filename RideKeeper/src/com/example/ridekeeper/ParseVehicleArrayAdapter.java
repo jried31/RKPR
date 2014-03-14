@@ -6,6 +6,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,10 +61,10 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
 	    	bundle.putString(DBGlobals.ARG_VEHICLE_ID, vehicle.getObjectId());
 
 	    	if (displayType==DBGlobals.TAB_IDX_MY_VEHICLES) {
-	    		DialogFragmentMgr.showDialogFragment((Activity)getContext(), new GoogleMapFindVehicleFragment(), "Map Dialog", true, bundle);
+	    		DialogFragmentMgr.showDialogFragment((FragmentActivity)getContext(), new GoogleMapFindVehicleFragment(), "Map Dialog", true, bundle);
 	    	}
 	    	else if (displayType == DBGlobals.TAB_IDX_STOLEN_VEHICLES) {
-	    		DialogFragmentMgr.showDialogFragment((Activity)getContext(), new GoogleMapFragment(), "Map Dialog", true, bundle);
+	    		DialogFragmentMgr.showDialogFragment((FragmentActivity)getContext(), new GoogleMapFragment(), "Map Dialog", true, bundle);
 	    	}
 		}
 	});

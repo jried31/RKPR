@@ -4,9 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -59,8 +59,9 @@ public class MyProfileFragment extends Fragment implements ImageConsumer {
     			getFragmentManager());
 	}
 	
-	public static void reloadFragment(Activity activity){
-		activity.getFragmentManager().beginTransaction().replace(R.id.content_frame, new MyProfileFragment()).commit();
+	public static void reloadFragment(FragmentActivity activity){
+		activity.getSupportFragmentManager().
+		beginTransaction().replace(R.id.content_frame, new MyProfileFragment()).commit();
 	}
 
 	public void processBitmap(Bitmap bitmap) {

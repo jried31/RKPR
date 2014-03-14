@@ -1,21 +1,21 @@
 package com.example.ridekeeper;
 
-import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 
 public class DialogFragmentMgr {
 	public static void showDialogFragment(
-			Activity activity, 
+			FragmentActivity activity, 
 			DialogFragment fragment, 
 			String dialogName, 
 			boolean cancelable,
 			Bundle bundle) {
 
-    	FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
-    	Fragment prev = activity.getFragmentManager().findFragmentByTag(dialogName);
+    	FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
+    	Fragment prev = activity.getSupportFragmentManager().findFragmentByTag(dialogName);
 
     	if (prev != null) {
     		ft.remove(prev);

@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.app.ListFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.app.ProgressDialog;
 import android.location.Location;
 import android.os.Bundle;
@@ -38,7 +39,7 @@ public class StolenVehicleListFragment extends ListFragment {
 	private static RoomsReceiver sRoomsReceiver;
 
 	private static ParseVehicleArrayAdapter stolenVehicleArrayAdapter;
-	private static Activity sMainActivity;
+	private static FragmentActivity sMainActivity;
 
 	private static FindCallback<ParseObject> queryVehicleInMyChatRoomCallback = new FindCallback<ParseObject>() {
 		@Override

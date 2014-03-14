@@ -1,7 +1,8 @@
 package com.example.ridekeeper;
 
-import android.app.FragmentManager;
-import android.app.ListFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,8 +68,9 @@ public class MyRideListFragment extends ListFragment {
         addRideButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction().replace(R.id.content_frame, new MyRideFragment(null)).commit();
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.replace(R.id.content_frame, new MyRideFragment(null)).commit();
             }
         });
         return view;

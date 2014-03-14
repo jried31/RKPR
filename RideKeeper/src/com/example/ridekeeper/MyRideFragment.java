@@ -2,7 +2,7 @@ package com.example.ridekeeper;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;

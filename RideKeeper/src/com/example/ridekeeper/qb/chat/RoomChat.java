@@ -197,8 +197,12 @@ public class RoomChat implements Chat, RoomListener, ChatMessageListener {
         QBChatService.getInstance().createRoom(roomName, false, true, this);
     }
 
-    public void join(QBChatRoom room) {
-        QBChatService.getInstance().joinRoom(room, this);
+    public boolean join(QBChatRoom room) {
+    	if (QBChatService.getInstance().isLoggedIn()) {
+            QBChatService.getInstance().joinRoom(room, this);
+            return true;
+    	}
+    	return false;
     }
 
     public static enum RoomAction {CREATE, JOIN}

@@ -1,7 +1,7 @@
 package com.example.ridekeeper;
 
 import android.os.Bundle;
-import android.preference.PreferenceFragment;
+import android.support.v4.preference.PreferenceFragment;
 
 public class SettingsFragment extends PreferenceFragment {
 

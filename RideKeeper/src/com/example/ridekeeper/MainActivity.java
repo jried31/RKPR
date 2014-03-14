@@ -16,11 +16,13 @@
 
 package com.example.ridekeeper;
 
-import android.app.Activity;
+import android.R.anim;
 import android.app.ActionBar;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.app.Activity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -43,7 +45,6 @@ import android.widget.Toast;
 
 import com.example.ridekeeper.DBGlobals.SelectedFrag;
 import com.example.ridekeeper.qb.MyQBUser;
-import com.example.ridekeeper.util.AppSectionsPagerAdapter;
 import com.example.ridekeeper.util.LocationMgr;
 import com.example.ridekeeper.util.LocationUtils;
 import com.example.ridekeeper.util.SystemChecker;
@@ -54,7 +55,7 @@ import com.quickblox.core.result.Result;
 import com.quickblox.module.auth.QBAuth;
 import com.quickblox.module.chat.smack.SmackAndroid;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 	private static final String TAG = MainActivity.class.getSimpleName();
 
     public static final String APP_ID = "5815";
@@ -263,7 +264,7 @@ public class MainActivity extends Activity {
 			return true;
 		
 		case R.id.action_addvehicle:
-			EditVehicleFragment.addVehicle(getFragmentManager());
+			EditVehicleFragment.addVehicle(getSupportFragmentManager());
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -301,7 +302,7 @@ public class MainActivity extends Activity {
 			break;
 		}
 
-		FragmentManager fragmentManager = getFragmentManager();
+		FragmentManager fragmentManager = getSupportFragmentManager();
 		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
 		// update selected item and title, then close the drawer
@@ -394,6 +395,7 @@ public class MainActivity extends Activity {
                // Report that this Activity received an unknown requestCode
                Log.d(LocationUtils.GOOGLE_SERVICE,
                        getString(R.string.unknown_activity_request_code, requestCode));
+               super.onActivityResult(requestCode, resultCode, intent);
 
                break;
         }

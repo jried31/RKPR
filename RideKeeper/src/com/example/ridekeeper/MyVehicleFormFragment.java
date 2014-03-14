@@ -3,8 +3,8 @@ package com.example.ridekeeper;
 import com.example.ridekeeper.util.ImageConsumer;
 import com.example.ridekeeper.util.ImageFragment;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;

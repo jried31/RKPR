@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 
-import android.app.DialogFragment;
-import android.app.Fragment;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.IntentSender;

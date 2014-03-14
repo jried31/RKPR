@@ -3,7 +3,9 @@ package com.example.ridekeeper;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.DialogFragment;
+import android.app.Fragment;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,8 +50,9 @@ public class OwnerInfoFragment extends DialogFragment {
 			}
 		}
 	};
-	public static void reloadFragment(Activity activity){
-		activity.getFragmentManager().beginTransaction().replace(R.id.content_frame, new OwnerInfoFragment()).commit();
+	public static void reloadFragment(FragmentActivity activity) {
+		activity.getSupportFragmentManager().beginTransaction().
+                replace(R.id.content_frame, new OwnerInfoFragment()).commit();
 	}
 
 	@Override

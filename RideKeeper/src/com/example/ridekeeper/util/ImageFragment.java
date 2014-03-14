@@ -13,8 +13,8 @@ import com.example.ridekeeper.qb.chat.ChatFragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -156,6 +156,9 @@ public class ImageFragment extends Fragment {
             }
 
 			break;
+        default:
+        	super.onActivityResult(requestCode, resultCode, data);
+            break;
 		}
 	}
 	
