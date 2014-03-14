@@ -15,6 +15,7 @@ import org.jivesoftware.smack.util.StringUtils;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -27,6 +28,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
@@ -62,8 +64,8 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 	private static final LayoutParams IMAGE_SMALL_VIEW_LAYOUT = new LayoutParams(170, 170);
 
 	// For UI
-	private ImageView mUploadPhotoBtn;
-	private Button mSendBtn;
+	private ImageButton mUploadPhotoBtn;
+	private ImageButton mSendBtn;
 
     public static final String EXTRA_MODE = "mode";
     private EditText mMessageEditText;
@@ -111,11 +113,11 @@ public class ChatFragment extends Fragment implements ImageConsumer {
         mImageFragment.setContainer(mMessagesContainer);
 
         mMessageEditText = (EditText) view.findViewById(R.id.messageEdit);
-        mSendBtn = (Button) view.findViewById(R.id.chatSendButton);
+        mSendBtn = (ImageButton) view.findViewById(R.id.chatSendButton);
         TextView meLabel = (TextView) view.findViewById(R.id.meLabel);
         TextView companionLabel = (TextView) view.findViewById(R.id.companionLabel);
         RelativeLayout containerLayout = (RelativeLayout) view.findViewById(R.id.container);
-		mUploadPhotoBtn = (ImageView) view.findViewById(R.id.sendPicBtn);
+		mUploadPhotoBtn = (ImageButton) view.findViewById(R.id.sendPicBtn);
 
         mAdapter = new ChatAdapter(mMainActivity, new ArrayList<ChatMessage>(),
         		mImageFragment.getToggleImageSizeListener(this),
@@ -173,14 +175,11 @@ public class ChatFragment extends Fragment implements ImageConsumer {
             }
         });
         
-        
         mSendBtn.setOnClickListener(sendMsgListener);
 
 		Log.d(TAG, "jabberId: " + MyQBUser.getUserJabberIDfromCache());
 
         enableSendPic();
-        mSendBtn.setEnabled(true);
-        mSendBtn.setText("Send");
         Toast.makeText(mMainActivity, "Joined chat room", Toast.LENGTH_SHORT).show();
 		
 		return view;
@@ -354,12 +353,14 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 	}
 	
 	private void disableSendPic(){
-		mUploadPhotoBtn.setImageResource(R.drawable.camera_grey);
+		//mUploadPhotoBtn.setImageResource(R.drawable.camera_grey);
+		mUploadPhotoBtn.getBackground().setColorFilter(
+				Color.GRAY, android.graphics.PorterDuff.Mode.MULTIPLY);
 		mUploadPhotoBtn.setEnabled(false);
 	}
 	
 	private void enableSendPic(){
-		mUploadPhotoBtn.setImageResource(R.drawable.camera);
+		mUploadPhotoBtn.setImageResource(R.drawable.ic_action_camera);
 		mUploadPhotoBtn.setEnabled(true);
 	}
 }
