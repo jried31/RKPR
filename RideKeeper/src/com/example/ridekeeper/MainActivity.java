@@ -17,20 +17,19 @@
 package com.example.ridekeeper;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
@@ -42,9 +41,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.ridekeeper.DBGlobals.SelectedFrag;
 import com.example.ridekeeper.qb.MyQBUser;
+import com.example.ridekeeper.util.AppSectionsPagerAdapter;
 import com.example.ridekeeper.util.LocationMgr;
 import com.example.ridekeeper.util.LocationUtils;
+import com.example.ridekeeper.util.SystemChecker;
 import com.parse.ParseUser;
 import com.quickblox.core.QBCallback;
 import com.quickblox.core.QBSettings;
@@ -59,7 +61,6 @@ public class MainActivity extends Activity {
     private static final String AUTH_KEY = "8htqAuedCPgyW2z";
     private static final String AUTH_SECRET = "6whwzbRPrYSSbmg";
 
-
 	public static Handler locationTimerHandler = new Handler();
 	public static Runnable locationTimerRunnable;
 
@@ -67,18 +68,13 @@ public class MainActivity extends Activity {
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
 
-	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
 	private String[] mDrawerMenuTitles;
 
 	private SmackAndroid mSmackAndroid;
 
-	public static enum SelectedFrag {
-		STOLENVEHICLE, MYPROFILE, MYVEHICLES, SETTINGS, MYRIDE, CHAT_ROOM
-	}
-
 	private SelectedFrag mSelectedFrag;
-	
+
 	public static LocationMgr mLocationMgr;
 
 	@Override
@@ -93,7 +89,7 @@ public class MainActivity extends Activity {
 
 		initLocationUpdateTimer(this);
 
-		mTitle = mDrawerTitle = getTitle();
+		mTitle = getTitle();
 		mDrawerMenuTitles = getResources().getStringArray(R.array.drawer_menu_title_array);
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -106,8 +102,9 @@ public class MainActivity extends Activity {
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 		// enable ActionBar app icon to behave as action to toggle nav drawer
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActionBar().setHomeButtonEnabled(true);
+		final ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setHomeButtonEnabled(true);
 
 		// ActionBarDrawerToggle ties together the the proper interactions
 		// between the sliding drawer and the action bar app icon
@@ -119,12 +116,12 @@ public class MainActivity extends Activity {
 				R.string.drawer_close  /* "close drawer" description for accessibility */
 				) {
 			public void onDrawerClosed(View view) {
-				getActionBar().setTitle(mTitle);
+				actionBar.setTitle(mTitle);
 				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 			}
 
 			public void onDrawerOpened(View drawerView) {
-				getActionBar().setTitle(mDrawerTitle);
+				actionBar.setTitle(mTitle);
 				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 			}
 		};
@@ -138,19 +135,18 @@ public class MainActivity extends Activity {
             Log.d(TAG, "savedInstanceState null");
 
 			if (ParseUser.getCurrentUser() != null && ParseUser.getCurrentUser().isAuthenticated()){
-				selectItem(2); //Select VBS List Fragment as default if user is authenticated
+				selectItem(DBGlobals.DRAWER_IDX_VEHICLES); //Select VBS List Fragment as default if user is authenticated
 
                 Log.d(TAG, "Parse user authenticated");
 				
 			} else {
-				selectItem(1); //Otherwise, Select My Profile Fragment so that user can login
+				selectItem(DBGlobals.DRAWER_IDX_PROFILE); //Otherwise, Select My Profile Fragment so that user can login
                 Log.d(TAG, "No authenticated parse user");
 			}
 		}
-
-		enableLocationProviders();
+		SystemChecker.enableLocationProviders(this);
 	}
-	
+
 	private void initQuickblox() {
     	// Register with QuickBlox server
         mSmackAndroid = SmackAndroid.init(this);
@@ -196,7 +192,6 @@ public class MainActivity extends Activity {
 		locationTimerHandler.postDelayed(locationTimerRunnable, LocationUtils.LOCATION_UPDATE_RATE);
 	}
 
-
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -226,90 +221,6 @@ public class MainActivity extends Activity {
 		}
 	}
 
-    /** source: http://developmentality.wordpress.com/2009/10/31/android-dialog-box-tutorial/
-     * https://stackoverflow.com/questions/12044552/android-activate-gps-with-alertdialog-how-to-wait-for-the-user-to-take-action
-	 * source: https://stackoverflow.com/questions/10311834/android-dev-how-to-check-if-location-services-are-enabled
-	 * @return
-	 */
-	private void enableLocationProviders() {
-        boolean gps_enabled = false;
-        boolean network_enabled = false;
-
-        LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
-        try {
-            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch(Exception ex){
-        }
-
-        try {
-            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch(Exception ex){
-	    	Toast.makeText(this, "NETWORK_PROVIDER exception", Toast.LENGTH_SHORT).show();
-        }
-
-        //if(!gps_enabled && !network_enabled){
-        if(!gps_enabled && !network_enabled) {
-        	buildAlertMessageNoLocationAccess();
-        } else if (!gps_enabled) {
-            buildAlertMessageNoGps();
-	    	Toast.makeText(this, "GPS not enabled.", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "GPS enabled.", Toast.LENGTH_SHORT).show();
-        }
-	}
-
-    private void buildAlertMessageNoGps() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        final Activity mainActivity = this;
-        builder.setMessage("Yout GPS seems to be disabled, do you want to enable it?")
-                .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface arg0, int arg1) {
-						
-                        Intent gpsOptionsIntent = new Intent(  
-                                android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);  
-                            mainActivity.startActivity(gpsOptionsIntent);
-                                }
-				});
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-			}
-		});
-        builder.show();
-    }
-    
-    private void buildAlertMessageNoLocationAccess() {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setMessage(this.getResources().getString(R.string.gps_network_not_enabled));
-        dialog.setCancelable(false);
-
-        final Activity mainActivity = this;
-        dialog.setPositiveButton(this.getResources().getString(R.string.open_location_settings), new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS );
-                mainActivity.startActivity(myIntent);
-            }
-        });
-        dialog.setNegativeButton(this.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-
-            }
-        });
-        dialog.show();
-    }
-    
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -322,15 +233,16 @@ public class MainActivity extends Activity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		// If the nav drawer is open, hide action items related to the content view
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-		//menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
+
 		menu.findItem(R.id.action_addvehicle).setVisible(false);
 		menu.findItem(R.id.action_refreshvbslist).setVisible(false);
 		
-		if (mSelectedFrag == SelectedFrag.MYVEHICLES){
-			//menu.findItem(R.id.action_websearch).setVisible(false);
-			menu.findItem(R.id.action_addvehicle).setVisible(true & !drawerOpen);
-		} else if (mSelectedFrag == SelectedFrag.STOLENVEHICLE) {
-			menu.findItem(R.id.action_refreshvbslist).setVisible(true & !drawerOpen);
+		if (mSelectedFrag == SelectedFrag.MY_VEHICLES) {
+			menu.findItem(R.id.action_addvehicle).setVisible(!drawerOpen);
+			Log.d(TAG, "SelectedFrag: MY_VEHICLES");
+		} else if (mSelectedFrag == SelectedFrag.STOLEN_VEHICLE) {
+			menu.findItem(R.id.action_refreshvbslist).setVisible(!drawerOpen);
+			Log.d(TAG, "SelectedFrag: STOLEN_VEHICLE");
 		}
 		
 		return super.onPrepareOptionsMenu(menu);
@@ -367,34 +279,25 @@ public class MainActivity extends Activity {
 	}
 
 	private void selectItem(int position) {
+
 		// update the main content by replacing fragments
+		Fragment fragment = null;
 
-		Fragment fragment=null;
-
-		switch(position){
-		case DBGlobals.LIST_STOLEN_VEHICLES:
-			fragment = new StolenVehicleListFragment();
-			mSelectedFrag = SelectedFrag.STOLENVEHICLE;
+		switch (position) {
+		case DBGlobals.DRAWER_IDX_VEHICLES:
+			fragment = new VehicleTabsFragment();
 			break;
-		case DBGlobals.MY_PROFILE:
+		case DBGlobals.DRAWER_IDX_PROFILE:
 			fragment = new MyProfileFragment();
-			mSelectedFrag = SelectedFrag.MYPROFILE;
+			mSelectedFrag = SelectedFrag.MY_PROFILE;
 			break;
-		case DBGlobals.LIST_MY_VEHICLES:
-			fragment = new MyVehicleListFragment();
-			mSelectedFrag = SelectedFrag.MYVEHICLES;
-			break;
-		case DBGlobals.SETTINGS:
+		case DBGlobals.DRAWER_IDX_SETTINGS:
 			fragment = new SettingsFragment();
 			mSelectedFrag = SelectedFrag.SETTINGS;
 			break;
-        case DBGlobals.MY_RIDES:
-            fragment = new MyRideListFragment();
-            mSelectedFrag = SelectedFrag.MYRIDE;
-            break;
 		default:
 			fragment = new MyProfileFragment();
-			mSelectedFrag = SelectedFrag.MYPROFILE;
+			mSelectedFrag = SelectedFrag.MY_PROFILE;
 			break;
 		}
 

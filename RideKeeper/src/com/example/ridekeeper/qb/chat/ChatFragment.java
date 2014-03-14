@@ -13,11 +13,9 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.util.StringUtils;
 
 import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -26,23 +24,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.MainActivity;
 import com.example.ridekeeper.R;
 import com.example.ridekeeper.qb.MyQBUser;
+import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.qb.chat.RoomChat.NullChatRoomException;
 import com.example.ridekeeper.util.ImageConsumer;
 import com.example.ridekeeper.util.ImageFragment;
@@ -106,7 +100,7 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 		// initialize the gravity for small image
 		IMAGE_SMALL_VIEW_LAYOUT.gravity = Gravity.CENTER;
 		
-		mMainActivity.setSelectedFrag(MainActivity.SelectedFrag.CHAT_ROOM);
+		mMainActivity.setSelectedFrag(DBGlobals.SelectedFrag.CHAT_ROOM);
 		mMainActivity.invalidateOptionsMenu();
 
         mMessagesContainer = (ListView) view.findViewById(R.id.messagesContainer);

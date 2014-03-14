@@ -21,7 +21,6 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Toast;
 
-import com.example.ridekeeper.MainActivity.SelectedFrag;
 import com.example.ridekeeper.qb.MyQBUser;
 import com.example.ridekeeper.qb.chat.ChatFragment;
 import com.example.ridekeeper.qb.chat.RoomChat;
@@ -75,7 +74,7 @@ public class StolenVehicleListFragment extends ListFragment {
 	    stolenVehicleArrayAdapter = new ParseVehicleArrayAdapter(
 	    		getActivity(), 
 	    		new ArrayList<ParseVehicle>(),
-	    		DBGlobals.LIST_STOLEN_VEHICLES);		
+	    		DBGlobals.TAB_IDX_STOLEN_VEHICLES);		
 		setListAdapter(stolenVehicleArrayAdapter);
 		
 		registerForContextMenu(getListView());
@@ -99,10 +98,9 @@ public class StolenVehicleListFragment extends ListFragment {
 		
 		// Set the action bar title upon resume
 		// Use case: returning from chat room
-		MainActivity mainActivity = (MainActivity) getActivity();
-		mainActivity.setDrawerTitle(MainActivity.SelectedFrag.STOLENVEHICLE);
-		mainActivity.setSelectedFrag(MainActivity.SelectedFrag.STOLENVEHICLE);
-		mainActivity.invalidateOptionsMenu();
+		//MainActivity mainActivity = (MainActivity) getActivity();
+		//mainActivity.setSelectedFrag(DBGlobals.SelectedFrag.STOLEN_VEHICLE);
+		//mainActivity.invalidateOptionsMenu();
 	}
 
 	

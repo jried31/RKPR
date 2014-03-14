@@ -3,6 +3,8 @@ package com.example.ridekeeper.qb.chat;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
@@ -37,6 +39,7 @@ public class RoomChat implements Chat, RoomListener, ChatMessageListener {
 	private static final String IMAGE_STRING_PREFIX = "&&$*(";
 
     public static class NullChatRoomException extends Exception {};
+    private Set<String> mImagesSentSet;
     
     private Activity mMainActivity;
     private QBChatRoom mChatRoom;
@@ -46,6 +49,7 @@ public class RoomChat implements Chat, RoomListener, ChatMessageListener {
     		throws NullChatRoomException {
         this.mMainActivity = mainActivity;
         this.mChatFragment = chatFragment;
+        this.mImagesSentSet = new HashSet<String>();
 
         String chatRoomName = args.getString(ChatFragment.ARG_ROOM_NAME);
         RoomAction action = (RoomAction) args.getSerializable(ChatFragment.ARG_ROOM_ACTION);
@@ -127,8 +131,11 @@ public class RoomChat implements Chat, RoomListener, ChatMessageListener {
 
         if (hasImagePrefix) { 
             String uid = extractUidFromImageString(body);
+            if (mImagesSentSet.contains(uid)) {
+            	return;
+            }
+
             // download file by ID    
-            
             // Show the message with loading message placeholder to retain ordering
             // instead of waiting for download from QB
             final ChatMessage chatMessage = 
@@ -167,6 +174,7 @@ public class RoomChat implements Chat, RoomListener, ChatMessageListener {
 	
 	public void sendImageString(String uid) throws XMPPException {
         this.sendMessage(IMAGE_STRING_PREFIX + uid);
+        mImagesSentSet.add(uid);
 	}
 	
 	private String extractUidFromImageString(String imageStr) {

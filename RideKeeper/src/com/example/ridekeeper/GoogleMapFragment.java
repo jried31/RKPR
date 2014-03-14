@@ -292,7 +292,13 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
 		//Start parsecallback
   		mHandler.post(runQueryVBS);
   		myLocation = mLocationClient.getLastLocation();
-		mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng (myLocation.getLatitude(),myLocation.getLongitude()) , 15f));
+  		if (myLocation != null) {
+  			
+            mGoogleMap.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                            new LatLng(myLocation.getLatitude(), myLocation.getLongitude()),
+                            15f));
+  		}
 	}
 
 	@Override

@@ -19,10 +19,13 @@
     <string name="app_name">RideKeeper 3</string>
 
 	<string-array name="drawer_menu_title_array">
-        <item>Vehicles Being Stolen</item>
+        <item>RideKeeper</item>
         <item>My Profile</item>
-        <item>My Vehicles</item>
         <item>Settings</item>
+    </string-array>
+	<string-array name="tabs_title_array">
+        <item>Vehicles Being Stolen</item>
+        <item>My Vehicles</item>
         <item>My Rides</item>
     </string-array>
     <string name="account_required">An account is required to use this application.</string>

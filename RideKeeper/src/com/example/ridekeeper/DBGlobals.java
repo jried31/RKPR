@@ -2,6 +2,10 @@ package com.example.ridekeeper;
 
 public class DBGlobals {
 	public static final String APP_NAME = "RideKeeper";
+
+	public static enum SelectedFrag {
+		STOLEN_VEHICLE, MY_PROFILE, MY_VEHICLES, SETTINGS, MY_RIDE, CHAT_ROOM
+	}
 	 
 	 //Trigonometry constants
 	 public static final double PI=3.14159265359;
@@ -11,12 +15,16 @@ public class DBGlobals {
 	 
 	 //Database Constants
 	public static final String DB_SCHEMA_NAME = "RIDEKEEPER";
-	public static final int 
-			LIST_STOLEN_VEHICLES=0,
-			MY_PROFILE=1,
-			LIST_MY_VEHICLES=2,
-			SETTINGS=3,
-            MY_RIDES=4;
+
+	// Drawer item positions
+	public static final int DRAWER_IDX_VEHICLES = 0;
+	public static final int DRAWER_IDX_PROFILE = 1;
+	public static final int DRAWER_IDX_SETTINGS = 2;
+
+	// Tabbed item positions
+	public static final int TAB_IDX_STOLEN_VEHICLES = 0;
+	public static final int TAB_IDX_MY_VEHICLES = 1;
+	public static final int TAB_IDX_MY_RIDES = 2;
 	
 	//Alert Levels
 	public static final String ALERT_LEVEL_PARKED="PARKED",

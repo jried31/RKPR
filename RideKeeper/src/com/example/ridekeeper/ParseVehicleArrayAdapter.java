@@ -59,10 +59,10 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
 	    	Bundle bundle = new Bundle();
 	    	bundle.putString(DBGlobals.ARG_VEHICLE_ID, vehicle.getObjectId());
 
-	    	if (displayType==DBGlobals.LIST_MY_VEHICLES) {
+	    	if (displayType==DBGlobals.TAB_IDX_MY_VEHICLES) {
 	    		DialogFragmentMgr.showDialogFragment((Activity)getContext(), new GoogleMapFindVehicleFragment(), "Map Dialog", true, bundle);
 	    	}
-	    	else if (displayType == DBGlobals.LIST_STOLEN_VEHICLES) {
+	    	else if (displayType == DBGlobals.TAB_IDX_STOLEN_VEHICLES) {
 	    		DialogFragmentMgr.showDialogFragment((Activity)getContext(), new GoogleMapFragment(), "Map Dialog", true, bundle);
 	    	}
 		}
