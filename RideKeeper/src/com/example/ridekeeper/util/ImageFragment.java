@@ -172,9 +172,10 @@ public class ImageFragment extends Fragment {
 		//intent.putExtra("outputY", 100);
 
 		//// Specify aspect ratio, 1:1
-		//intent.putExtra("aspectX", 1);
-		//intent.putExtra("aspectY", 1);
+		intent.putExtra("aspectX", 1);
+		intent.putExtra("aspectY", 1);
 		intent.putExtra("scale", true);
+		intent.putExtra("crop", true);
 		intent.putExtra("return-data", true);
 		// REQUEST_CODE_CROP_PHOTO is an integer tag you defined to
 		// identify the activity in onActivityResult() when it returns

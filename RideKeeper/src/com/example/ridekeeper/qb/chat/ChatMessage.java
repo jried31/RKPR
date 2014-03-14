@@ -48,6 +48,10 @@ public class ChatMessage {
         return mIncoming;
     }
 
+    public void setText(String text) {
+    	mText = text;
+    }
+
     public String getText() {
         return mText;
     }
@@ -64,6 +68,10 @@ public class ChatMessage {
     	return mBitmap != null;
     }
     
+    public void setBitmap(Bitmap bitmap) {
+    	mBitmap = bitmap;
+    }
+
     public Bitmap getBitmap() {
     	return mBitmap;
     }

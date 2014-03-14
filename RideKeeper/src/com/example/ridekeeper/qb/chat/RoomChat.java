@@ -30,7 +30,8 @@ import com.quickblox.module.users.model.QBUser;
 public class RoomChat implements Chat, RoomListener, ChatMessageListener {
     private static final String TAG = RoomChat.class.getSimpleName();
     
-    public static final String MESSAGE_USER_NAME = "me";
+    public static final String MSG_USER_NAME = "me";
+    public static final String MSG_LOADING_IMAGE = "Loading image...";
 
 	// Prefix denotes that the message should be treated as a Quickblox image
 	private static final String IMAGE_STRING_PREFIX = "&&$*(";
@@ -116,27 +117,39 @@ public class RoomChat implements Chat, RoomListener, ChatMessageListener {
         		sender.equals(qbUser.getId().toString());
         final boolean isIncoming = !isMessageFromSelf;
 
-        final String messageUser = isMessageFromSelf ? MESSAGE_USER_NAME : sender;
+        final String messageUser = isMessageFromSelf ? MSG_USER_NAME : sender;
 
         final String body = Html.fromHtml(message.getBody()).toString();
 
         Log.i(TAG, "Received msg from: " + sender + ": " + body);
 
-        boolean isImage = isImageString(body);
+        boolean hasImagePrefix = isImageString(body);
 
-        if (isImage) { 
+        if (hasImagePrefix) { 
             String uid = extractUidFromImageString(body);
             // download file by ID    
+            
+            // Show the message with loading message placeholder to retain ordering
+            // instead of waiting for download from QB
+            final ChatMessage chatMessage = 
+            		new ChatMessage(MSG_LOADING_IMAGE, messageUser, finalTime, isIncoming);
+            mChatFragment.showMessage(chatMessage);
+
             QBContent.downloadFile(uid, new QBCallbackImpl() {
                 @Override
                 public void onComplete(Result result) {
-                    // extract image
-                    QBFileDownloadResult downloadResult = (QBFileDownloadResult) result;
-                    InputStream s = downloadResult.getContentStream();
-                    Bitmap bitmap = BitmapFactory.decodeStream(s);
+                	if (result.isSuccess()) { 
+                        // extract image
+                        QBFileDownloadResult downloadResult = (QBFileDownloadResult) result;
+                        InputStream s = downloadResult.getContentStream();
+                        Bitmap bitmap = BitmapFactory.decodeStream(s);
 
-                    mChatFragment.showMessage(
-                            new ChatMessage(body, messageUser, finalTime, isIncoming, bitmap));
+                        chatMessage.setBitmap(bitmap);
+                	} else {
+                		Log.d(TAG, "special image prefix not an actual QB image");
+                		// Display the original special string message
+                		chatMessage.setText(body);
+                	}
                 }
             });
         

@@ -16,12 +16,15 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -31,6 +34,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.example.ridekeeper.DBGlobals;
@@ -148,26 +152,30 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 			}
 		});
 		
-        mSendBtn.setOnClickListener(new View.OnClickListener() {
+		// Send message after user clicks Send button
+		View.OnClickListener sendMsgListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String lastMsg = mMessageEditText.getText().toString();
-                if (TextUtils.isEmpty(lastMsg)) {
-                    return;
+            	handleSendMsg();
+            }
+		};
+		// Send message after user hits Done in keyboard
+        mMessageEditText.setOnEditorActionListener(new OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                	handleSendMsg();
                 }
-
-                mMessageEditText.setText("");
-                try {
-                    mChat.sendMessage(lastMsg);
-                } catch (XMPPException e) {
-                    Log.e(TAG, "failed to send a message", e);
-                }
-
-                //if (mMode == Mode.SINGLE) {
-                //    showMessage(new ChatMessage(lastMsg, Calendar.getInstance().getTime(), false));
-                //}
+                
+                // Return true so that the default action of hiding the keyboard
+                // doesn't occur.
+                return true;
             }
         });
+        
+        
+        mSendBtn.setOnClickListener(sendMsgListener);
+
 		Log.d(TAG, "jabberId: " + MyQBUser.getUserJabberIDfromCache());
 
         enableSendPic();
@@ -177,6 +185,23 @@ public class ChatFragment extends Fragment implements ImageConsumer {
 		
 		return view;
 	}
+    public void handleSendMsg() {
+        String lastMsg = mMessageEditText.getText().toString();
+        if (TextUtils.isEmpty(lastMsg)) {
+            return;
+        }
+
+        mMessageEditText.setText("");
+        try {
+            mChat.sendMessage(lastMsg);
+        } catch (XMPPException e) {
+            Log.e(TAG, "failed to send a message", e);
+        }
+
+        //if (mMode == Mode.SINGLE) {
+        //    showMessage(new ChatMessage(lastMsg, Calendar.getInstance().getTime(), false));
+        //}
+    }
 
 	public void processBitmap(Bitmap bitmap) {
         sendPhoto(bitmap);
@@ -283,7 +308,7 @@ public class ChatFragment extends Fragment implements ImageConsumer {
             // Show the sent image right away instead of waiting to receive
             // it from quickblox
             Date time = Calendar.getInstance().getTime();
-            showMessage(new ChatMessage("", RoomChat.MESSAGE_USER_NAME, time, false, bitmap));
+            showMessage(new ChatMessage("", RoomChat.MSG_USER_NAME, time, false, bitmap));
 		            
         } else {
         	displaySendImageFailure();
