@@ -12,7 +12,9 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.util.StringUtils;
 
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -47,7 +49,7 @@ import com.quickblox.module.content.result.QBFileUploadTaskResult;
 //import android.view.ViewGroup.LayoutParams;
 //Need this for enlarging photo
 
-public class ChatFragment extends Fragment implements ImageConsumer {
+public class ChatFragment extends DialogFragment implements ImageConsumer {
 	private static final String TAG = ChatFragment.class.getSimpleName();
 
 	public static final String ARG_ROOM_NAME = "roomName";
@@ -86,17 +88,21 @@ public class ChatFragment extends Fragment implements ImageConsumer {
         mMode = (Mode) args.getSerializable(EXTRA_MODE);
 		
         mMainActivity = (MainActivity)getActivity();
-        mMainActivity.setTitle(mTitle);
+        //mMainActivity.setTitle(mTitle);
 
     	mImageFragment = ImageFragment.newInstance(this, null,
     			getFragmentManager());
+    	setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Light);
 	}
+
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		//super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.chat_fragment, container, false);
 		
+		getDialog().setTitle(mTitle);
+
 		// initialize the gravity for small image
 		IMAGE_SMALL_VIEW_LAYOUT.gravity = Gravity.CENTER;
 		

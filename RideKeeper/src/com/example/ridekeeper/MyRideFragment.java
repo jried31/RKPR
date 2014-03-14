@@ -2,6 +2,7 @@ package com.example.ridekeeper;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
@@ -47,7 +48,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 @SuppressLint("ValidFragment")
-public class MyRideFragment extends Fragment {
+public class MyRideFragment extends DialogFragment {
     private GoogleMap mRideMap;
     private MapView mRideMapView;
     private TextView mRideOdometerView;
@@ -78,11 +79,14 @@ public class MyRideFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBundle = savedInstanceState;
+    	setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Light);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_ride_view, container, false);
+        
+        getDialog().setTitle("My Ride");
 
         try{
             MapsInitializer.initialize(getActivity());

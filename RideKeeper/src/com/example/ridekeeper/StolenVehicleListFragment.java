@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -201,12 +202,20 @@ public class StolenVehicleListFragment extends ListFragment {
 
         MyQBUser.setCurrentRoom(chatRoom);
 
-        Fragment chatFragment = new ChatFragment();
-        chatFragment.setArguments(bundle);
+        DialogFragment chatFragment = new ChatFragment();
+        //chatFragment.setArguments(bundle);
+        String dialogName = bundle.getString(ChatFragment.ARG_TITLE);
 
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.addToBackStack(null);
-        ft.replace(R.id.content_frame, chatFragment).commit();
+        DialogFragmentMgr.showDialogFragment(
+                sMainActivity,
+                chatFragment, 
+                dialogName, 
+                true,
+                bundle);
+
+        //FragmentTransaction ft = getFragmentManager().beginTransaction();
+        //ft.addToBackStack(null);
+        //ft.replace(R.id.content_frame, chatFragment).commit();
 	}
 
     private Bundle createChatBundle(

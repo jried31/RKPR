@@ -68,9 +68,15 @@ public class MyRideListFragment extends ListFragment {
         addRideButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.replace(R.id.content_frame, new MyRideFragment(null)).commit();
+                //FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                //fragmentTransaction.addToBackStack(null);
+                //fragmentTransaction.replace(R.id.content_frame, new MyRideFragment(null)).commit();
+            	DialogFragmentMgr.showDialogFragment(
+            			getActivity(), 
+            			new MyRideFragment(null), 
+            			"My Ride", 
+            			true, 
+            			null);
             }
         });
         return view;
@@ -78,7 +84,13 @@ public class MyRideListFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, new MyRideFragment(rides.get(position))).commit();
+        //FragmentManager fragmentManager = getFragmentManager();
+        //fragmentManager.beginTransaction().replace(R.id.content_frame, new MyRideFragment(rides.get(position))).commit();
+            	DialogFragmentMgr.showDialogFragment(
+            			getActivity(), 
+            			new MyRideFragment(rides.get(position)), 
+            			"My Ride", 
+            			true, 
+            			null);
     }
 }
