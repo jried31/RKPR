@@ -9,6 +9,7 @@ import android.location.Location;
 import android.util.Log;
 
 import com.example.ridekeeper.chat.RoomsReceiver;
+import com.google.android.gms.maps.model.LatLng;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -165,5 +166,13 @@ public class ParseFunctions {
         VBS.put("lat", 55.442323);
         VBS.put("lng", -77.293853);
         VBS.saveInBackground();
+    }
+
+    public static void saveRideToParse(Ride ride) {
+        ParseObject rideParse = new ParseObject(DBGlobals.PARSE_RIDE_TBL);
+        rideParse.put("distance", ride.getDistance());
+        rideParse.put("start_date", ride.getStartDate());
+        rideParse.put("points", ride.getPointsJSON());
+        rideParse.saveInBackground();
     }
 }

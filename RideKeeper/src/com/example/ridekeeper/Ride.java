@@ -22,6 +22,15 @@ public class Ride {
     public List<LatLng> getPoints() {
         return points;
     }
+    public String getPointsJSON() {
+        StringBuffer pointsJSON = new StringBuffer("[");
+        for (LatLng point : points) {
+            pointsJSON.append("{\"lat\":").append(point.latitude).append(", \"lng\":").append(point.longitude).append("},");
+        }
+        pointsJSON.deleteCharAt(pointsJSON.length()-1);
+        pointsJSON.append("]");
+        return pointsJSON.toString();
+    }
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;

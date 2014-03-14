@@ -28,6 +28,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -154,6 +155,11 @@ public class MyRideFragment extends Fragment {
                     FileOutputStream fos = getActivity().openFileOutput("rides.dat", Context.MODE_APPEND | Context.MODE_PRIVATE);
                     fos.write((rideJSON.toString() + "\n").getBytes());
                     fos.close();
+                    ride = new Ride();
+                    ride.setPoints(points);
+                    ride.setStartDate(rideDate);
+                    ride.setDistance(mRideOdometer);
+                    ParseFunctions.saveRideToParse(ride);
                 } catch (Exception e) {
                     Toast.makeText(getActivity(), "There was an error saving your ride.",Toast.LENGTH_SHORT).show();
                 }
@@ -177,7 +183,7 @@ public class MyRideFragment extends Fragment {
             getScreenDimensions();
             mRideOdometerView.setText(new DecimalFormat("#.##").format(ride.getDistance() / 1000.0));
             mRideMap.moveCamera(CameraUpdateFactory.newLatLngBounds(rideBounds, screenWidth, screenHeight, 250));
-            mRideMap.addMarker(new MarkerOptions().position(ride.getPoints().get(0)).title("Start"));
+            mRideMap.addMarker(new MarkerOptions().position(ride.getPoints().get(0)).title("Start").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))).showInfoWindow();
             mRideMap.addMarker(new MarkerOptions().position(ride.getPoints().get(ride.getPoints().size() - 1)).title("End"));
         } else if (isRideServiceRunning()) {
             mBeginRideButton.setVisibility(View.GONE);
