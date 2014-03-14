@@ -15,7 +15,7 @@ function timestamp() {
         month   = d.getMonth() + 1,
         date    = d.getDate(),
         year    = d.getFullYear(),
-        hour    = d.getHours() - 2,
+        hour    = d.getHours(),
         min     = d.getMinutes(),
         sec     = d.getSeconds();
 

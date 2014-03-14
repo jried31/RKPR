@@ -1,4 +1,4 @@
-package com.example.ridekeeper.chat;
+package com.example.ridekeeper.qb.chat;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.util.Log;
 
 import com.example.ridekeeper.MainActivity;
@@ -27,27 +28,48 @@ public class RoomsReceiver implements RoomReceivingListener {
     private Map<String, QBChatRoom> mRooms;
     private Map<String, String> mVehiclesToRoomMap; 
 
-    private boolean mIsLoggedInChatService;
+    private boolean mRoomsReceived;
     private ProgressDialog mProgressDialog;
     private Activity mMainActivity;
+    private boolean mProgressDialogCanceled;
 
     public RoomsReceiver(Activity mainActivity) {
     	mRooms = new HashMap<String, QBChatRoom>();
-    	mIsLoggedInChatService = false;
+    	mRoomsReceived = false;
     	mMainActivity = mainActivity;
+    	mProgressDialogCanceled = false;
     }
     
     public boolean isRoomsRetrieved() {
-    	return mIsLoggedInChatService;
+    	return mRoomsReceived;
     }
 
 	public void showProgressDialog() {
-		mProgressDialog = ProgressDialog.show(mMainActivity, null, "Loading chatrooms");
+    	mProgressDialogCanceled = false;
+		mProgressDialog = ProgressDialog.show(
+				mMainActivity, 
+				null, 
+				"Loading chatrooms", 
+				true,
+				true,
+				new DialogInterface.OnCancelListener() {
+					
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						mProgressDialogCanceled = true;
+						
+					}
+				});
+		mProgressDialog.setCanceledOnTouchOutside(false);
+	}
+
+	public boolean progressDialogCanceled() {
+		return mProgressDialogCanceled;
 	}
 
     @Override
     public void onReceiveRooms(List<QBChatRoom> chatRooms) {
-    	mIsLoggedInChatService = true;
+    	mRoomsReceived = true;
 
         if (mProgressDialog != null) {
             mProgressDialog.dismiss();
@@ -70,10 +92,12 @@ public class RoomsReceiver implements RoomReceivingListener {
     }
 
     public void loadRooms(Map<String, String> vehiclesToRoomMap) {
+        mRoomsReceived = false;
+
     	if (QBChatService.getInstance().isLoggedIn()) {
-    		mIsLoggedInChatService = false;
             QBChatService.getInstance().getRooms(this);
     	}
+
     	if (vehiclesToRoomMap != null) {
             mVehiclesToRoomMap = vehiclesToRoomMap;
     	}

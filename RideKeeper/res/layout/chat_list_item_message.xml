@@ -11,22 +11,13 @@
         android:layout_alignParentLeft="true"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/txtInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="20sp"
-            android:layout_gravity="left"
-            android:textSize="10sp"
-            android:textColor="@android:color/secondary_text_dark" />
-
         <LinearLayout
             android:id="@+id/contentWithBackground"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
             android:background="@drawable/right_message_bg"
-            android:paddingLeft="10dp"
-            android:paddingBottom="10dp"
+            android:padding="0dp"
             android:orientation="vertical">
 
             <TextView
@@ -35,8 +26,25 @@
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
                 android:maxWidth="250dp" />
+            
+            <ImageView 
+                android:id="@+id/chatImage"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:contentDescription="@string/chat_image_description"
+                />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/txtInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="20sp"
+            android:layout_gravity="left"
+            android:paddingLeft="10dp"
+            android:textSize="12sp"
+            android:textColor="@android:color/secondary_text_dark" />
+
 
     </LinearLayout>
 </RelativeLayout>

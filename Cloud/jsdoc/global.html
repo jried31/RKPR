@@ -180,7 +180,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="cloud.js.html">cloud.js</a>, <a href="cloud.js.html#line269">line 269</a>
+        <a href="cloud.js.html">cloud.js</a>, <a href="cloud.js.html#line353">line 353</a>
     </li></ul></dd>
     
     
@@ -369,6 +369,191 @@
         
             
 <dt>
+    <h4 class="name" id="getVehicleChatroom"><span class="type-signature"></span>getVehicleChatroom<span class="signature">(vehicleId, onSuccess, onError)</span><span class="type-signature"> &rarr; {Array}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        finds chatroom associated with vehicle
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>vehicleId</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">a vehicle's ObjectId</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>onSuccess</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">callback on success</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>onError</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">callback on error</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="cloud.js.html">cloud.js</a>, <a href="cloud.js.html#line179">line 179</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    an Array of one chatroom
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Array</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="notifyNearbyUsers"><span class="type-signature"></span>notifyNearbyUsers<span class="signature">()</span><span class="type-signature"></span></h4>
     
     
@@ -410,7 +595,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="cloud.js.html">cloud.js</a>, <a href="cloud.js.html#line154">line 154</a>
+        <a href="cloud.js.html">cloud.js</a>, <a href="cloud.js.html#line284">line 284</a>
     </li></ul></dd>
     
     
@@ -573,7 +758,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="cloud.js.html">cloud.js</a>, <a href="cloud.js.html#line345">line 345</a>
+        <a href="cloud.js.html">cloud.js</a>, <a href="cloud.js.html#line430">line 430</a>
     </li></ul></dd>
     
     
@@ -713,7 +898,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="cloud.js.html">cloud.js</a>, <a href="cloud.js.html#line415">line 415</a>
+        <a href="cloud.js.html">cloud.js</a>, <a href="cloud.js.html#line501">line 501</a>
     </li></ul></dd>
     
     
@@ -988,6 +1173,378 @@
 </dl>
 
         
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="updateChatroomMembers"><span class="type-signature"></span>updateChatroomMembers<span class="signature">(chatroomId, members, onSuccess, onError)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        updates chatroom members of specified
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>chatroomId</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">chatroom's ObjectId</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>members</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">array of User ObjectIds</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>onSuccess</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">on success callback</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>onError</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">on error callback</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="cloud.js.html">cloud.js</a>, <a href="cloud.js.html#line153">line 153</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="updateStolenVehicleChatroomUsers"><span class="type-signature"></span>updateStolenVehicleChatroomUsers<span class="signature">(vehicle, users, onSuccess, onError)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        updates chatroom users  associated with stolen vehicle and sends out push notifications
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>vehicle</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">the stolen vehicle</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>users</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Array of User ObjectIds to add</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>onSuccess</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">callback on success</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>onError</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">callback on error</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="cloud.js.html">cloud.js</a>, <a href="cloud.js.html#line212">line 212</a>
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
     
     
 </dd>
@@ -1307,13 +1864,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Global</h3><ul><li><a href="global.html#createChatroom">createChatroom</a></li><li><a href="global.html#diffTime">diffTime</a></li><li><a href="global.html#notifyNearbyUsers">notifyNearbyUsers</a></li><li><a href="global.html#processTrackerAlert">processTrackerAlert</a></li><li><a href="global.html#refereshRecoveredVehicles">refereshRecoveredVehicles</a></li><li><a href="global.html#sendPushNotification">sendPushNotification</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#updateVehicleLocation">updateVehicleLocation</a></li><li><a href="global.html#updateVehicleStatus">updateVehicleStatus</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Global</h3><ul><li><a href="global.html#createChatroom">createChatroom</a></li><li><a href="global.html#diffTime">diffTime</a></li><li><a href="global.html#getVehicleChatroom">getVehicleChatroom</a></li><li><a href="global.html#notifyNearbyUsers">notifyNearbyUsers</a></li><li><a href="global.html#processTrackerAlert">processTrackerAlert</a></li><li><a href="global.html#refereshRecoveredVehicles">refereshRecoveredVehicles</a></li><li><a href="global.html#sendPushNotification">sendPushNotification</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#updateChatroomMembers">updateChatroomMembers</a></li><li><a href="global.html#updateStolenVehicleChatroomUsers">updateStolenVehicleChatroomUsers</a></li><li><a href="global.html#updateVehicleLocation">updateVehicleLocation</a></li><li><a href="global.html#updateVehicleStatus">updateVehicleStatus</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha4</a> on Mon Mar 10 2014 18:11:04 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha4</a> on Thu Mar 13 2014 02:41:04 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

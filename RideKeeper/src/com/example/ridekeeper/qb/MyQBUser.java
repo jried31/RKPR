@@ -1,4 +1,4 @@
-package com.example.ridekeeper.account;
+package com.example.ridekeeper.qb;
 
 import android.content.Context;
 import android.content.Intent;
@@ -55,12 +55,20 @@ public class MyQBUser {
 			@Override
 			public void onComplete(Result result) {
 				if (result.isSuccess()) {
-                    Log.d(TAG, "Quickblox signin successful");
+                    Log.i(TAG, "QBUsers signin successful");
 
                     QBChatService.getInstance().loginWithUser(sQbUser, new SessionListener() {
                         @Override
                         public void onLoginSuccess() {
-                            Log.i(TAG, "success when login");
+                            Log.i(TAG, "QBChatService login success");
+					
+                            // TODO: may need this periodic presence in a service to ensure it works
+                            // Test case: go to another screen (activity.stop) and then turn off screen for 5 min, then try to
+                            // access chatrooms
+                            // Expected: we want users to remain logged in to QB or auto sign in again
+                            // QuickBlox Chat is a standard XMPP chat and you need to send presence periodically to remain available.
+                            // Send presence every 60 seconds
+                            QBChatService.getInstance().startAutoSendPresence(60);
                         }
 
                         @Override

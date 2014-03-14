@@ -66,7 +66,8 @@
     <string name="camara_photo_picker_dialog">Take from camera</string>
     <string name="gallery_photo_picker_dialog">Select from gallery</string>
     <string name="photo_picker_tag">photo picker tag</string>
-    <string name="photo_picker_title">Select profile image</string>
+    <string name="profile_photo_picker_title">Select profile image</string>
+    <string name="photo_picker_title">Select an image</string>
 
     <string-array name="photo_picker_items">
         <item>Take picture from camera</item>
@@ -109,6 +110,7 @@
     <string name="camera_description">Camera</string>
     <string name="send">Send</string>
     <string name="current_user">Me</string>
+    <string name="chat_image_description">A user shared an image.</string>
 
     <!-- Ride strings -->
     <string name="start_ride">Start Ride</string>

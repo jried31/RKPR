@@ -1,4 +1,7 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.util;
+
+import com.example.ridekeeper.DBGlobals;
+import com.example.ridekeeper.ParseFunctions;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;

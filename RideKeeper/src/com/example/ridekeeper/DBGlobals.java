@@ -1,6 +1,7 @@
 package com.example.ridekeeper;
 
 public class DBGlobals {
+	public static final String APP_NAME = "RideKeeper";
 	 
 	 //Trigonometry constants
 	 public static final double PI=3.14159265359;
@@ -16,6 +17,18 @@ public class DBGlobals {
 			LIST_MY_VEHICLES=2,
 			SETTINGS=3,
             MY_RIDES=4;
+	
+	//Alert Levels
+	public static final String ALERT_LEVEL_PARKED="PARKED",
+			ALERT_LEVEL_MOVED="MOVED",
+			ALERT_LEVEL_MOVED_LOCATION="MOVED_LOC",
+			ALERT_LEVEL_STOLEN="STOLEN",
+			ALERT_LEVEL_STOLEN_LOC="STOLEN_LOC",
+			ALERT_LEVEL_RIDING="RIDING",
+			ALERT_LEVEL_CRASHED="CRASHED",
+			ALERT_LEVEL_NEARBY="NEARBY",
+			ALERT_LEVEL_RECOVERED="RVD",
+			ALERT_LEVEL_TILT="TILT";
 	
 	//Map Constants
 	public static final double searchRadius = 10; //radius to scan for VBS (in miles)
@@ -50,6 +63,7 @@ public class DBGlobals {
     public static final String PARSE_CHAT_TBL_KEY_MEMBERS = "members";
 	
     public static final String ARG_VEHICLE_ID = "vehicleId";
+    public static final String UNICODE_BULLET = "\u25CF";
 
     public static final int RIDE_NOTIFICATION_ID = 1;
     public static final String PARSE_RIDE_TBL = "Track";

@@ -3,7 +3,6 @@ package com.example.ridekeeper;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Fragment;
-import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +12,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -55,7 +55,7 @@ public class MyRideFragment extends Fragment {
     private double mRideOdometer = 0;
     private Button mBeginRideButton;
     private Button mEndRideButton;
-    private SimpleDateFormat rideDateFormat = new SimpleDateFormat("MM-dd-yyyy");
+    private static final String RIDE_DATE_FORMAT = "MM-dd-yyyy";
     private Ride ride;
     private boolean savedRide = false;
 
@@ -147,7 +147,7 @@ public class MyRideFragment extends Fragment {
                     }
 
                     Date rideDate = new Date();
-                    rideJSON.put("date", rideDateFormat.format(rideDate));
+                    rideJSON.put("date", DateFormat.format(RIDE_DATE_FORMAT, rideDate).toString());
                     rideJSON.put("distance", mRideOdometer);
                     rideJSON.put("points", ridePoints);
                     Log.v("points", rideJSON.toString());
@@ -281,15 +281,12 @@ public class MyRideFragment extends Fragment {
     private void getScreenDimensions()
     {
         Display display = getActivity().getWindowManager().getDefaultDisplay();
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
-        {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             Point outSize = new Point();
             display.getSize(outSize);
             screenWidth = outSize.x;
             screenHeight = outSize.y;
-        }
-        else
-        {
+        } else {
             screenWidth = display.getWidth();
             screenHeight = display.getHeight();
         }
