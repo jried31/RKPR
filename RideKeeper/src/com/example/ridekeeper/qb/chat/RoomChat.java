@@ -145,6 +145,9 @@ public class RoomChat implements Chat, RoomListener, ChatMessageListener {
                         Bitmap bitmap = BitmapFactory.decodeStream(s);
 
                         chatMessage.setBitmap(bitmap);
+                        // Refresh the adapter to reload the images
+                        mChatFragment.refreshAdapterView();
+                        
                 	} else {
                 		Log.d(TAG, "special image prefix not an actual QB image");
                 		// Display the original special string message

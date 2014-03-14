@@ -206,16 +206,35 @@ public class ChatFragment extends Fragment implements ImageConsumer {
         sendPhoto(bitmap);
 	}
 
+	/**
+	 * If a new item has been added or updated, then
+	 * refresh the adapter to display.
+	 */
+	public void refreshAdapterView() {
+		// TODO: isn't keep track of user's position, after 
+		// notifyDataSetChanged, the screen scrolls all the way down
+		// by itself
+        // save index and top position
+        //int index = mMessagesContainer.getFirstVisiblePosition();
+        //View v = mMessagesContainer.getChildAt(0);
+        //int top = (v == null) ? 0 : v.getTop();
+
+		mAdapter.notifyDataSetChanged();
+
+        // restore
+        //mMessagesContainer.setSelectionFromTop(index, top);
+	}
     public void showMessage(ChatMessage message) {
         mAdapter.add(message);
-        mAdapter.notifyDataSetChanged();
-        scrollDown();
+        refreshAdapterView();
+        // It automatically scrolls down anyway
+        //scrollDown();
     }
 
     public void showMessage(List<ChatMessage> messages) {
         mAdapter.add(messages);
-        mAdapter.notifyDataSetChanged();
-        scrollDown();
+        refreshAdapterView();
+        //scrollDown();
     }
 
     public void scrollDown() {
