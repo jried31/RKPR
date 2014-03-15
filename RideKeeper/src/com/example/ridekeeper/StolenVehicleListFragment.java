@@ -17,10 +17,15 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.ridekeeper.qb.MyQBUser;
@@ -42,6 +47,8 @@ public class StolenVehicleListFragment extends ListFragment {
 	private static ParseVehicleArrayAdapter stolenVehicleArrayAdapter;
 	private static FragmentActivity sMainActivity;
 
+	private static ProgressBar mProgressBar;
+
 	private static FindCallback<ParseObject> queryVehicleInMyChatRoomCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
@@ -53,6 +60,8 @@ public class StolenVehicleListFragment extends ListFragment {
 						"Found " + objects.size() + " stolen vehicles nearby", 
 						Toast.LENGTH_SHORT
 						).show();
+
+                mProgressBar.setVisibility(View.GONE);
 
 				for (ParseObject obj : objects) {
 					ParseVehicle vehicle = (ParseVehicle) obj; 
@@ -66,12 +75,23 @@ public class StolenVehicleListFragment extends ListFragment {
 			}
 		}
 	};
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		
+		sMainActivity = getActivity();
+
+		View view = inflater.inflate(R.layout.vehicles_fragment, container, false);
+
+		mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar); 
+		mProgressBar.setVisibility(View.GONE);
+
+		return view;
+	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-		sMainActivity = getActivity();
 		
 	    stolenVehicleArrayAdapter = new ParseVehicleArrayAdapter(
 	    		getActivity(), 
@@ -241,9 +261,10 @@ public class StolenVehicleListFragment extends ListFragment {
     }
 	
 	//Should be called only when ParseUser.getCurrentUser() is authenticated
-	public static void refreshList(){
+	public static void refreshList() {
         Log.d(TAG, "refreshList() refreshing stolen vehicles list");
         clearList();
+		mProgressBar.setVisibility(View.VISIBLE);
 
         ParseFunctions.queryForVehicleInMyChatRoom_InBackground(
                 sRoomsReceiver,

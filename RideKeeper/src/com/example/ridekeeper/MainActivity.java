@@ -71,6 +71,7 @@ public class MainActivity extends FragmentActivity {
 
 	private CharSequence mTitle;
 	private String[] mDrawerMenuTitles;
+	private int[] mIcons;
 
 	private SmackAndroid mSmackAndroid;
 
@@ -90,6 +91,9 @@ public class MainActivity extends FragmentActivity {
 
 		initLocationUpdateTimer(this);
 
+		mIcons = new int[] {
+				
+		};
 		mTitle = getTitle();
 		mDrawerMenuTitles = getResources().getStringArray(R.array.drawer_menu_title_array);
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);

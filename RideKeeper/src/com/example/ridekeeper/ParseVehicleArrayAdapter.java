@@ -23,7 +23,7 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
   private static int displayType;
 
   public ParseVehicleArrayAdapter(Context context, List<ParseVehicle> values,int type) {
-    super(context, R.layout.fragment_vehicle_item, values);
+    super(context, R.layout.vehicle_item_fragment, values);
     this.context = context;
     this.parseVehicleLst = values;
     ParseVehicleArrayAdapter.displayType = type;
@@ -34,7 +34,7 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
     LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     
     //Called for each view
-    View rowView = inflater.inflate(R.layout.fragment_vehicle_item, parent, false);
+    View rowView = inflater.inflate(R.layout.vehicle_item_fragment, parent, false);
     
     TextView makeView = (TextView) rowView.findViewById(R.id.vehicle_item_make);
     TextView modelView = (TextView) rowView.findViewById(R.id.vehicle_item_model);
