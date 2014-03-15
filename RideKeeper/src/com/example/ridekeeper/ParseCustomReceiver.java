@@ -9,7 +9,7 @@ import android.content.Intent;
 /* This class will handle all Parse's Push notifications whose "action" is "CUSTOMIZED".
  * This is define in AndroidManifiest.xml ( <action android:name="CUSTOMIZED" /> )
  */
-public class ParseCustomReceiver extends BroadcastReceiver{
+public class ParseCustomReceiver extends BroadcastReceiver {
 	
 	/* Sample Push 
 	    {

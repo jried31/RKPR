@@ -8,6 +8,7 @@ import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
+import com.example.ridekeeper.myride.Ride;
 import com.example.ridekeeper.qb.chat.RoomsReceiver;
 import com.example.ridekeeper.util.LocationMgr;
 import com.parse.FindCallback;

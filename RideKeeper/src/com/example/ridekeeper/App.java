@@ -30,8 +30,6 @@ public class App extends Application{
         PushService.setDefaultPushCallback(this, MainActivity.class);
     	ParseInstallation.getCurrentInstallation().saveInBackground();
     	
-    	//bReceiver = new MyBroadcastReceiver(); //For receiving wake lock and do routine check
-    	
     	NotificationMgr.initialize(this);
     	Preferences.loadSettingsFromSharedPref(this);
     	

@@ -61,12 +61,13 @@ import com.quickblox.module.chat.smack.SmackAndroid;
 public class MainActivity extends FragmentActivity {
 	private static final String TAG = MainActivity.class.getSimpleName();
 
+	// QuickBlox app authentication
     public static final String APP_ID = "5815";
     private static final String AUTH_KEY = "8htqAuedCPgyW2z";
     private static final String AUTH_SECRET = "6whwzbRPrYSSbmg";
 
-	public static Handler locationTimerHandler = new Handler();
-	public static Runnable locationTimerRunnable;
+	public static Handler sLocationTimerHandler = new Handler();
+	public static Runnable sLocationTimerRunnable;
 
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
@@ -89,7 +90,6 @@ public class MainActivity extends FragmentActivity {
 		setContentView(R.layout.activity_main);
 
 		App.isMainActivityRunning = true;
-		//App.bReceiver.setRepeatingAlarm(this);
 		mLocationMgr = new LocationMgr(this);
 		ParseFunctions.init(mLocationMgr);
 
@@ -194,16 +194,16 @@ public class MainActivity extends FragmentActivity {
 	}
 
 	public static void initLocationUpdateTimer(final Context context) {
-		locationTimerRunnable = new Runnable() {
+		sLocationTimerRunnable = new Runnable() {
             @Override
             public void run() {
                 //Periodically update phone's location to Parse server
                 ParseFunctions.updateLocToParse(context); 
-                locationTimerHandler.postDelayed(this, LocationUtils.LOCATION_UPDATE_RATE);
+                sLocationTimerHandler.postDelayed(this, LocationUtils.LOCATION_UPDATE_RATE);
             }
         };
 
-		locationTimerHandler.postDelayed(locationTimerRunnable, LocationUtils.LOCATION_UPDATE_RATE);
+		sLocationTimerHandler.postDelayed(sLocationTimerRunnable, LocationUtils.LOCATION_UPDATE_RATE);
 	}
 
 	@Override
@@ -221,7 +221,7 @@ public class MainActivity extends FragmentActivity {
 		mLocationMgr.disconnect();
 		
 		// Remove the runnable to stop updating location to Parse
-		locationTimerHandler.removeCallbacks(locationTimerRunnable);
+		sLocationTimerHandler.removeCallbacks(sLocationTimerRunnable);
 	}
 
 	@Override
@@ -414,7 +414,7 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
-	public void test(View v){
+	public void test(View v) {
 		Toast.makeText(getApplicationContext(), "START", Toast.LENGTH_SHORT).show();
 		
 		//LocationMgr.updateLocationInBackground(this, new LocationMgr.GetLocCallback() {

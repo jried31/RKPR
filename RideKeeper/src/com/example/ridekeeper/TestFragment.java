@@ -15,6 +15,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+@Deprecated
 public class TestFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, 

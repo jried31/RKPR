@@ -62,9 +62,13 @@
 
 		
 		<!-- Google Map API registration -->
-        <meta-data
+        <!-- Jerrid's -->
+         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyC7guqultJUknRp0ZoBnZJbG1NTGJkH-t0" />
+        <!-- Stanley's meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyBWb2xu__FY5PuQ5YoVqmMADWG7qhQaiRw" /-->
 
 		<meta-data android:name="com.google.android.gms.version"
            android:value="@integer/google_play_services_version" />
@@ -75,7 +79,7 @@
         
         <!-- Parse Service -->
         <service android:name="com.parse.PushService" />
-        <service android:name=".RideService"/>
+        <service android:name="com.example.ridekeeper.myride.RideService"/>
 
         <receiver android:name="com.example.ridekeeper.ParseCustomReceiver" android:exported="false">
 			<intent-filter>

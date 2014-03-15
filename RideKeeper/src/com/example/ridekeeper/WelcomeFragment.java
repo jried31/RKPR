@@ -156,7 +156,7 @@ public class WelcomeFragment extends DialogFragment {
 			@Override
 			public void onClick(View v) {
 				//App.bReceiver.cancelAlarm(getActivity());
-				MainActivity.locationTimerHandler.removeCallbacks(MainActivity.locationTimerRunnable);
+				MainActivity.sLocationTimerHandler.removeCallbacks(MainActivity.sLocationTimerRunnable);
 				System.exit(0);
 			}
 		});
