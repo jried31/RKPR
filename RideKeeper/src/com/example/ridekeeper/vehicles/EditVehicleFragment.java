@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.vehicles;
 
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -13,6 +13,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.R.id;
+import com.example.ridekeeper.R.layout;
 import com.example.ridekeeper.util.ImageConsumer;
 import com.example.ridekeeper.util.ImageFragment;
 import com.parse.ParseException;
@@ -22,12 +25,19 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 public class EditVehicleFragment extends DialogFragment implements ImageConsumer {
+	private static final String EDIT_VEHICLE_TITLE = "Edit My Vehicle";
+	private static final String ADD_VEHICLE_TITLE = "Add New Vehicle";
+	private static final String MODE = "Mode";
+	private static final String MODE_ADD = "Add";
+	private static final String MODE_EDIT = "Edit";
+	private static final String POS = "pos";
+
     private ParseImageView pivPhoto;
     private EditText etMake, etModel, etYear, etLicense,etTrackerId;
     private Button btSave, btChangePhoto,btToggleTrackerId;
     
-	private String mode = "add"; //Default is add mode
-    private int pos = 0;
+	private String mMode = MODE_ADD; //Default is add mode
+    private int mPos = 0;
     ParseVehicle vehicle; //current vehicle being add/edit
     private ImageFragment mImageFragment;
     
@@ -39,10 +49,10 @@ public class EditVehicleFragment extends DialogFragment implements ImageConsumer
     			getFragmentManager());
 
     	//Checking whether we're adding or editing a vehicle
-    	if (getArguments()!=null && getArguments().containsKey("mode")){
-    		mode = getArguments().getString("mode");
-    		if (mode.equals("edit")){
-    			pos = getArguments().getInt("pos");
+    	if (getArguments()!=null && getArguments().containsKey(MODE)) {
+    		mMode = getArguments().getString(MODE);
+    		if (mMode.equals(MODE_EDIT)){
+    			mPos = getArguments().getInt(POS);
     		}
     	}
 
@@ -53,7 +63,7 @@ public class EditVehicleFragment extends DialogFragment implements ImageConsumer
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
     		Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_edit_vehicle, container, false);
-		
+
 	    pivPhoto = (ParseImageView) view.findViewById(R.id.edit_vehicle_img);
 	    etMake = (EditText) view.findViewById(R.id.editText_make);
 	    etModel = (EditText) view.findViewById(R.id.editText_model);
@@ -63,24 +73,21 @@ public class EditVehicleFragment extends DialogFragment implements ImageConsumer
 		btSave = (Button) view.findViewById(R.id.button_save_vehicle);
 		btToggleTrackerId = (Button)view.findViewById(R.id.toggleTracker);
 	    btChangePhoto = (Button) view.findViewById(R.id.button_change_vehicle_photo);
-		if (mode.equals("add")){
-			btSave.setText("Add");
+		if (mMode.equals(MODE_ADD)){
+		
+            getDialog().setTitle(ADD_VEHICLE_TITLE);
+
+			btSave.setText(MODE_ADD);
 
 			etTrackerId.setEnabled(true);
 			vehicle = new ParseVehicle();
 			btToggleTrackerId.setVisibility(Button.INVISIBLE);
 			vehicle.put("ownerId", ParseUser.getCurrentUser().getObjectId());
 			
-		}else if (mode.equals("edit")){
-	    	//Checking whether we're adding or editing a vehicle
-	    	if (getArguments()!=null && getArguments().containsKey("mode")){
-	    		mode = getArguments().getString("mode");
-	    		if (mode.equals("edit")){
-	    			pos = getArguments().getInt("pos");
-	    		}
-	    	}
+		} else if (mMode.equals(MODE_EDIT)){
+            getDialog().setTitle(EDIT_VEHICLE_TITLE);
 
-			vehicle = MyVehicleListFragment.myVehicleAdapter.getItem(pos);
+			vehicle = MyVehicleListFragment.myVehicleAdapter.getItem(mPos);
 			
 			//Load data from Parse
 			etMake.setText(vehicle.getMake());
@@ -116,9 +123,9 @@ public class EditVehicleFragment extends DialogFragment implements ImageConsumer
 				vehicle.setTrackerId(etTrackerId.getText().toString());
 				vehicle.prepareSavingPhoto(getActivity(), pivPhoto);
 				
-				if (mode.equals("add")){
+				if (mMode.equals(MODE_ADD)){
 					MyVehicleListFragment.myVehicleAdapter.add(vehicle);
-				}else if (mode.equals("edit")){
+				}else if (mMode.equals(MODE_EDIT)){
 				}
 				
 				//Add the new vehicle / save modified vehicle
@@ -163,9 +170,9 @@ public class EditVehicleFragment extends DialogFragment implements ImageConsumer
         pivPhoto.setImageBitmap(bitmap);
 	}
     
-	public static void addVehicle(FragmentManager fm){
+	public static void addVehicle(FragmentManager fm) {
     	FragmentTransaction ft = fm.beginTransaction();
-    	Fragment prev = fm.findFragmentByTag("Add Vehicle Dialog");
+    	Fragment prev = fm.findFragmentByTag(ADD_VEHICLE_TITLE);
     	if (prev != null) {
     		ft.remove(prev);
     	}
@@ -173,14 +180,14 @@ public class EditVehicleFragment extends DialogFragment implements ImageConsumer
 		
     	DialogFragment editVehicleFrag = new EditVehicleFragment();
     	Bundle args = new Bundle();
-    	args.putString("mode", "add");
+    	args.putString(MODE, MODE_ADD);
     	editVehicleFrag.setArguments(args);
-    	editVehicleFrag.show(ft, "Add Vehicle Dialog");
+    	editVehicleFrag.show(ft, ADD_VEHICLE_TITLE);
 	}
 	
 	public static void editVehicle(FragmentManager fm, int position){
     	FragmentTransaction ft = fm.beginTransaction();
-    	Fragment prev = fm.findFragmentByTag("Add Vehicle Dialog");
+    	Fragment prev = fm.findFragmentByTag(ADD_VEHICLE_TITLE);
     	if (prev != null) {
     		ft.remove(prev);
     	}
@@ -188,9 +195,9 @@ public class EditVehicleFragment extends DialogFragment implements ImageConsumer
 		
     	DialogFragment editVehicleFrag = new EditVehicleFragment();
     	Bundle args = new Bundle();
-    	args.putString("mode", "edit");
-    	args.putInt("pos", position);
+    	args.putString(MODE, MODE_EDIT);
+    	args.putInt(POS, position);
     	editVehicleFrag.setArguments(args);
-    	editVehicleFrag.show(ft, "Add Vehicle Dialog");
+    	editVehicleFrag.show(ft, ADD_VEHICLE_TITLE);
 	}
 }

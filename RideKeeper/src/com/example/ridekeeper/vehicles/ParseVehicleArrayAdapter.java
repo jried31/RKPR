@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.vehicles;
 
 
 import java.util.List;
@@ -14,6 +14,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.ridekeeper.DBGlobals;
+import com.example.ridekeeper.DialogFragmentMgr;
+import com.example.ridekeeper.GoogleMapFindVehicleFragment;
+import com.example.ridekeeper.GoogleMapFragment;
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.R.id;
+import com.example.ridekeeper.R.layout;
 import com.parse.ParseImageView;
 
 public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {

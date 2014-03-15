@@ -1,6 +1,14 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.vehicles;
 
+import com.example.ridekeeper.DBGlobals;
+import com.example.ridekeeper.MainActivity;
+import com.example.ridekeeper.R;
 import com.example.ridekeeper.DBGlobals.SelectedFrag;
+import com.example.ridekeeper.R.array;
+import com.example.ridekeeper.R.id;
+import com.example.ridekeeper.R.layout;
+import com.example.ridekeeper.myride.MyRideListFragment;
+
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;

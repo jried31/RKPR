@@ -37,8 +37,8 @@
     <string name="vehicle_model_hint">Model</string>
     <string name="vehicle_liscense_hint">License</string>
     <string name="vehicle_year_hint">Year</string>
-    <string name="vehicle_tracker_id">Tracker Id</string>
-    <string name="vehicle_tracker_id_hint">Tracker Id</string>
+    <string name="vehicle_tracker_id">Tracker ID</string>
+    <string name="vehicle_tracker_id_hint">Tracker ID</string>
     <string name="modify_tracker">Modify</string>
     
     <string name="button_signup">Sign Up</string>

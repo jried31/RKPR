@@ -22,6 +22,7 @@ interface AfterConnectCallback{
 	void done(String errorMsg);
 }
 
+@Deprecated
 public class MultiUserChatController {
 	private static final String TAG = MultiUserChatController.class.getSimpleName();
 	public static final String ROOM_SUBFIX = "@muc.chat.quickblox.com";

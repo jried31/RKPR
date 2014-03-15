@@ -1,5 +1,8 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.vehicles;
 
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.R.id;
+import com.example.ridekeeper.R.layout;
 import com.example.ridekeeper.util.ImageConsumer;
 import com.example.ridekeeper.util.ImageFragment;
 

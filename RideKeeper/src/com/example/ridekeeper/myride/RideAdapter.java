@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.myride;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +9,10 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.util.List;
+
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.R.id;
+import com.example.ridekeeper.R.layout;
 
 public class RideAdapter extends ArrayAdapter<Ride> {
     private Context context;

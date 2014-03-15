@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.myride;
 
 import android.location.Location;
 

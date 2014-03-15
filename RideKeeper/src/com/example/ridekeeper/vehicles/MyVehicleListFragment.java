@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.vehicles;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +18,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Toast;
 
+import com.example.ridekeeper.DBGlobals;
+import com.example.ridekeeper.DialogFragmentMgr;
+import com.example.ridekeeper.GoogleMapFindVehicleFragment;
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.R.id;
+import com.example.ridekeeper.R.layout;
+import com.example.ridekeeper.R.menu;
+import com.example.ridekeeper.R.string;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -116,9 +124,9 @@ public class MyVehicleListFragment extends ListFragment {
 		        case DialogInterface.BUTTON_POSITIVE:
 		        	try {
 		        		//remove from Parse
-		        		ParseVehicle vehicile = myVehicleAdapter.getItem(position);
-		        		vehicile.setStatus("RVD");
-		        		vehicile.save();
+		        		ParseVehicle vehicle = myVehicleAdapter.getItem(position);
+		        		vehicle.setStatus("RVD");
+		        		vehicle.save();
 			        	refreshList();
 		        	} catch (ParseException e) {
 						Toast.makeText(myContext, "Error removing: " + e.getMessage() , Toast.LENGTH_SHORT).show();

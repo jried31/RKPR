@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.myride;
 
 import android.app.NotificationManager;
 import android.app.Service;
@@ -12,6 +12,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.ridekeeper.DBGlobals;
+import com.example.ridekeeper.NotificationMgr;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;

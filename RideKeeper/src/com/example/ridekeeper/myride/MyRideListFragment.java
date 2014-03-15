@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.myride;
 
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -11,6 +11,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.ridekeeper.DialogFragmentMgr;
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.R.id;
+import com.example.ridekeeper.R.layout;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;

@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.vehicles;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -12,6 +12,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.example.ridekeeper.DBGlobals;
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.R.drawable;
 import com.example.ridekeeper.util.ImageFragment;
 import com.parse.GetDataCallback;
 import com.parse.ParseClassName;
@@ -51,14 +54,14 @@ public class ParseVehicle extends ParseObject {
 	public String getMake(){
 		return getString(MAKE);
 	}
-	void setMake(String make){
+	public void setMake(String make){
 		put(MAKE, make);
 	}
 	
 	public String getModel(){
 		return getString(MODEL);
 	}
-	void setModel(String model){
+	public void setModel(String model){
 		put(MODEL, model);
 	}
 	
@@ -69,14 +72,14 @@ public class ParseVehicle extends ParseObject {
 		return res;
 	}
 	
-	void setStatus(String status){
+	public void setStatus(String status){
 		put(STATUS, status);
 	}
 	
-	void setYear(Number year){
+	public void setYear(Number year){
 		put(YEAR, year);
 	}
-	void setYear(String strYear){
+	public void setYear(String strYear){
 		put(YEAR, Integer.parseInt(strYear));
 	}
 	
@@ -88,14 +91,14 @@ public class ParseVehicle extends ParseObject {
 		return getString(LICENSE);
 	}
 	
-	void setTrackerId(String trackerId){
+	public void setTrackerId(String trackerId){
 		put(TRACKERID, trackerId);
 	}
-	void setLicense(String license){
+	public void setLicense(String license){
 		put(LICENSE, license);
 	}
 	
-	void setChatRoomName(String chatroomName) {
+	public void setChatRoomName(String chatroomName) {
 		put(CHATROOM_NAME, chatroomName);
 	}
 	 
@@ -107,7 +110,7 @@ public class ParseVehicle extends ParseObject {
 		return getParseFile(PHOTO);
 	}
 	
-	void setPhoto(ParseFile photo){
+	public void setPhoto(ParseFile photo){
 		put(PHOTO, photo);
 	}
 	

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.widget.Toast;
 
 import com.example.ridekeeper.qb.MyQBUser;
+import com.example.ridekeeper.vehicles.ParseVehicle;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
@@ -22,7 +23,6 @@ public class App extends Application{
         
         // MUST Initialize Parse here, otherwise BroadcastReceiver will crash when doing query
         ParseObject.registerSubclass(ParseVehicle.class);
-        ParseObject.registerSubclass(ParseChatRoomPhoto.class);
         //Register with Parse server
         Parse.initialize(this,
 				"TfBH3NJxzbOaxpksu5YymD4lP9bPlytcfZMG8i5a", 	//Application ID

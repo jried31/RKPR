@@ -132,6 +132,7 @@ public class ParseFunctions {
         });
     }
     
+    @Deprecated
     public static void queryForChatPhoto(String objectId, GetCallback<ParseChatRoomPhoto> callback){
         ParseQuery<ParseChatRoomPhoto> query = ParseQuery.getQuery(DBGlobals.PARSE_CHATROOMPHOTO_TBL); //Query the VBS table
         query.getInBackground(objectId, callback);

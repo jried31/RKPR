@@ -18,6 +18,7 @@ import com.parse.ParseFile;
 import com.parse.ParseImageView;
 import com.parse.ParseObject;
 
+@Deprecated
 @ParseClassName(DBGlobals.PARSE_CHATROOMPHOTO_TBL)
 public class ParseChatRoomPhoto extends ParseObject {
 	public static final String	VEHICLEID = "vehicleId",

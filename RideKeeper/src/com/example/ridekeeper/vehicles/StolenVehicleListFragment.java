@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.vehicles;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +28,15 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.ridekeeper.DBGlobals;
+import com.example.ridekeeper.DialogFragmentMgr;
+import com.example.ridekeeper.GoogleMapFragment;
+import com.example.ridekeeper.OwnerInfoFragment;
+import com.example.ridekeeper.ParseFunctions;
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.R.id;
+import com.example.ridekeeper.R.layout;
+import com.example.ridekeeper.R.menu;
 import com.example.ridekeeper.qb.MyQBUser;
 import com.example.ridekeeper.qb.chat.ChatFragment;
 import com.example.ridekeeper.qb.chat.RoomChat;

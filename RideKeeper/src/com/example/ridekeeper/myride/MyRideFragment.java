@@ -1,4 +1,4 @@
-package com.example.ridekeeper;
+package com.example.ridekeeper.myride;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -23,6 +23,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.R.id;
+import com.example.ridekeeper.R.layout;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
