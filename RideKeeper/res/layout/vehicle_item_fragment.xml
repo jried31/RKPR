@@ -10,7 +10,7 @@
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:descendantFocusability="blocksDescendants" 
-    android:padding="6dip" >
+    android:padding="10dp" >
 
     <com.parse.ParseImageView
         android:id="@+id/vehicle_item_photo"

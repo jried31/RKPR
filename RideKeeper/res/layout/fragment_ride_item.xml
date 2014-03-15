@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:padding="10dp"
-    android:background="@drawable/ridelist_bg"
+    android:background="@drawable/list_item_bg"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <TextView

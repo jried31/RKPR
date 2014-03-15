@@ -25,6 +25,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -92,7 +93,8 @@ public class ChatFragment extends DialogFragment implements ImageConsumer {
 
     	mImageFragment = ImageFragment.newInstance(this, null,
     			getFragmentManager());
-    	setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Light);
+    	//setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Light);
+    	setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Holo_Light_DarkActionBar);
 	}
 
 	
@@ -102,6 +104,7 @@ public class ChatFragment extends DialogFragment implements ImageConsumer {
 		View view = inflater.inflate(R.layout.chat_fragment, container, false);
 		
 		getDialog().setTitle(mTitle);
+		getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
 		// initialize the gravity for small image
 		IMAGE_SMALL_VIEW_LAYOUT.gravity = Gravity.CENTER;

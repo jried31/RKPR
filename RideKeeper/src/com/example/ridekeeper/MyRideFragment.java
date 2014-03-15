@@ -79,7 +79,7 @@ public class MyRideFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBundle = savedInstanceState;
-    	setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Light);
+    	setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Holo_Light_DarkActionBar);
     }
 
     @Override

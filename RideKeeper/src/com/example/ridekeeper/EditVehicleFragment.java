@@ -46,7 +46,7 @@ public class EditVehicleFragment extends DialogFragment implements ImageConsumer
     		}
     	}
 
-    	setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_NoActionBar  );
+    	setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Holo_Light_DarkActionBar);
     }
     
     @Override

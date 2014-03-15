@@ -23,42 +23,6 @@
             android:transcriptMode="alwaysScroll"
             android:divider="@null" />
 
-        <ImageButton
-            android:id="@+id/sendPicBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignTop="@+id/messageEdit"
-            android:src="@drawable/ic_action_camera"
-            android:contentDescription="@string/camera_description"
-            android:background="?android:attr/selectableItemBackground"
-            />
-        <ImageButton
-            android:id="@+id/chatSendButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignTop="@+id/messageEdit"
-            android:src="@drawable/ic_action_send_now"
-            android:contentDescription="@string/send"
-            android:background="?android:attr/selectableItemBackground"
-            />
-
-
-        <EditText
-            android:id="@+id/messageEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_toLeftOf="@+id/chatSendButton"
-            android:layout_toRightOf="@+id/sendPicBtn"
-            android:inputType="textAutoComplete" >
-            <requestFocus/>
-
-        </EditText>
-
         <TextView
             android:id="@+id/companionLabel"
             android:layout_width="wrap_content"
@@ -76,5 +40,36 @@
             android:singleLine="false"
             android:textSize="20sp" />
 
+        <EditText
+            android:id="@+id/messageEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/chatSendButton"
+            android:layout_toRightOf="@+id/sendPicBtn"
+            android:inputType="textMultiLine|textAutoComplete"
+            android:ems="10" />
+
+        <ImageButton
+            android:id="@+id/sendPicBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignBottom="@+id/messageEdit"
+            android:background="?android:attr/selectableItemBackground"
+            android:contentDescription="@string/camera_description"
+            android:src="@drawable/ic_action_camera" />
+
+        <ImageButton
+            android:id="@+id/chatSendButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignBottom="@+id/messageEdit"
+            android:background="?android:attr/selectableItemBackground"
+            android:contentDescription="@string/send"
+            android:src="@drawable/ic_action_send_now" />
 
     </RelativeLayout>

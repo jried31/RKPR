@@ -50,7 +50,6 @@ public class SystemChecker {
 
         final Activity mainActivity = activity;
         builder.setMessage("Yout GPS seems to be disabled, do you want to enable it?")
-                .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 					
 					@Override
@@ -74,7 +73,6 @@ public class SystemChecker {
     private static void buildAlertMessageNoLocationAccess(Activity activity) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
         dialog.setMessage(activity.getResources().getString(R.string.gps_network_not_enabled));
-        dialog.setCancelable(false);
 
         final Activity mainActivity = activity;
         dialog.setPositiveButton(activity.getResources().getString(R.string.open_location_settings), new DialogInterface.OnClickListener() {

@@ -10,9 +10,11 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Toast;
 
@@ -45,8 +47,15 @@ public class MyVehicleListFragment extends ListFragment {
 	}
 	
 	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.vehicles_list_fragment, container, false);
+		return view;
+	}
+
+	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		//Creates the Edit menu for the specific option
+
 	    super.onCreateContextMenu(menu, v, menuInfo);
 	    MenuInflater inflater = getActivity().getMenuInflater();
 	    inflater.inflate(R.menu.menu_vehicle, menu);

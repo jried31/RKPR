@@ -81,7 +81,7 @@ public class StolenVehicleListFragment extends ListFragment {
 		
 		sMainActivity = getActivity();
 
-		View view = inflater.inflate(R.layout.vehicles_fragment, container, false);
+		View view = inflater.inflate(R.layout.vehicles_list_fragment, container, false);
 
 		mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar); 
 		mProgressBar.setVisibility(View.GONE);

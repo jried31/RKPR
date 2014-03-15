@@ -71,6 +71,7 @@ public class MainActivity extends FragmentActivity {
 
 	private CharSequence mTitle;
 	private String[] mDrawerMenuTitles;
+	private MenuListAdapter mMenuAdapter;
 	private int[] mIcons;
 
 	private SmackAndroid mSmackAndroid;
@@ -92,8 +93,11 @@ public class MainActivity extends FragmentActivity {
 		initLocationUpdateTimer(this);
 
 		mIcons = new int[] {
-				
+				R.drawable.ic_action_view_as_list,
+				R.drawable.ic_action_person,
+				R.drawable.ic_action_settings
 		};
+
 		mTitle = getTitle();
 		mDrawerMenuTitles = getResources().getStringArray(R.array.drawer_menu_title_array);
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -102,8 +106,10 @@ public class MainActivity extends FragmentActivity {
 		// set a custom shadow that overlays the main content when the drawer opens
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		// set up the drawer's list view with items and click listener
-		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-				R.layout.drawer_list_item, mDrawerMenuTitles));
+		mMenuAdapter = new MenuListAdapter(
+                MainActivity.this, mDrawerMenuTitles, mIcons);
+
+		mDrawerList.setAdapter(mMenuAdapter);
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 		// enable ActionBar app icon to behave as action to toggle nav drawer
