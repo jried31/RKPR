@@ -222,7 +222,9 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
     @Override
     public void onPause() {
     	super.onPause();
-		asyncTask.cancel(true);
+    	if (asyncTask != null) {
+            asyncTask.cancel(true);
+    	}
     	mMapView.onPause();
     	mLocationClient.disconnect();
     	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
@@ -230,7 +232,9 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
     
     @Override
     public void onDestroy() {
-		asyncTask.cancel(true);
+    	if (asyncTask != null) {
+            asyncTask.cancel(true);
+    	}
     	mLocationClient.disconnect();
     	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
     	mMapView.onDestroy();

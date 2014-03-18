@@ -192,7 +192,7 @@ public class GoogleMapStolenVehicleFragment extends DialogFragment implements Go
     @Override
     public void onResume() {
     	super.onResume();
-    	mLocationClient.connect();
+        mLocationClient.connect();
   		mHandler.postDelayed(runQueryVBS, DBGlobals.UPDATE_INTERVAL_STOLEN_VEHICLE);
     	mMapView.onResume();
     }
@@ -200,7 +200,9 @@ public class GoogleMapStolenVehicleFragment extends DialogFragment implements Go
     @Override
     public void onPause() {
     	super.onPause();
-    	asyncTask.cancel(true);
+    	if (asyncTask != null) {
+            asyncTask.cancel(true);
+    	}
     	mMapView.onPause();
     	mLocationClient.disconnect();
     	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
@@ -208,7 +210,9 @@ public class GoogleMapStolenVehicleFragment extends DialogFragment implements Go
     
     @Override
     public void onDestroy() {
-    	asyncTask.cancel(true);
+    	if (asyncTask != null) {
+            asyncTask.cancel(true);
+    	}
     	mLocationClient.disconnect();
     	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
     	mMapView.onDestroy();
@@ -344,7 +348,10 @@ public class GoogleMapStolenVehicleFragment extends DialogFragment implements Go
 		//Start parsecallback
   		mHandler.post(runQueryVBS);
   		myLocation = mLocationClient.getLastLocation();
-		mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng (myLocation.getLatitude(),myLocation.getLongitude()) , 15f));
+  		if (myLocation != null) {
+            mGoogleMap.moveCamera(
+            		CameraUpdateFactory.newLatLngZoom(new LatLng (myLocation.getLatitude(),myLocation.getLongitude()) , 15f));
+  		}
 	}
 
 	@Override
