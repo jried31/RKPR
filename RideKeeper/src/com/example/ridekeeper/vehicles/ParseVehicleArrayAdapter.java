@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.DialogFragmentMgr;
 import com.example.ridekeeper.GoogleMapFindVehicleFragment;
-import com.example.ridekeeper.GoogleMapFragment;
+import com.example.ridekeeper.GoogleMapStolenVehicleFragment;
 import com.example.ridekeeper.R;
 import com.example.ridekeeper.R.id;
 import com.example.ridekeeper.R.layout;
@@ -65,13 +65,18 @@ public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {
             int position = (Integer) v.getTag();
 
 	    	Bundle bundle = new Bundle();
-	    	bundle.putString(DBGlobals.ARG_VEHICLE_ID, vehicle.getObjectId());
+	        bundle.putString(ParseVehicle.ID, vehicle.getObjectId());
+	        bundle.putString(ParseVehicle.MAKE, vehicle.getMake());
+	        bundle.putString(ParseVehicle.MODEL, vehicle.getModel());
+	        bundle.putString(ParseVehicle.YEAR, vehicle.getYear().toString());
+	        bundle.putString(ParseVehicle.TRACKER_ID, vehicle.getTrackerId());
+
 
 	    	if (displayType==DBGlobals.TAB_IDX_MY_VEHICLES) {
-	    		DialogFragmentMgr.showDialogFragment((FragmentActivity)getContext(), new GoogleMapFindVehicleFragment(), "Map Dialog", true, bundle);
+	    		DialogFragmentMgr.showDialogFragment((FragmentActivity)getContext(), new GoogleMapFindVehicleFragment(), v.getContext().getString(R.string.vehicle_map_title), true, bundle);
 	    	}
 	    	else if (displayType == DBGlobals.TAB_IDX_STOLEN_VEHICLES) {
-	    		DialogFragmentMgr.showDialogFragment((FragmentActivity)getContext(), new GoogleMapFragment(), "Map Dialog", true, bundle);
+	    		DialogFragmentMgr.showDialogFragment((FragmentActivity)getContext(), new GoogleMapStolenVehicleFragment(), v.getContext().getString(R.string.vehicle_map_title), true, bundle);
 	    	}
 		}
 	});

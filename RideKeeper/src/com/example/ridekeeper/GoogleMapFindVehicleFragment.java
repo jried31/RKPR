@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.IntentSender;
@@ -17,6 +15,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ridekeeper.route.GMapV2GetRouteDirection;
+import com.example.ridekeeper.vehicles.ParseVehicle;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -54,7 +55,7 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
 	private MapView mMapView;
 	private Bundle mBundle;
 	private TextView info;
-	private String UIDtoTrack = null;	//VBS UID to be tracked, null for all VBS
+	private String vehicleId = null,trackerId=null,vehicleMake=null,vehicleModel=null,vehicleYear=null;	//VBS UID to be tracked, null for all VBS
 	private Marker markerVehicle;
 	private Location myLocation;
     Document document;
@@ -74,8 +75,13 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
     	mBundle = savedInstanceState;
     	
     	//Load  UID argument for tracking
-    	if (getArguments()!=null && getArguments().containsKey(DBGlobals.ARG_VEHICLE_ID)){
-        	UIDtoTrack = getArguments().getString(DBGlobals.ARG_VEHICLE_ID);
+    	if (getArguments()!=null && getArguments().containsKey(ParseVehicle.ID)){
+        	vehicleId = getArguments().getString(ParseVehicle.ID);
+        	trackerId = getArguments().getString(ParseVehicle.TRACKER_ID);
+        	vehicleMake = getArguments().getString(ParseVehicle.MAKE);
+        	vehicleModel = getArguments().getString(ParseVehicle.MODEL);
+        	vehicleYear = getArguments().getString(ParseVehicle.YEAR);
+        	
       		//Grab the vehicle location from Parse
             markerOptions = new MarkerOptions();
         	//Toast.makeText(getActivity(), UIDtoTrack, Toast.LENGTH_SHORT).show();
@@ -90,7 +96,7 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
             
     	}else{
     		Toast.makeText(getActivity(), "No vehicle UID provided to track.", Toast.LENGTH_SHORT).show();
-    		UIDtoTrack = "";
+    		vehicleId = "";
     	}
     	
     	//setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme_Holo_Light_NoActionBar_Fullscreen);
@@ -120,7 +126,10 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
 			@Override
 			public void onClick(View v) {
 				//Get rout to the vehicle
-				GetDirectionsAsyncTask asyncTask = new GetDirectionsAsyncTask(markerVehicle.getPosition(),new LatLng(myLocation.getLatitude(),myLocation.getLongitude()));
+
+	 	        asyncTask = new GetDirectionsAsyncTask();
+	 			asyncTask.setVehicleLocation(markerVehicle.getPosition());
+	 			asyncTask.setMyLocation(new LatLng(myLocation.getLatitude(),myLocation.getLongitude()));
 				asyncTask.execute();	
 			}
         });
@@ -213,6 +222,7 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
     @Override
     public void onPause() {
     	super.onPause();
+		asyncTask.cancel(true);
     	mMapView.onPause();
     	mLocationClient.disconnect();
     	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
@@ -220,6 +230,7 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
     
     @Override
     public void onDestroy() {
+		asyncTask.cancel(true);
     	mLocationClient.disconnect();
     	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
     	mMapView.onDestroy();
@@ -233,7 +244,7 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
     	@Override
 		public void run() {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL);
-			query.whereEqualTo("objectId", UIDtoTrack);
+			query.whereEqualTo("objectId", vehicleId);
 			query.findInBackground(queryVehicleCallback);
 		}
 	};
@@ -257,10 +268,7 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
 						navigationBtn.setEnabled(true);
 						info.setVisibility(View.INVISIBLE);
 						markerVehicle.setPosition( new LatLng(p.getLatitude(), p.getLongitude()) );
-						markerVehicle.setTitle(	objects.get(0).getString("make") + " " +
-											objects.get(0).getString("model") + " " +
-											objects.get(0).getNumber("year").toString() + " "
-											);
+						markerVehicle.setTitle( vehicleMake + " " +  vehicleModel + " " + vehicleYear);
 						markerVehicle.setVisible(true);
 
 						//Now we have vehicle Begin Location update requests
@@ -273,7 +281,7 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
 			}else{ //error occurred when query to Parse
 				Toast.makeText(getActivity(), R.string.query_exception, Toast.LENGTH_SHORT).show();
 				navigationBtn.setEnabled(false);
-				mHandler.postDelayed(runQueryVBS, 15000);  //Refresh rate = 15 seconds if error occurs
+				mHandler.postDelayed(runQueryVBS, DBGlobals.FIND_MY_VEHICLE_MAP_REFRESH_RATE);
 			}
 		}
 	};
@@ -375,13 +383,29 @@ public class GoogleMapFindVehicleFragment extends DialogFragment implements Goog
 		
 	}
 	ProgressDialog progressDialog;
+	GetDirectionsAsyncTask asyncTask = null;
 	private class GetDirectionsAsyncTask extends AsyncTask<String, Void, ArrayList<LatLng>> {
         Exception exception=null;
         LatLng vehicle,myLocation;
         
-        public GetDirectionsAsyncTask(LatLng vehicle,LatLng myLocation){
-        	this.vehicle=vehicle;
-        	this.myLocation=myLocation;
+        public LatLng getVehicleLocation() {
+			return vehicle;
+		}
+
+		public void setVehicleLocation(LatLng vehicle) {
+			this.vehicle = vehicle;
+		}
+
+		public LatLng getMyLocation() {
+			return myLocation;
+		}
+
+		public void setMyLocation(LatLng myLocation) {
+			this.myLocation = myLocation;
+		}
+
+		
+        public GetDirectionsAsyncTask(){
         }
         @Override
         protected void onPreExecute() {

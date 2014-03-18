@@ -54,6 +54,7 @@
     <string name="button_change">Change</string>
     <string name="owner_display_name">Name</string>
     <string name="owner_name_hint">Your name here</string>
+    <string name="owner_information_title">Owner Information</string>
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_email">Email</string>
     <string name="user_profile_emergency_status">Status</string>
@@ -71,6 +72,7 @@
     <string name="photo_picker_tag">photo picker tag</string>
     <string name="profile_photo_picker_title">Select profile image</string>
     <string name="photo_picker_title">Select an image</string>
+    <string name="vehicle_map_title">Map Dialog</string>
 
     <string-array name="photo_picker_items">
         <item>Take picture from camera</item>

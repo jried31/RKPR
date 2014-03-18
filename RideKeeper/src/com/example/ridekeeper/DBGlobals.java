@@ -59,6 +59,8 @@ public class DBGlobals {
     public static final long LOAD_CHATROOM_DELAY = MILLISECONDS_PER_SECOND * 1;
 	
 	public static final String PARSE_VEHICLE_TBL = "Vehicle";
+	public static final String PARSE_VEHICLE_LOCATION_TBL = "VehicleLocationHistory";
+	
 	public static final String PARSE_CHATROOM_TBL = "Chatroom";
 	public static final String PARSE_CHATROOMPHOTO_TBL = "ChatRoomPhoto";
 	public static final String PARSE_INSTL_OWERID = "ownerId";
@@ -70,10 +72,14 @@ public class DBGlobals {
     public static final String PARSE_CHAT_TBL_KEY_ROOM_NAME = "roomName";
     public static final String PARSE_CHAT_TBL_KEY_MEMBERS = "members";
 	
-    public static final String ARG_VEHICLE_ID = "vehicleId";
     public static final String UNICODE_BULLET = "\u25CF";
 
     public static final int RIDE_NOTIFICATION_ID = 1;
+
+	public static final int FIND_MY_VEHICLE_MAP_REFRESH_RATE = 60000;
+
+	public static final long STOLEN_VEHICLE_MAP_ERROR_REFRESH_RATE = 15000;
+
     public static final String PARSE_RIDE_TBL = "Track";
 	
 }

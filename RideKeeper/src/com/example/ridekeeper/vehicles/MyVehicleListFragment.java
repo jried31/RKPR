@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog;
-import android.support.v4.app.ListFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -22,10 +22,6 @@ import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.DialogFragmentMgr;
 import com.example.ridekeeper.GoogleMapFindVehicleFragment;
 import com.example.ridekeeper.R;
-import com.example.ridekeeper.R.id;
-import com.example.ridekeeper.R.layout;
-import com.example.ridekeeper.R.menu;
-import com.example.ridekeeper.R.string;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -73,16 +69,27 @@ public class MyVehicleListFragment extends ListFragment {
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        ParseVehicle vehicle = myVehicleAdapter.getItem(info.position);
+        
+	    String vehicleId = vehicle.getObjectId(),
+	    	   trackerId = vehicle.getTrackerId(),
+	    	   vehicleMake = vehicle.getMake(),
+	    	   vehicleModel = vehicle.getModel(),
+	    	   vehicleYear = vehicle.getYear().toString();
+
+    	Bundle bundle = new Bundle();
+        bundle.putString(ParseVehicle.ID, vehicleId);
+        bundle.putString(ParseVehicle.MAKE, vehicleMake);
+        bundle.putString(ParseVehicle.MODEL, vehicleModel);
+        bundle.putString(ParseVehicle.YEAR, vehicleYear);
+        bundle.putString(ParseVehicle.TRACKER_ID, trackerId);
 	 
 	    switch (item.getItemId()) {
 	    case R.id.edit_item:
 	    	EditVehicleFragment.editVehicle(getFragmentManager(), info.position );
 	    	return true;
 	    case R.id.find_item://Putting the UID of the select vehicle to the Google Map fragment argument
-		    String uid = myVehicleAdapter.getItem( info.position ).getObjectId();
-	    	Bundle bundle = new Bundle();
-	    	bundle.putString(DBGlobals.ARG_VEHICLE_ID, uid);
-	    	DialogFragmentMgr.showDialogFragment(getActivity(), new GoogleMapFindVehicleFragment(), "Map Dialog", true, bundle);
+	    	DialogFragmentMgr.showDialogFragment(getActivity(), new GoogleMapFindVehicleFragment(), getString(R.string.vehicle_map_title), true, bundle);
 	    	return true;
 	    case R.id.remove_item:
 	    	removeVehicle(info.position);

@@ -49,12 +49,12 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 
-public class GoogleMapFragment extends DialogFragment implements GooglePlayServicesClient.ConnectionCallbacks,GooglePlayServicesClient.OnConnectionFailedListener {
+public class GoogleMapStolenVehicleFragment extends DialogFragment implements GooglePlayServicesClient.ConnectionCallbacks,GooglePlayServicesClient.OnConnectionFailedListener {
 	private GoogleMap mGoogleMap;
 	private MapView mMapView;
 	private Bundle mBundle;
 	private TextView info;
-	private String UIDtoTrack = null;	//VBS UID to be tracked, null for all VBS
+	private String vehicleId = null,trackerId=null,vehicleMake=null,vehicleModel=null,vehicleYear=null;	//VBS UID to be tracked, null for all VBS
 	private Marker markerVehicle;
 	private Location myLocation;
     Document document;
@@ -64,7 +64,7 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
     LocationRequest mLocationRequest;
     
     public Fragment newInstance(Context context) {
-    	GoogleMapFragment f = new GoogleMapFragment();
+    	GoogleMapStolenVehicleFragment f = new GoogleMapStolenVehicleFragment();
     	return f;
     }
     
@@ -74,14 +74,18 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
     	mBundle = savedInstanceState;
     	
     	//Load  UID argument for tracking
-    	if (getArguments() != null && getArguments().containsKey(DBGlobals.ARG_VEHICLE_ID)) {
-        	UIDtoTrack = getArguments().getString(DBGlobals.ARG_VEHICLE_ID);
-
+    	if (getArguments() != null && getArguments().containsKey(ParseVehicle.ID)) {
+        	vehicleId = getArguments().getString(ParseVehicle.ID);
+        	trackerId = getArguments().getString(ParseVehicle.TRACKER_ID);
+        	vehicleMake = getArguments().getString(ParseVehicle.MAKE);
+        	vehicleModel = getArguments().getString(ParseVehicle.MODEL);
+        	vehicleYear = getArguments().getString(ParseVehicle.YEAR);
+        	
             mLocationClient = new LocationClient(getActivity(), this, this);
             mLocationClient.connect();
     	} else {
     		Toast.makeText(getActivity(), "No vehicle UID provided to track.", Toast.LENGTH_SHORT).show();
-    		UIDtoTrack = "";
+    		vehicleId = "";
     	}
     	
     	setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme_Light);
@@ -196,6 +200,7 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
     @Override
     public void onPause() {
     	super.onPause();
+    	asyncTask.cancel(true);
     	mMapView.onPause();
     	mLocationClient.disconnect();
     	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
@@ -203,6 +208,7 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
     
     @Override
     public void onDestroy() {
+    	asyncTask.cancel(true);
     	mLocationClient.disconnect();
     	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
     	mMapView.onDestroy();
@@ -214,15 +220,61 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
     final Runnable runQueryVBS = new Runnable() {
     	@Override
 		public void run() {
-			ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL);
-			query.whereEqualTo("objectId", UIDtoTrack);
-			query.findInBackground(queryVehicleCallback);
+			ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_LOCATION_TBL);
+			query.whereEqualTo(ParseVehicle.TRACKER_ID, trackerId);
+			query.setLimit(1);
+			query.addDescendingOrder(ParseVehicle.TIMESTAMP);
+			query.findInBackground(queryVehicleLocationHistoryTableCallback);
 		}
 	};
 	
+	//Callback when query gets result from Parse
+	private FindCallback<ParseObject> queryVehicleLocationHistoryTableCallback = new FindCallback<ParseObject>() {
+		@Override
+		public void done(List<ParseObject> objects, ParseException e) {
+			if (e== null)
+			{ // no error
+				if (objects.size() > 0)
+				{
+					ParseGeoPoint p =  objects.get(0).getParseGeoPoint("pos");
+					if (p == null) {
+						info.setVisibility(View.VISIBLE);
+						info.setText(R.string.vehicle_not_found);
+				    	
+						//If vehicle location is not found wait 15 secs and try again
+					} else 
+					{
+						info.setVisibility(View.INVISIBLE);							
+						info.setText("");
+						//Get my location and the Vehicles from parse
+						myLocation = mLocationClient.getLastLocation();
+				 		if (myLocation != null) {
+				 			LatLng myLocLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude() );
+				 			vehicleLocation = new LatLng(p.getLatitude(), p.getLongitude());
+				 			
+				 			//Compute the route
+				 	        asyncTask = new GetDirectionsAsyncTask();
+				 			asyncTask.setVehicleLocation(vehicleLocation);
+				 			asyncTask.setMyLocation(myLocLatLng);
+				 			asyncTask.execute();
+				 		}
+					}
+				}else{ //Can't find vehicle in location history table (ie: NO LOC Updates yet) so Grab Vehicles last parked Location
+					ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL);
+					query.whereEqualTo("objectId", vehicleId);
+					query.findInBackground(queryVehicleTableCallback);
+				}
+			}else{ //error occurred when query to Parse
+				Toast.makeText(getActivity(), R.string.query_exception, Toast.LENGTH_SHORT).show();
+				mHandler.postDelayed(runQueryVBS,  DBGlobals.STOLEN_VEHICLE_MAP_ERROR_REFRESH_RATE);  //Refresh rate = 15 seconds if error occurs
+			}
+		}
+	};
+	
+
 	LatLng vehicleLocation;
 	//Callback when query gets result from Parse
-	private FindCallback<ParseObject> queryVehicleCallback = new FindCallback<ParseObject>() {
+	private FindCallback<ParseObject> queryVehicleTableCallback = new FindCallback<ParseObject>() {
 		@Override
 		public void done(List<ParseObject> objects, ParseException e) {
 			if (e== null){ // no error
@@ -237,26 +289,25 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
 						info.setVisibility(View.INVISIBLE);							
 						info.setText("");
 						//Get my location and the Vehicles from parse
-						myLocation = mLocationClient.getLastLocation();
+						if(mLocationClient.isConnected())
+							myLocation = mLocationClient.getLastLocation();
 				 		if (myLocation != null) {
 				 			LatLng myLocLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude() );
 				 			vehicleLocation = new LatLng(p.getLatitude(), p.getLongitude());
-				 			ParseVehicle vehicle = new ParseVehicle();
-				 			vehicle.setMake(objects.get(0).getString("make"));
-				 			vehicle.setModel(objects.get(0).getString("model"));
-				 			vehicle.setYear(objects.get(0).getNumber("year"));
-				 			//Compute the route
-				 			GetDirectionsAsyncTask asyncTask = new GetDirectionsAsyncTask(vehicleLocation,myLocLatLng, vehicle);
+				 			
+				 	        asyncTask = new GetDirectionsAsyncTask();
+				 			asyncTask.setVehicleLocation(vehicleLocation);
+				 			asyncTask.setMyLocation(myLocLatLng);
 				 			asyncTask.execute();
 				 		}
 					}
 				}else{ //Can't find vehicle
 					Toast.makeText(getActivity(), R.string.vehicle_not_found, Toast.LENGTH_SHORT).show();
-					mHandler.postDelayed(runQueryVBS, 15000);  //Refresh rate = 15 seconds if error occurs
+					mHandler.postDelayed(runQueryVBS, DBGlobals.STOLEN_VEHICLE_MAP_ERROR_REFRESH_RATE);  //Refresh rate = 15 seconds if error occurs
 				}
 			}else{ //error occurred when query to Parse
 				Toast.makeText(getActivity(), R.string.query_exception, Toast.LENGTH_SHORT).show();
-				mHandler.postDelayed(runQueryVBS, 15000);  //Refresh rate = 15 seconds if error occurs
+				mHandler.postDelayed(runQueryVBS, DBGlobals.STOLEN_VEHICLE_MAP_ERROR_REFRESH_RATE);  //Refresh rate = 15 seconds if error occurs
 			}
 		}
 	};
@@ -293,13 +344,7 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
 		//Start parsecallback
   		mHandler.post(runQueryVBS);
   		myLocation = mLocationClient.getLastLocation();
-  		if (myLocation != null) {
-  			
-            mGoogleMap.moveCamera(
-                    CameraUpdateFactory.newLatLngZoom(
-                            new LatLng(myLocation.getLatitude(), myLocation.getLongitude()),
-                            15f));
-  		}
+		mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng (myLocation.getLatitude(),myLocation.getLongitude()) , 15f));
 	}
 
 	@Override
@@ -308,10 +353,9 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
     	mHandler.removeCallbacksAndMessages(null); //Cancel dynamic update of the map
 	}
 
-	private void handleGetDirectionsResult(ArrayList<LatLng> directionPoints, ParseVehicle vehicleInfo) {
+	private void handleGetDirectionsResult(ArrayList<LatLng> directionPoints) {
 		
 		PolylineOptions rectLine = new PolylineOptions().width(30).color(Color.BLUE);
-
 		for(int i = 0 ; i < directionPoints.size() ; i++) 
 		{          
 			rectLine.add(directionPoints.get(i));
@@ -337,26 +381,36 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
 
 			//Vehicles Location
 		markerVehicle.setPosition( vehicleLocation );
-		markerVehicle.setTitle(	vehicleInfo.getMake() + " " +
-				vehicleInfo.getModel() + " " +
-				vehicleInfo.getYear() + " "
-		);
+		markerVehicle.setTitle(vehicleMake + " " + vehicleModel+ " " +vehicleYear);
 		
 		//Setup next post
   		mHandler.postDelayed(runQueryVBS, DBGlobals.UPDATE_INTERVAL_STOLEN_VEHICLE);
 	}
 	
 	ProgressDialog progressDialog;
+	GetDirectionsAsyncTask asyncTask = null;
 	private class GetDirectionsAsyncTask extends AsyncTask<String, Void, ArrayList<LatLng>> {
         Exception exception=null;
         LatLng vehicle,myLocation;
-        ParseVehicle vehicleInfo;
         
         
-        public GetDirectionsAsyncTask(LatLng vehicle,LatLng myLocation,ParseVehicle vehicleInfo){
-        	this.vehicle=vehicle;
-        	this.myLocation=myLocation;
-        	this.vehicleInfo = vehicleInfo;
+        public LatLng getVehicleLocation() {
+			return vehicle;
+		}
+
+		public void setVehicleLocation(LatLng vehicle) {
+			this.vehicle = vehicle;
+		}
+
+		public LatLng getMyLocation() {
+			return myLocation;
+		}
+
+		public void setMyLocation(LatLng myLocation) {
+			this.myLocation = myLocation;
+		}
+
+		public GetDirectionsAsyncTask(){
         }
         
         @Override
@@ -389,7 +443,7 @@ public class GoogleMapFragment extends DialogFragment implements GooglePlayServi
   			if(exception == null){        	
   				info.setVisibility(View.INVISIBLE);
   				info.setText("");
-  				handleGetDirectionsResult(result,vehicleInfo);
+  				handleGetDirectionsResult(result);
   				
   			}else{
   	        	info.setVisibility(View.VISIBLE);

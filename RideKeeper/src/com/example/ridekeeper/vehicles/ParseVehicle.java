@@ -41,6 +41,12 @@ public class ParseVehicle extends ParseObject {
 	
 	private static final String PHOTOFILE_PREFIX = "vehicle_photo_",
 								PHOTOFILE_SUFFIX = ".png";
+
+	public static final String ID = "objectId";
+
+	public static final String TRACKER_ID = "trackerId";
+
+	public static final String TIMESTAMP = "timestamp";
 	private Context myContext;
 	private byte[] photoData;
 	

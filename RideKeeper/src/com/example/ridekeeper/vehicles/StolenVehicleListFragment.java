@@ -3,17 +3,11 @@ package com.example.ridekeeper.vehicles;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
-import android.app.ProgressDialog;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -23,20 +17,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.DialogFragmentMgr;
-import com.example.ridekeeper.GoogleMapFragment;
+import com.example.ridekeeper.GoogleMapStolenVehicleFragment;
 import com.example.ridekeeper.OwnerInfoFragment;
 import com.example.ridekeeper.ParseFunctions;
 import com.example.ridekeeper.R;
-import com.example.ridekeeper.R.id;
-import com.example.ridekeeper.R.layout;
-import com.example.ridekeeper.R.menu;
 import com.example.ridekeeper.qb.MyQBUser;
 import com.example.ridekeeper.qb.chat.ChatFragment;
 import com.example.ridekeeper.qb.chat.RoomChat;
@@ -102,10 +91,10 @@ public class StolenVehicleListFragment extends ListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		
-	    stolenVehicleArrayAdapter = new ParseVehicleArrayAdapter(
-	    		getActivity(), 
-	    		new ArrayList<ParseVehicle>(),
-	    		DBGlobals.TAB_IDX_STOLEN_VEHICLES);		
+		sMainActivity = getActivity();
+		
+	    stolenVehicleArrayAdapter = new ParseVehicleArrayAdapter(sMainActivity, new ArrayList<ParseVehicle>(),DBGlobals.TAB_IDX_STOLEN_VEHICLES);		
+
 		setListAdapter(stolenVehicleArrayAdapter);
 		
 		registerForContextMenu(getListView());
@@ -146,60 +135,47 @@ public class StolenVehicleListFragment extends ListFragment {
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-	    String vehicleId = stolenVehicleArrayAdapter.getItem( info.position ).getObjectId();
+        ParseVehicle vehicle = stolenVehicleArrayAdapter.getItem(info.position);
+        
+	    String vehicleId = vehicle.getObjectId(),
+	    	   trackerId = vehicle.getTrackerId(),
+	    	   vehicleMake = vehicle.getMake(),
+	    	   vehicleModel = vehicle.getModel(),
+	    	   vehicleYear = vehicle.getYear().toString();
+	    		
+	    Toast.makeText(getActivity(), "vehicleId: " + vehicleId + " Tracker Id: "+trackerId, Toast.LENGTH_SHORT).show();
 
-	    Toast.makeText(getActivity(), "vehicleId: " + vehicleId, Toast.LENGTH_SHORT).show();
-
-	    Bundle bundle = new Bundle();
-
+	    final Bundle bundle = new Bundle();
+        bundle.putString(ParseVehicle.ID, vehicleId);
+        bundle.putString(ParseVehicle.MAKE, vehicleMake);
+        bundle.putString(ParseVehicle.MODEL, vehicleModel);
+        bundle.putString(ParseVehicle.YEAR, vehicleYear);
+        bundle.putString(ParseVehicle.TRACKER_ID, trackerId);
+        
 	    switch (item.getItemId()) {
 	    case R.id.menuItem_owner_info:
 	    	// Displaying the owner's profile for the stolen vehicle
-            bundle.putString(DBGlobals.ARG_VEHICLE_ID, vehicleId);
-
-	    	DialogFragmentMgr.showDialogFragment(
-	    			getActivity(), 
-	    			new OwnerInfoFragment(), 
-	    			"Owner Information", 
-	    			true, 
-	    			bundle);
-
+	    	DialogFragmentMgr.showDialogFragment(getActivity(),  new OwnerInfoFragment(),getString(R.string.owner_information_title),true, bundle);
 	    	return true;
 
 	    case R.id.menuItem_show_on_map:
-	    	// Putting the UID of the select vehicle to the Google Map fragment argument
-            bundle.putString(DBGlobals.ARG_VEHICLE_ID, vehicleId);
-
-	    	DialogFragmentMgr.showDialogFragment(
-	    			getActivity(), 
-	    			new GoogleMapFragment(), 
-	    			"Map Dialog", 
-	    			true, 
-	    			bundle);
-
+	    	DialogFragmentMgr.showDialogFragment(getActivity(), new GoogleMapStolenVehicleFragment(), getString(R.string.vehicle_map_title), true, bundle);
 	    	return true;
 	    	
 	    case R.id.menuItem_chat_room:
-
-            ParseVehicle vehicle = stolenVehicleArrayAdapter.getItem(info.position);
-
-	    	String roomTitle = 	"Room: " +
-	    					vehicle.getMake() + " " + 
-	    					vehicle.getModel() + " " +
-	    					vehicle.getYear().toString();
+	    	String roomTitle = 	"Room: " + vehicleMake + " " +  vehicleModel + " " + vehicleYear;
 
 	    	final String chatRoomName = vehicle.getChatRoomName();
 	    	// Create bundle of metadata to pass to ChatFragment
-            final Bundle chatBundle = createChatBundle(
-            		vehicle.getObjectId(), 
-            		roomTitle, 
-            		chatRoomName,
-            		false);
+	        bundle.putSerializable(ChatFragment.EXTRA_MODE, ChatFragment.Mode.GROUP);
+	        bundle.putString(ChatFragment.ARG_TITLE, roomTitle);
+	        bundle.putString(ChatFragment.ARG_ROOM_NAME, chatRoomName); 
+	        bundle.putSerializable(ChatFragment.ARG_ROOM_ACTION, RoomChat.RoomAction.JOIN);
 
             Log.d(TAG, "Chat room name: " + chatRoomName);
 
             if (sRoomsReceiver.isRoomsRetrieved()) {
-            	startChatFragment(chatBundle, chatRoomName);
+            	startChatFragment(bundle, chatRoomName);
             } else {
             	sRoomsReceiver.showProgressDialog();
             	final Handler chatHandler = new Handler();
@@ -208,7 +184,7 @@ public class StolenVehicleListFragment extends ListFragment {
             		@Override
             		public void run() {
             			if (sRoomsReceiver.isRoomsRetrieved()) {
-                            startChatFragment(chatBundle, chatRoomName);
+                            startChatFragment(bundle, chatRoomName);
             			} else if (sRoomsReceiver.progressDialogCanceled()){
             				// do nothing
             			} else {
@@ -247,28 +223,6 @@ public class StolenVehicleListFragment extends ListFragment {
         //ft.replace(R.id.content_frame, chatFragment).commit();
 	}
 
-    private Bundle createChatBundle(
-    		String vehicleId, 
-    		String title,
-    		String roomName, 
-    		boolean createChat) {
-
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(ChatFragment.EXTRA_MODE, ChatFragment.Mode.GROUP);
-
-        bundle.putString(DBGlobals.ARG_VEHICLE_ID, vehicleId);
-        bundle.putString(ChatFragment.ARG_TITLE, title);
-
-        bundle.putString(ChatFragment.ARG_ROOM_NAME, roomName);
-
-        if (createChat) {
-            bundle.putSerializable(ChatFragment.ARG_ROOM_ACTION, RoomChat.RoomAction.CREATE);
-        } else {
-            bundle.putSerializable(ChatFragment.ARG_ROOM_ACTION, RoomChat.RoomAction.JOIN);
-        }
-        return bundle;
-    }
-	
 	//Should be called only when ParseUser.getCurrentUser() is authenticated
 	public static void refreshList() {
         Log.d(TAG, "refreshList() refreshing stolen vehicles list");
