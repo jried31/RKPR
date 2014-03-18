@@ -1,11 +1,11 @@
 package com.example.ridekeeper.vehicles;
 
+import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +14,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.ridekeeper.R;
-import com.example.ridekeeper.R.id;
-import com.example.ridekeeper.R.layout;
 import com.example.ridekeeper.util.ImageConsumer;
 import com.example.ridekeeper.util.ImageFragment;
 import com.parse.ParseException;

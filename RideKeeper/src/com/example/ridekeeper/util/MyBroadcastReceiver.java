@@ -1,8 +1,5 @@
 package com.example.ridekeeper.util;
 
-import com.example.ridekeeper.DBGlobals;
-import com.example.ridekeeper.ParseFunctions;
-
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -10,6 +7,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
+
+import com.example.ridekeeper.DBGlobals;
+import com.example.ridekeeper.ParseFunctions;
 
 
 public class MyBroadcastReceiver extends BroadcastReceiver{

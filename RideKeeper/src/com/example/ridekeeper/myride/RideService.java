@@ -1,16 +1,16 @@
 package com.example.ridekeeper.myride;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.location.Location;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.NotificationMgr;
@@ -20,9 +20,6 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.model.LatLng;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RideService extends Service implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
     private final IBinder mBinder = new RideBinder();

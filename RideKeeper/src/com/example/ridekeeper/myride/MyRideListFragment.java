@@ -1,9 +1,15 @@
 package com.example.ridekeeper.myride;
 
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +19,7 @@ import android.widget.Toast;
 
 import com.example.ridekeeper.DialogFragmentMgr;
 import com.example.ridekeeper.R;
-import com.example.ridekeeper.R.id;
-import com.example.ridekeeper.R.layout;
 import com.google.android.gms.maps.model.LatLng;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MyRideListFragment extends ListFragment {
     List<Ride> rides;

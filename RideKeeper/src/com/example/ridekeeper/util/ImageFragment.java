@@ -7,14 +7,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.example.ridekeeper.DBGlobals;
-import com.example.ridekeeper.R;
-import com.example.ridekeeper.qb.chat.ChatFragment;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,7 +21,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.text.format.DateFormat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -35,6 +30,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import com.example.ridekeeper.DBGlobals;
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.qb.chat.ChatFragment;
 
 /**
  * Fragment class that handles image selection logic from camera

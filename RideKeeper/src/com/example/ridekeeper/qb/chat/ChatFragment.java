@@ -12,12 +12,10 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.util.StringUtils;
 
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -36,10 +34,10 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.MainActivity;
 import com.example.ridekeeper.R;
 import com.example.ridekeeper.qb.MyQBUser;
-import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.qb.chat.RoomChat.NullChatRoomException;
 import com.example.ridekeeper.util.ImageConsumer;
 import com.example.ridekeeper.util.ImageFragment;

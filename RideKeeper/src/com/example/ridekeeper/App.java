@@ -1,20 +1,12 @@
 package com.example.ridekeeper;
 
 import android.app.Application;
-import android.widget.Toast;
 
-import com.example.ridekeeper.qb.MyQBUser;
 import com.example.ridekeeper.vehicles.ParseVehicle;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.PushService;
-import com.quickblox.core.QBCallback;
-import com.quickblox.core.QBSettings;
-import com.quickblox.core.result.Result;
-import com.quickblox.module.auth.QBAuth;
-import com.quickblox.module.chat.QBChatRoom;
-import com.quickblox.module.users.model.QBUser;
 
 public class App extends Application{
 	public static boolean isMainActivityRunning = false;

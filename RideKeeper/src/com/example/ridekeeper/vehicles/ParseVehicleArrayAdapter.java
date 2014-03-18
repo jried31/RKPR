@@ -3,7 +3,6 @@ package com.example.ridekeeper.vehicles;
 
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -19,8 +18,6 @@ import com.example.ridekeeper.DialogFragmentMgr;
 import com.example.ridekeeper.GoogleMapFindVehicleFragment;
 import com.example.ridekeeper.GoogleMapStolenVehicleFragment;
 import com.example.ridekeeper.R;
-import com.example.ridekeeper.R.id;
-import com.example.ridekeeper.R.layout;
 import com.parse.ParseImageView;
 
 public class ParseVehicleArrayAdapter extends ArrayAdapter<ParseVehicle> {

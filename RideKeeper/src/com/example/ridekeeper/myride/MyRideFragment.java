@@ -1,9 +1,17 @@
 package com.example.ridekeeper.myride;
 
+import java.io.FileOutputStream;
+import java.text.DecimalFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +21,7 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Display;
@@ -25,8 +34,6 @@ import android.widget.Toast;
 
 import com.example.ridekeeper.ParseFunctions;
 import com.example.ridekeeper.R;
-import com.example.ridekeeper.R.id;
-import com.example.ridekeeper.R.layout;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -39,17 +46,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.FileOutputStream;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @SuppressLint("ValidFragment")
 public class MyRideFragment extends DialogFragment {

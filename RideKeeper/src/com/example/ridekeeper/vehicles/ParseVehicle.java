@@ -2,19 +2,14 @@ package com.example.ridekeeper.vehicles;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import com.example.ridekeeper.DBGlobals;
 import com.example.ridekeeper.R;
-import com.example.ridekeeper.R.drawable;
 import com.example.ridekeeper.util.ImageFragment;
 import com.parse.GetDataCallback;
 import com.parse.ParseClassName;

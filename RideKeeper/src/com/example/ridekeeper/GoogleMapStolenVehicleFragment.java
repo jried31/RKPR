@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.IntentSender;
@@ -17,6 +15,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;

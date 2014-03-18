@@ -1,23 +1,12 @@
 package com.example.ridekeeper.vehicles;
 
-import com.example.ridekeeper.DBGlobals;
-import com.example.ridekeeper.MainActivity;
-import com.example.ridekeeper.R;
-import com.example.ridekeeper.DBGlobals.SelectedFrag;
-import com.example.ridekeeper.R.array;
-import com.example.ridekeeper.R.id;
-import com.example.ridekeeper.R.layout;
-import com.example.ridekeeper.myride.MyRideListFragment;
-
-import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -25,6 +14,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.ridekeeper.DBGlobals;
+import com.example.ridekeeper.DBGlobals.SelectedFrag;
+import com.example.ridekeeper.MainActivity;
+import com.example.ridekeeper.R;
+import com.example.ridekeeper.myride.MyRideListFragment;
 
 /**
  * Source: https://gist.github.com/chrisjenx/3405429
