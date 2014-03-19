@@ -46,21 +46,24 @@ public class RoomsReceiver implements RoomReceivingListener {
 
 	public void showProgressDialog() {
     	mProgressDialogCanceled = false;
-		mProgressDialog = ProgressDialog.show(
-				mMainActivity, 
-				null, 
-				"Loading chatrooms", 
-				true,
-				true,
-				new DialogInterface.OnCancelListener() {
-					
-					@Override
-					public void onCancel(DialogInterface dialog) {
-						mProgressDialogCanceled = true;
-						
-					}
-				});
-		mProgressDialog.setCanceledOnTouchOutside(false);
+    	if (mProgressDialog == null) {
+            mProgressDialog = ProgressDialog.show(
+                    mMainActivity, 
+                    null, 
+                    "Loading chatrooms", 
+                    true,
+                    true,
+                    new DialogInterface.OnCancelListener() {
+                        
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            mProgressDialogCanceled = true;
+                            
+                        }
+                    }
+            );
+            mProgressDialog.setCanceledOnTouchOutside(false);
+    	}
 	}
 
 	public boolean progressDialogCanceled() {
@@ -69,10 +72,9 @@ public class RoomsReceiver implements RoomReceivingListener {
 
     @Override
     public void onReceiveRooms(List<QBChatRoom> chatRooms) {
-    	mRoomsReceived = true;
-
         if (mProgressDialog != null) {
             mProgressDialog.dismiss();
+            mProgressDialog = null;
         }
 
     	for (QBChatRoom chatRoom : chatRooms) {
@@ -89,6 +91,7 @@ public class RoomsReceiver implements RoomReceivingListener {
                 }
     		}
     	}
+    	mRoomsReceived = true;
     }
 
     public void loadRooms(Map<String, String> vehiclesToRoomMap) {
