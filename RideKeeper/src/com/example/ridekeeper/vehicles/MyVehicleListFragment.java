@@ -31,6 +31,7 @@ import com.parse.ParseUser;
 public class MyVehicleListFragment extends ListFragment {
 	public static ParseVehicleArrayAdapter myVehicleAdapter;
 	private static Context myContext;
+	private boolean mIsCurrentView;
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -68,36 +69,44 @@ public class MyVehicleListFragment extends ListFragment {
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        ParseVehicle vehicle = myVehicleAdapter.getItem(info.position);
-        
-	    String vehicleId = vehicle.getObjectId(),
-	    	   trackerId = vehicle.getTrackerId(),
-	    	   vehicleMake = vehicle.getMake(),
-	    	   vehicleModel = vehicle.getModel(),
-	    	   vehicleYear = vehicle.getYear().toString();
+		
+		// Bug with FragmentManager
+		// See: http://stackoverflow.com/questions/9753213/wrong-fragment-in-viewpager-receives-oncontextitemselected-call
+		if (getUserVisibleHint()) {
+            AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+            ParseVehicle vehicle = myVehicleAdapter.getItem(info.position);
+            
+            String vehicleId = vehicle.getObjectId(),
+                trackerId = vehicle.getTrackerId(),
+                vehicleMake = vehicle.getMake(),
+                vehicleModel = vehicle.getModel(),
+                vehicleYear = vehicle.getYear().toString();
 
-    	Bundle bundle = new Bundle();
-        bundle.putString(ParseVehicle.ID, vehicleId);
-        bundle.putString(ParseVehicle.MAKE, vehicleMake);
-        bundle.putString(ParseVehicle.MODEL, vehicleModel);
-        bundle.putString(ParseVehicle.YEAR, vehicleYear);
-        bundle.putString(ParseVehicle.TRACKER_ID, trackerId);
-	 
-	    switch (item.getItemId()) {
-	    case R.id.edit_item:
-	    	EditVehicleFragment.editVehicle(getFragmentManager(), info.position );
-	    	return true;
-	    case R.id.find_item://Putting the UID of the select vehicle to the Google Map fragment argument
-	    	DialogFragmentMgr.showDialogFragment(getActivity(), new GoogleMapFindVehicleFragment(), getString(R.string.vehicle_map_title), true, bundle);
-	    	return true;
-	    case R.id.remove_item:
-	    	removeVehicle(info.position);
-	        return true;
-	    case R.id.recovered_item:
-	    	recoverVehicle(info.position);
-	    }
-	    return false;
+            Bundle bundle = new Bundle();
+            bundle.putString(ParseVehicle.ID, vehicleId);
+            bundle.putString(ParseVehicle.MAKE, vehicleMake);
+            bundle.putString(ParseVehicle.MODEL, vehicleModel);
+            bundle.putString(ParseVehicle.YEAR, vehicleYear);
+            bundle.putString(ParseVehicle.TRACKER_ID, trackerId);
+        
+            switch (item.getItemId()) {
+            case R.id.edit_item:
+                EditVehicleFragment.editVehicle(getFragmentManager(), info.position );
+                return true;
+            case R.id.find_item://Putting the UID of the select vehicle to the Google Map fragment argument
+                DialogFragmentMgr.showDialogFragment(getActivity(), new GoogleMapFindVehicleFragment(), getString(R.string.vehicle_map_title), true, bundle);
+                return true;
+            case R.id.remove_item:
+                removeVehicle(info.position);
+                return true;
+            case R.id.recovered_item:
+                recoverVehicle(info.position);
+                break;
+            }
+            return false;
+		}
+		
+		return false;
 	}
 	
 	//Should be called only when ParseUser.getCurrentUser() is authenticated

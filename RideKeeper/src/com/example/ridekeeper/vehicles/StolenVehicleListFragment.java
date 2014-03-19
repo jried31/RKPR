@@ -134,72 +134,78 @@ public class StolenVehicleListFragment extends ListFragment {
 	
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        ParseVehicle vehicle = stolenVehicleArrayAdapter.getItem(info.position);
-        
-	    String vehicleId = vehicle.getObjectId(),
-	    	   trackerId = vehicle.getTrackerId(),
-	    	   vehicleMake = vehicle.getMake(),
-	    	   vehicleModel = vehicle.getModel(),
-	    	   vehicleYear = vehicle.getYear().toString();
-	    		
-	    Toast.makeText(getActivity(), "vehicleId: " + vehicleId + " Tracker Id: "+trackerId, Toast.LENGTH_SHORT).show();
+        // Bug with FragmentManager and ViewPager
+        // http://stackoverflow.com/questions/9753213/wrong-fragment-in-viewpager-receives-oncontextitemselected-call
+		if (getUserVisibleHint()) {
+            AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+            ParseVehicle vehicle = stolenVehicleArrayAdapter.getItem(info.position);
+            
+            String vehicleId = vehicle.getObjectId(),
+                trackerId = vehicle.getTrackerId(),
+                vehicleMake = vehicle.getMake(),
+                vehicleModel = vehicle.getModel(),
+                vehicleYear = vehicle.getYear().toString();
+                    
+            Toast.makeText(getActivity(), "vehicleId: " + vehicleId + " Tracker Id: "+trackerId, Toast.LENGTH_SHORT).show();
 
-	    final Bundle bundle = new Bundle();
-        bundle.putString(ParseVehicle.ID, vehicleId);
-        bundle.putString(ParseVehicle.MAKE, vehicleMake);
-        bundle.putString(ParseVehicle.MODEL, vehicleModel);
-        bundle.putString(ParseVehicle.YEAR, vehicleYear);
-        bundle.putString(ParseVehicle.TRACKER_ID, trackerId);
-        
-	    switch (item.getItemId()) {
-	    case R.id.menuItem_owner_info:
-	    	// Displaying the owner's profile for the stolen vehicle
-	    	DialogFragmentMgr.showDialogFragment(getActivity(),  new OwnerInfoFragment(),getString(R.string.owner_information_title),true, bundle);
-	    	return true;
+            final Bundle bundle = new Bundle();
+            bundle.putString(ParseVehicle.ID, vehicleId);
+            bundle.putString(ParseVehicle.MAKE, vehicleMake);
+            bundle.putString(ParseVehicle.MODEL, vehicleModel);
+            bundle.putString(ParseVehicle.YEAR, vehicleYear);
+            bundle.putString(ParseVehicle.TRACKER_ID, trackerId);
+            
+            switch (item.getItemId()) {
+            case R.id.menuItem_owner_info:
+                // Displaying the owner's profile for the stolen vehicle
+                DialogFragmentMgr.showDialogFragment(getActivity(),  new OwnerInfoFragment(),getString(R.string.owner_information_title),true, bundle);
+                return true;
 
-	    case R.id.menuItem_show_on_map:
-	    	DialogFragmentMgr.showDialogFragment(getActivity(), new GoogleMapStolenVehicleFragment(), getString(R.string.vehicle_map_title), true, bundle);
-	    	return true;
-	    	
-	    case R.id.menuItem_chat_room:
-	    	String roomTitle = 	"Room: " + vehicleMake + " " +  vehicleModel + " " + vehicleYear;
+            case R.id.menuItem_show_on_map:
+                DialogFragmentMgr.showDialogFragment(getActivity(), new GoogleMapStolenVehicleFragment(), getString(R.string.vehicle_map_title), true, bundle);
+                return true;
+                
+            case R.id.menuItem_chat_room:
+                String roomTitle = 	"Room: " + vehicleMake + " " +  vehicleModel + " " + vehicleYear;
 
-	    	final String chatRoomName = vehicle.getChatRoomName();
-	    	// Create bundle of metadata to pass to ChatFragment
-	        bundle.putSerializable(ChatFragment.EXTRA_MODE, ChatFragment.Mode.GROUP);
-	        bundle.putString(ChatFragment.ARG_TITLE, roomTitle);
-	        bundle.putString(ChatFragment.ARG_ROOM_NAME, chatRoomName); 
-	        bundle.putSerializable(ChatFragment.ARG_ROOM_ACTION, RoomChat.RoomAction.JOIN);
+                final String chatRoomName = vehicle.getChatRoomName();
+                // Create bundle of metadata to pass to ChatFragment
+                bundle.putSerializable(ChatFragment.EXTRA_MODE, ChatFragment.Mode.GROUP);
+                bundle.putString(ChatFragment.ARG_TITLE, roomTitle);
+                bundle.putString(ChatFragment.ARG_ROOM_NAME, chatRoomName); 
+                bundle.putSerializable(ChatFragment.ARG_ROOM_ACTION, RoomChat.RoomAction.JOIN);
 
-            Log.d(TAG, "Chat room name: " + chatRoomName);
+                Log.d(TAG, "Chat room name: " + chatRoomName);
 
-            if (sRoomsReceiver.isRoomsRetrieved()) {
-            	startChatFragment(bundle, chatRoomName);
-            } else {
-            	sRoomsReceiver.showProgressDialog();
-            	final Handler chatHandler = new Handler();
+                if (sRoomsReceiver.isRoomsRetrieved()) {
+                    startChatFragment(bundle, chatRoomName);
+                } else {
+                    sRoomsReceiver.showProgressDialog();
+                    final Handler chatHandler = new Handler();
 
-            	Runnable chatRunnable = new Runnable() {
-            		@Override
-            		public void run() {
-            			if (sRoomsReceiver.isRoomsRetrieved()) {
-                            startChatFragment(bundle, chatRoomName);
-            			} else if (sRoomsReceiver.progressDialogCanceled()){
-            				// do nothing
-            			} else {
-            				// Continue trying to load QB chatrooms
-            				sRoomsReceiver.loadRooms(null);
-            				chatHandler.postDelayed(this, DBGlobals.LOAD_CHATROOM_DELAY);
-            			}
-            		}
-            	};
-            	
-            	chatHandler.postDelayed(chatRunnable, DBGlobals.LOAD_CHATROOM_DELAY);
+                    Runnable chatRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (sRoomsReceiver.isRoomsRetrieved()) {
+                                startChatFragment(bundle, chatRoomName);
+                            } else if (sRoomsReceiver.progressDialogCanceled()){
+                                // do nothing
+                            } else {
+                                // Continue trying to load QB chatrooms
+                                sRoomsReceiver.loadRooms(null);
+                                chatHandler.postDelayed(this, DBGlobals.LOAD_CHATROOM_DELAY);
+                            }
+                        }
+                    };
+                    
+                    chatHandler.postDelayed(chatRunnable, DBGlobals.LOAD_CHATROOM_DELAY);
+                }
+                return true;
             }
-	        return true;
-	    }
-	    return false;
+            return false;
+		} 
+		
+		return false;
 	}
 	
 	private void startChatFragment(Bundle bundle, String chatRoomName) {
