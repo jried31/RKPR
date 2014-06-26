@@ -16,6 +16,7 @@ under CC-SA v3 license.
 #define USEMOTION			1  //set to zero to free up code space if option is not needed
 #define USESECURITY			1  //set to zero to free up code space if option is not needed
 #define USETRACKING                     1
+#define USEPOWERSWITCH		        0
 #define USECALL                         1  //set to zero to disable sms commands
 #define USEUDP                          0
 
@@ -29,12 +30,14 @@ geoFence fence;
 
 volatile uint8_t call;
 volatile uint8_t move;
-volatile boolean stolen=0;
 volatile uint8_t battery = 0;
-//volatile uint8_t charge = 0x02; // force a read of the charger cable
-volatile uint8_t charge = 0x00; //assume its not charging
+volatile uint8_t charge = 0x02; // force a read of the charger cable
 volatile uint8_t d4Switch = 0x00;
 volatile uint8_t d10Switch = 0x00;
+
+#if USEPOWERSWITCH
+volatile uint8_t d11PowerSwitch;
+#endif
 
 uint8_t cmd0 = 0;
 uint8_t cmd1 = 0;
@@ -68,8 +71,8 @@ bool gsmPowerStatus = true;
 void goesWhere(char *, uint8_t replyOrStored = 0);
 bool engMetric;
 
-unsigned long armWindow = 60000; // Arms in 60 sec after engine turnoff - You need to hop off the bike within this window
-unsigned long disarmWindow = 20000; // Disarms after getting on bike and turning on engine within 20 sec, otherwise it will start alerting
+unsigned long armWindow = 10000; // Arms in 10 sec after engine turnoff - You need to hop off the bike within this window
+unsigned long disarmWindow = 10000; // Disarms after getting on bike and turning on engine within 10 sec, otherwise it will start alerting
 unsigned long disarmTimer;
 unsigned long armTimer;
 boolean moveFlag = false;
@@ -79,7 +82,7 @@ int moveCount = 0;
 
 void setup()
 {
-        Serial.begin(115200);
+        Serial.begin(9600);
         Serial.println("Starting...");
 	ggo.init();
 	gps.init(115200);
@@ -95,14 +98,15 @@ void setup()
 	if(call == 0xFF)
 		call = 0;
 	battery = MAX17043getAlertFlag();
+	#if USEFENCE1
+	ggo.getFenceActive(1, &fence1);
+	#endif
 	#if USESPEED
 	ggo.configureSpeed(&cmd3, &speedHyst, &speedLimit);
 	#endif
-
         #if USESECURITY
         Serial.println("Starting HTTP...");
         setupHTTP();
-        Serial.println("HTTP Started.");
         #endif // USESECURITY
 
 	ggo.configureBreachParameters(&breachSpeed, &breachReps);
@@ -118,7 +122,11 @@ void setup()
 		PCintPort::attachInterrupt(10, &d10Interrupt, RISING);
 	if(swInt == 0x06)
 		PCintPort::attachInterrupt(10, &d10Interrupt, FALLING);
-        Serial.println("Setup Finished.");
+	#if USEPOWERSWITCH
+	pinMode(11,INPUT);
+	digitalWrite(11,HIGH);
+	PCintPort::attachInterrupt(11, &d11Interrupt, FALLING);
+	#endif
 }
 
 void loop()
@@ -130,7 +138,6 @@ void loop()
 		gps.updateRegionalSettings(tZ, eM, &lastValid);
 	}
         #if USECALL
-        call = sim900.checkForMessages();
 	if(call)
 	{
 		sim900.gsmSleepMode(0);
@@ -138,7 +145,6 @@ void loop()
 		EEPROM_readAnything(PINCODE,pwd);
 		if(sim900.signalQuality())
 		{
-                        Serial.println(sim900.signalQuality());
 			if(!sim900.getGeo(&smsData, pwd))
 			{
 				if(!smsData.smsPending)
@@ -147,18 +153,24 @@ void loop()
 				{
 					if(!smsData.smsCmdNum)
 						cmd0 = 0x01;
-					else if(smsData.smsCmdNum == 1){
-                                                Serial.println("C1CommandRecieved");
-						cmd1 = 0x01;}
-                                        else if(smsData.smsCmdNum == 9){
-                                            Serial.println("TrackCommandRecieved");
-					    httpPost(2);
-                                            //trackFlag = 1;
-                                        }
-                                        else if(smsData.smsCmdNum == 10){
-					    trackFlag = 0;
-                                            disarm();
-                                        }
+					else if(smsData.smsCmdNum == 1)
+						cmd1 = 0x01;
+					else if(smsData.smsCmdNum == 2)
+						command2();
+					else if(smsData.smsCmdNum == 3)
+						cmd3 = 0x01;
+					else if(smsData.smsCmdNum == 4)
+						command4();
+					else if(smsData.smsCmdNum == 5)
+						command5();
+					else if(smsData.smsCmdNum == 6)
+						command6();
+					else if(smsData.smsCmdNum == 7)
+						command7();
+					else if(smsData.smsCmdNum == 8)
+						command8();
+                                        else if(smsData.smsCmdNum == 9)
+						trackFlag = !trackFlag;
 					else if(smsData.smsCmdNum == 255)
 					{
 						sim900.gsmSleepMode(0);
@@ -175,6 +187,32 @@ void loop()
         #endif
 	if(cmd0)
 		command0();
+	#if USEMOTION
+	if(cmd1)
+		command1();
+	#endif
+	#if USESPEED
+	if(cmd3)
+		command3();
+	#endif
+
+        #if USEUDP
+	if(udp)
+	{
+		if(lastValid.signalLock && (lastValid.updated & 0x01))
+		{
+			if((udpInterval > 5))
+				sim900.gsmSleepMode(0);
+			if(!udpOrange())
+			{
+				udp = 0;
+				lastValid.updated &= ~(0x01);
+				if(udpInterval > 5)
+					sim900.gsmSleepMode(2);
+			}
+		}
+	}
+        #endif
         
 	#if USESECURITY
         // Bike Off - Armed
@@ -184,18 +222,15 @@ void loop()
             armFlag = true;
             httpPost(0);
           }
-          if(stolen==1)
-              {delay(5000);Serial.println("Stolen");httpPost(3);}
-          if(move && stolen==0){ 
+          if(move){ 
               if((millis() - armTimer) > armWindow ){
                  if(!moveFlag){
                    disarmTimer = millis();
                    moveFlag = true;
                  }
                  if(millis() - disarmTimer > disarmWindow){
-                   if(fence1){
-                     httpPost(2); stolen=1;
-                   }
+                   if(fence1)
+                     httpPost(2);
                     else
                       httpPost(1);
                  }
@@ -215,74 +250,113 @@ void loop()
         
         #endif // USESECURITY
         
-
+        #if USETRACKING
+        if(trackFlag){
+          if(charge == 1){
+            if(fence1)
+              httpPost(2);
+            else
+              httpPost(1);
+          }
+        }
+        #endif // USETRACKING
+        
+	if(battery)
+	{
+		sim900.gsmSleepMode(0);
+		goesWhere(smsData.smsNumber);
+		if(!sim900.prepareSMS(smsData.smsNumber))
+		{
+			printEEPROM(BATTERYMSG);
+			if(!sim900.sendSMS())
+			{
+				battery = 0;
+				MAX17043clearAlertFlag();
+			}
+		}
+		sim900.gsmSleepMode(2);
+	}
 	if(charge & 0x02)
 		chargerStatus();
-
 	engMetric = EEPROM.read(ENGMETRIC);
-
 	#if USEFENCE1
-        if(fence1 == 0 && !gps.getCoordinates(&lastValid)){
-          setGeofence();
-	  ggo.getFenceActive(1, &fence1);
-        }
-        
-	if((fence1 == 1))
+	if(fence1)
 	{
-		ggo.configureFence(1,&fence); 
-		if(!gps.geoFenceDistance(&lastValid, &fence, engMetric))
+		if((fence1 == 1) && (lastValid.speed >= breachSpeed))
 		{
-			if(lastValid.updated & 0x02)
-				breach1Conf++;
-			if(breach1Conf > breachReps)
+			ggo.configureFence(1,&fence); 
+			if(!gps.geoFenceDistance(&lastValid, &fence, engMetric))
 			{
-				fence1 = 2;
-				breach1Conf = 0;
+				if(lastValid.updated & 0x02)
+					breach1Conf++;
+				if(breach1Conf > breachReps)
+				{
+					fence1 = 2;
+					breach1Conf = 0;
+				}
+				lastValid.updated &= ~(0x02); 
 			}
-			lastValid.updated &= ~(0x02); 
+			else
+				breach1Conf = 0;
 		}
 		else
 			breach1Conf = 0;
+		if(fence1 == 2)
+		{
+			sim900.gsmSleepMode(0);
+			goesWhere(smsData.smsNumber);
+			if(!sim900.prepareSMS(smsData.smsNumber))
+			{
+				printEEPROM(FENCE1MSG);
+				if(!sim900.sendSMS())
+					fence1 = 0x00;
+			}
+			sim900.gsmSleepMode(2);
+		}
 	}
-	else
-		breach1Conf = 0;
-
-	
 	#endif
-/*
+
 	if(smsInterval)
 		smsTimerMenu();
 	if(udpInterval)
 		udpTimerMenu();
 	if(sleepTimeOn && sleepTimeOff)
 		sleepTimer();
+
+/*
+	if(d4Switch)
+	{
+		sim900.gsmSleepMode(0);
+		goesWhere(smsData.smsNumber);
+		if(!sim900.prepareSMS(smsData.smsNumber))
+		{
+			printEEPROM(D4MSG);
+			if(!sim900.sendSMS())
+				d4Switch = 0x00;
+		}
+		sim900.gsmSleepMode(2);
+	}
+	if(d10Switch)
+	{
+		sim900.gsmSleepMode(0);
+		goesWhere(smsData.smsNumber);
+		if(!sim900.prepareSMS(smsData.smsNumber))
+		{
+			printEEPROM(D10MSG);
+			if(!sim900.sendSMS())
+				d10Switch = 0x00;
+		}
+		sim900.gsmSleepMode(2);
+	}
 */
+
+	#if USEPOWERSWITCH
+	if(d11PowerSwitch)
+		onOffSwitch();
+	#endif
 	if(gsmPowerStatus)
 		sim900.initializeGSM();
 } 
-
-void setGeofence(){
-  Serial.println("Setting geofence...");
-  uint8_t cmd;
-  uint8_t offset = 0;
-  unsigned long cmdLong;
-  long latLonSigned;
-  cmd = 1 & 0x01; // deactivate 0 or activate 1
-  EEPROM.write(ACTIVE1 + offset,cmd);
-  cmd = 0 & 0x01; // inside fence 0 or outside fence 1
-  EEPROM.write(INOUT1 + offset,cmd);
-  cmdLong = (long) 100; // fence radius
-  EEPROM_writeAnything(RADIUS1 + offset, cmdLong);
-  latLonSigned = (long)(atof(lastValid.latitude) *10000);
-  if(lastValid.ns == 'S')
-	latLonSigned *= -1;
-  EEPROM_writeAnything(LATITUDE1 + offset, latLonSigned);
-  latLonSigned = (long)(atof(lastValid.longitude) *10000);
-    if(lastValid.ew == 'W')
-      latLonSigned *= -1;
-   EEPROM_writeAnything(LONGITUDE1 + offset, latLonSigned);  
-   Serial.println("Geofence set.");		
-}
 
 void printEEPROM(uint16_t eAddress)
 {
@@ -310,10 +384,51 @@ void goesWhere(char *smsAddress, uint8_t replyOrStored)
 	}
 }
 
-void disarm(){
-    armTimer = millis();
-    move = 0;
-    moveFlag = false;
-    armFlag = false;
+#if USEPOWERSWITCH
+void onOffSwitch()
+{
+	delay(3000);
+	if(digitalRead(11))
+	{
+		d11PowerSwitch = 0;
+		return;
+	}
+	BMA250disableInterrupts();
+	sim900.powerDownGSM();
+	gps.sleepGPS();
+	pinMode(9,INPUT);  //shut off NewSoftSerial Tx pin 
+	digitalWrite(9,LOW); //set to high impedance
+	digitalWrite(8,LOW); // set NewSoftSerial Rx pin to high impedance
+	set_sleep_mode (SLEEP_MODE_PWR_DOWN);
+	sleep_enable();	
+	MCUCR = _BV (BODS) | _BV (BODSE);
+	MCUCR = _BV (BODS);
+	sleep_cpu ();
+  
+/*********ATMEGA is sleeping at this point***************/  
+	sleep_disable();
+	while(1)
+	{
+		delay(3000);
+		if(!digitalRead(11))
+			break;
+		set_sleep_mode (SLEEP_MODE_PWR_DOWN);
+		sleep_enable();	
+		MCUCR = _BV (BODS) | _BV (BODSE);
+		MCUCR = _BV (BODS);
+		sleep_cpu ();
+	  
+	/*********ATMEGA is sleeping at this point***************/  
+		sleep_disable();
+	}
+	BMA250enableInterrupts();
+	pinMode(9,OUTPUT); //restore NewSoftSerial settings
+	digitalWrite(9,HIGH);
+	digitalWrite(8,HIGH);
+	gps.wakeUpGPS();
+	sim900.init(9600);
+	gsmPowerStatus = true;
+	d11PowerSwitch = 0;
 }
 
+#endif

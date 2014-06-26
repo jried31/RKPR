@@ -6,6 +6,32 @@ public class DBGlobals {
 	public static enum SelectedFrag {
 		STOLEN_VEHICLE, MY_PROFILE, MY_VEHICLES, SETTINGS, MY_RIDE, CHAT_ROOM
 	}
+
+	  // One second in milliseconds
+	 public static final long ONE_SECOND = 1000;
+	  // One minute in milliseconds
+	  public static final long ONE_MINUTE = 60 * ONE_SECOND;
+	  public static final long ONE_HOUR = 60 * ONE_MINUTE;
+	  public static final long ONE_MILLISECOND=1;
+	  public static final long ONE_NANOSECOND=ONE_MILLISECOND*1000000;
+	  
+	//Recording Interval
+	public static final float RECORDING_GPS_DISTANCE_DEFAULT = 160;//meter
+	public static final long RECORDING_GPS_INTERVAL_DEFAULT = 5*ONE_MINUTE;
+	//--------------
+	
+
+	//Accuracy Settings
+	// Values for recording_gps_accuracy
+	public static final int RECORDING_GPS_ACCURACY_DEFAULT = 50;
+	public static final int RECORDING_GPS_ACCURACY_EXCELLENT = 10;
+	public static final int RECORDING_GPS_ACCURACY_POOR = 2000;
+	
+	
+	//--------------Network Provider _----------
+	public static final float RECORDING_NETWORK_PROVIDER_DISTANCE_DEFAULT = 160;//meter
+	public static final long RECORDING_NETWORK_PROVIDER_INTERVAL_DEFAULT = 5*ONE_MINUTE;
+	//-------------------
 	 
 	 //Trigonometry constants
 	 public static final double PI=3.14159265359;

@@ -23,7 +23,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver{
 		wl.acquire();
 		LocationMgr locationMgr = (LocationMgr) intent.getExtras().get(LocationMgr.EXTRA_LOCATION_MGR);
 
-        ParseFunctions.updateLocToParse(context); //Periodically update phone's location to Parse server
+        ParseFunctions.updateLocToParse(); //Periodically update phone's location to Parse server
 		wl.release();
 	}
 	

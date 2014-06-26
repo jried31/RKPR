@@ -17,4 +17,3 @@ template <class T> int EEPROM_readAnything(int ee, T& value)
 		*p++ = EEPROM.read(ee++);
     return i;
 }
-

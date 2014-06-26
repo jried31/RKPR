@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
@@ -21,27 +20,6 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 public class ParseFunctions {
-		//Query for any vehicle in the list can we're allow to see
-		/* This one is an old function. use the inBackground mode 
-		public static List<ParseObject> queryParseForStolenVehicle_Blocked(double lat, double lng, double withInMiles){
-			ParseQuery<ParseObject> query = ParseQuery.getQuery(DBGlobals.PARSE_VEHICLE_TBL); //Query the VBS table
-
-			ParseGeoPoint myPoint = new ParseGeoPoint(lat, lng);
-
-			//query.whereWithinMiles("pos", myPoint, withInMiles);
-			query.whereEqualTo("stolen", true); 
-			
-			try {
-				List<ParseObject> results = query.find();
-				return results;
-				
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				//e.printStackTrace();
-			}
-			
-			return null;
-		}*/
 	private static LocationMgr mLocationMgr;
 	public static void init(LocationMgr locationMgr) {
 		mLocationMgr = locationMgr;
@@ -140,30 +118,28 @@ public class ParseFunctions {
     }
     
     //Update phone's location to parse server
-    public static void updateLocToParse(Context context){
-        //Toast.makeText(context, "Update loc to Parse", Toast.LENGTH_SHORT).show();
-        //HelperFuncs.updatetLocation_Blocked(context);
-        
-        //LocationMgr.updateLocationInBackground(context, new LocationMgr.GetLocCallback() {
-        //	@Override
-        //	public void done() {
-        //		if (LocationMgr.sLocation != null){
-        //			ParseGeoPoint myGeo = new ParseGeoPoint( LocationMgr.sLocation.getLatitude(),
-        //					LocationMgr.sLocation.getLongitude() );
-        //			ParseInstallation.getCurrentInstallation().put("GeoPoint", myGeo);
-        //			ParseInstallation.getCurrentInstallation().saveInBackground();
-        //		}
-        //	}
-        //});
-        Location location = mLocationMgr.getLastGoodLocation();
+    public static void updateLocToParse(){
+    	if(mLocationMgr != null){
+	        Location location = mLocationMgr.getLastGoodLocation();
+	        if (location != null){
+	            ParseGeoPoint myGeo = new ParseGeoPoint( location.getLatitude(),
+	                    location.getLongitude() );
+	            ParseInstallation.getCurrentInstallation().put("GeoPoint", myGeo);
+	            ParseInstallation.getCurrentInstallation().saveInBackground();
+	        }
+    	}
+    }
+    
+    //Update phone's location to parse server
+    public static void updateLocToParse(Location location){
         if (location != null){
             ParseGeoPoint myGeo = new ParseGeoPoint( location.getLatitude(),
                     location.getLongitude() );
             ParseInstallation.getCurrentInstallation().put("GeoPoint", myGeo);
             ParseInstallation.getCurrentInstallation().saveInBackground();
         }
-
     }
+    
     
     //Update the ownerId field in Installation table in Parse
     //Used when user log in or phone reboot

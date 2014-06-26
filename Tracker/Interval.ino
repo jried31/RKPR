@@ -4,11 +4,11 @@ uint8_t smsTimerMenu()
 	if((millis() - smsTimer) >= (smsInterval*1000))
 	{
 		if(!(smsPowerProfile & 0x0F))
-			cmd0=0;//cmd0 = 0x01;
+			cmd0 = 0x01;
 		if((move & 0x04) && (smsPowerProfile & 0x01))
-			cmd0=0;//cmd0 = 0x01;
+			cmd0 = 0x01;
 		if((lastValid.speed >= smsPowerSpeed) && (smsPowerProfile & 0x02))
-			cmd0=0;//cmd0 = 0x01;
+			cmd0 = 0x01;
 		move &= ~(0x04);
 		smsTimer = millis();
 	}
@@ -29,4 +29,3 @@ uint8_t udpTimerMenu()
 		udpTimer = millis();
 	}
 }
-

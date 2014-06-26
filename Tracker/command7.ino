@@ -67,4 +67,3 @@ void command7()  //toggle IO pins
 	}
 	sim900.sendSMS();
 }
-

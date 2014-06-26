@@ -25,7 +25,7 @@ Notes:
 // You should change this to your own server. but you can use this setting 
 // for a demo. 
 //#define SETTING_WEBSERVER_URL       "https://ridekeepr.firebaseio.com/chase.json"
-#define SETTING_WEBSERVER_URL       "http://ridekeeper-49311.usw1.actionbox.io:8080/update"
+#define SETTING_WEBSERVER_URL       "http://ridekeepr-116453.usw1-2.nitrousbox.com:8888/update"
 // Need to put your provider's APN here
 #define SETTING_GSM_APN             "wholesale"
 
@@ -63,8 +63,8 @@ char id[] = "{\"id\":\"";
 char lat[] = "\",\"lat\":\"";
 char lng[] = "\",\"lng\":\"";
 char bat[] = "\",\"bat\":\"";
-char alert[] = "\",\"alertLevel\":\"";
-char sat[] = "\",\"sat\":\"";
+char lvl[] = "\",\"lvl\":\"";
+//char sat[] = "\",\"sat\":\"";
 char spd[] = "\",\"spd\":\"";
 
 void DebugPrint( char * msg) {
@@ -114,13 +114,11 @@ uint8_t CheckTimeToPoll()
     return 0; // Nothing to do. 
 }
 
-void httpPost(int alertLevel)
+void httpPost(int alertLvl)
 {
-    /*
     if( CheckTimeToPoll() == 0 ) {
         return ; // Too soon or nothing to report. 
     }
-    */
     Serial.println("HTTP Post started..."); 
     
     // Update the timer.
@@ -155,15 +153,14 @@ void httpPost(int alertLevel)
     GSM.print(SETTING_WEBSERVER_URL);
     GSM.println("\""); 
     sim900.confirmAtCommand("OK",5000);
-
-    GSM.println("AT+HTTPPARA=\"CONTENT\",\"application/json\""); 
+    
+    GSM.println("AT+HTTPPARA=\"CONTENT\",\"application/json\"");
     sim900.confirmAtCommand("OK",5000);
     
-    Serial.print("Checking signal");
     // If we have GPS lock we should send the GPS data. 
-    if( 1 || lastValid.signalLock ) {
+    if( lastValid.signalLock ) {
       
-      GSM.print("AT+HTTPDATA=");
+      GSM.print("AT+HTTPDATA="); 
       GSM.print(93);
       GSM.println(",10000");
       sim900.confirmAtCommand("DOWNLOAD",5000);
@@ -174,9 +171,8 @@ void httpPost(int alertLevel)
       GSM.print(id);
       Serial.print(id);
       
-      //phoneNumber
-      GSM.print("bht5oha6ix");
-      Serial.print("bht5oha6ix");
+      GSM.print(phoneNumber);
+      Serial.print(phoneNumber);
       
       // Battery SOC - 3 Bytes
       GSM.print(bat);
@@ -195,13 +191,13 @@ void httpPost(int alertLevel)
       Serial.print(soc);
       
       // ALert Level
-      GSM.print(alert);
-      Serial.print(alert);
+      GSM.print(lvl);
+      Serial.print(lvl);
       
-      GSM.print(alertLevel);
-      Serial.print(alertLevel);
-      
-      //Signal Strength
+      GSM.print(alertLvl);
+      Serial.print(alertLvl);
+      /*
+      // Signal Strength
       GSM.print(sat);
       Serial.print(sat);
       
@@ -212,10 +208,9 @@ void httpPost(int alertLevel)
       }
       GSM.print(satNum);
       Serial.print(satNum);
-      
+      */
       
       // Speed
-      /*
       GSM.print(spd);
       Serial.print(spd);
       
@@ -230,9 +225,42 @@ void httpPost(int alertLevel)
       
       GSM.print(lastValid.speed);
       Serial.print(lastValid.speed);
-      */
-      //Coordinates
-      printLatLong();
+      
+      // Latitude
+      GSM.print(lat);
+      Serial.print(lat);
+      
+      if(lastValid.ns == 'S') { 
+        GSM.print("-"); 
+        Serial.print("-");
+      }
+      else{
+        GSM.print("+"); 
+        Serial.print("+");
+      }
+      
+      double buffer = atof(lastValid.latitude + 2);
+      buffer = buffer/60.0 + (lastValid.latitude[0] - '0')*10 + (lastValid.latitude[1] - '0');
+      GSM.print(buffer, 6);
+      Serial.print(buffer, 6);
+      
+      // Longitude
+      GSM.print(lng);
+      Serial.print(lng);
+      
+      if(lastValid.ew == 'W') { 
+        GSM.print("-"); 
+        Serial.print("-");
+      }
+      else{
+        GSM.print("+"); 
+        Serial.print("+");
+      }
+      
+      buffer = atof(lastValid.longitude + 3);
+      buffer = buffer/60.0 + (lastValid.longitude[0] - '0')*100 + (lastValid.longitude[1] - '0')*10 + (lastValid.longitude[2] - '0');
+      GSM.print(buffer, 6);
+      Serial.print(buffer,6);  
       
       // End
       GSM.println("\"}");
@@ -309,40 +337,4 @@ void setupHTTP() {
     miniTimer = 0 ; 
 }
 
-void printLatLong(){
-      // Latitude
-      GSM.print(lat);
-      Serial.print(lat);
-      
-      if(lastValid.ns == 'S') { 
-        GSM.print("-"); 
-        Serial.print("-");
-      }
-      else{
-        GSM.print("+"); 
-        Serial.print("+");
-      }
-      
-      double buffer = atof(lastValid.latitude + 2);
-      buffer = buffer/60.0 + (lastValid.latitude[0] - '0')*10 + (lastValid.latitude[1] - '0');
-      GSM.print(buffer, 6);
-      Serial.print(buffer, 6);
-      
-      // Longitude
-      GSM.print(lng);
-      Serial.print(lng);
-      
-      if(lastValid.ew == 'W') { 
-        GSM.print("-"); 
-        Serial.print("-");
-      }
-      else{
-        GSM.print("+"); 
-        Serial.print("+");
-      }
-      
-      buffer = atof(lastValid.longitude + 3);
-      buffer = buffer/60.0 + (lastValid.longitude[0] - '0')*100 + (lastValid.longitude[1] - '0')*10 + (lastValid.longitude[2] - '0');
-      GSM.print(buffer, 6);
-      Serial.print(buffer,6);
-}
+

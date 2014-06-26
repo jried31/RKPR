@@ -52,4 +52,3 @@ void command3() //speed monitoring mode
 		maxSpeed = 0;
 	}
 }
-

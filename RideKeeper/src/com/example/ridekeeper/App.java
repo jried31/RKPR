@@ -13,7 +13,6 @@ public class App extends Application{
 	@Override public void onCreate() { 
         super.onCreate();
         
-        // MUST Initialize Parse here, otherwise BroadcastReceiver will crash when doing query
         ParseObject.registerSubclass(ParseVehicle.class);
         //Register with Parse server
         Parse.initialize(this,

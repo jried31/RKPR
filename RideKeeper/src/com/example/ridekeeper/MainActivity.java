@@ -194,7 +194,7 @@ public class MainActivity extends FragmentActivity {
             @Override
             public void run() {
                 //Periodically update phone's location to Parse server
-                ParseFunctions.updateLocToParse(context); 
+                ParseFunctions.updateLocToParse(); 
                 sLocationTimerHandler.postDelayed(this, LocationUtils.LOCATION_UPDATE_RATE);
             }
         };

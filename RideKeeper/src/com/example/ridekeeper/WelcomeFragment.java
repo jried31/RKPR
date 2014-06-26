@@ -131,7 +131,7 @@ public class WelcomeFragment extends DialogFragment {
 							MyQBUser.signin(etUsername.getText().toString(), MyQBUser.DUMMY_PASSWORD);
 							
 							//update phone's location to parse
-							ParseFunctions.updateLocToParse(getActivity());
+							ParseFunctions.updateLocToParse();
 
 							Toast.makeText(getActivity(), "You are now signed in!", Toast.LENGTH_LONG).show();
 							MyProfileFragment.reloadFragment(getActivity());
@@ -235,7 +235,7 @@ public class WelcomeFragment extends DialogFragment {
 							MyQBUser.signUpSignin(etUsername.getText().toString(), MyQBUser.DUMMY_PASSWORD);
 							
 							//Update phone location to Parse
-							ParseFunctions.updateLocToParse(getActivity());
+							ParseFunctions.updateLocToParse();
 							
 							Toast.makeText(getActivity(), "Your account has been created.", Toast.LENGTH_LONG).show();
 							MyProfileFragment.reloadFragment(getActivity());
