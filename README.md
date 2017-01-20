@@ -60,7 +60,7 @@ Read the [documentation](http://jried31.github.io/RKPR/)
 It is saved under the `gh-pages` branch.
 
 ### JavaScript Testing
-[mocha](http://visionmedia.github.io/mocha/) is a framework for running tests on Node.js
+[mocha](http://mochajs.org/) is a framework for running tests on Node.js
 
 [expect.js](https://github.com/LearnBoost/expect.js) is a Behavior Driven Development(BDD) testing library.
 
